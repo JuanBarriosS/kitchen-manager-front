@@ -4,18 +4,19 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import * as XLSX from "xlsx";
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:      #1A1A2E;
-    --card:    #16213E;
-    --card2:   #1e2d50;
-    --orange:  #FF6B35;
-    --yellow:  #FFC300;
-    --white:   #F5F5F5;
-    --gray:    #A0A0A0;
+    --bg:      #0C0E14;
+    --card:    #10131C;
+    --card2:   #141720;
+    --gold:    #C8892A;
+    --gold2:   #E8A830;
+    --white:   #F2EDE4;
+    --gray:    rgba(232,230,223,0.45);
+    --border:  rgba(255,255,255,0.07);
     --sidebar: 240px;
   }
 
@@ -30,7 +31,7 @@ const styles = `
   .sidebar {
     width: var(--sidebar);
     background: var(--card);
-    border-right: 1px solid #FF6B3520;
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -40,20 +41,21 @@ const styles = `
 
   .sidebar-logo {
     padding: 28px 20px 24px;
-    border-bottom: 1px solid #ffffff08;
+    border-bottom: 1px solid var(--border);
   }
 
   .sidebar-logo-icon {
     width: 38px; height: 38px;
-    background: linear-gradient(135deg, var(--orange), var(--yellow));
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; margin-bottom: 10px;
+    margin-bottom: 10px;
   }
+  .sidebar-logo-icon svg { width: 22px; height: 22px; fill: #0C0E14; }
 
   .sidebar-logo-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; letter-spacing: 2px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 600; letter-spacing: 0.03em;
     color: var(--white); line-height: 1;
   }
 
@@ -88,27 +90,27 @@ const styles = `
     user-select: none;
   }
 
-  .nav-item:hover { background: #FF6B3510; color: var(--white); }
+  .nav-item:hover { background: rgba(200,137,42,0.08); color: var(--white); }
 
   .nav-item.active {
-    background: linear-gradient(135deg, #FF6B3520, #FFC30010);
-    border-color: #FF6B3530;
-    color: var(--orange);
+    background: rgba(200,137,42,0.1);
+    border-color: rgba(200,137,42,0.2);
+    color: var(--gold);
   }
 
   .nav-icon { font-size: 16px; width: 20px; text-align: center; }
 
   .sidebar-footer {
     padding: 16px 12px;
-    border-top: 1px solid #ffffff08;
+    border-top: 1px solid var(--border);
   }
 
   .btn-logout {
     width: 100%;
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px;
-    background: #E6394610;
-    border: 1px solid #E6394630;
+    background: rgba(230,57,70,0.08);
+    border: 1px solid rgba(230,57,70,0.2);
     border-radius: 6px;
     color: #E63946;
     font-family: 'DM Sans', sans-serif;
@@ -116,7 +118,7 @@ const styles = `
     cursor: pointer;
     transition: background 0.15s;
   }
-  .btn-logout:hover { background: #E6394625; }
+  .btn-logout:hover { background: rgba(230,57,70,0.15); }
 
   .main {
     margin-left: var(--sidebar);
@@ -127,7 +129,7 @@ const styles = `
 
   .topbar {
     background: var(--card);
-    border-bottom: 1px solid #FF6B3515;
+    border-bottom: 1px solid var(--border);
     padding: 0 32px;
     height: 64px;
     display: flex; align-items: center; justify-content: space-between;
@@ -135,8 +137,8 @@ const styles = `
   }
 
   .topbar-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 2px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 600; letter-spacing: 0.02em;
     color: var(--white);
   }
 
@@ -145,14 +147,14 @@ const styles = `
 
   .topbar-avatar {
     width: 34px; height: 34px;
-    background: linear-gradient(135deg, var(--orange), var(--yellow));
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; font-weight: 700; color: var(--bg);
   }
 
   .topbar-username { font-size: 13px; font-weight: 500; color: var(--white); }
-  .topbar-role     { font-size: 10px; color: var(--orange); letter-spacing: 1px; text-transform: uppercase; }
+  .topbar-role     { font-size: 10px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; }
 
   .content {
     flex: 1; padding: 32px;
@@ -165,7 +167,7 @@ const styles = `
   }
 
   .page-header   { margin-bottom: 28px; }
-  .page-title    { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--white); }
+  .page-title    { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; letter-spacing: 0.02em; color: var(--white); }
   .page-subtitle { font-size: 13px; color: var(--gray); margin-top: 4px; }
 
   .stats-grid {
@@ -176,7 +178,7 @@ const styles = `
 
   .stat-card {
     background: var(--card);
-    border: 1px solid #FF6B3515;
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px;
     position: relative; overflow: hidden;
@@ -184,36 +186,40 @@ const styles = `
 
   .stat-card::before {
     content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--orange), var(--yellow));
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
   }
 
   .stat-label  { font-size: 10px; font-weight: 600; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .stat-value  { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--white); line-height: 1; }
-  .stat-sub    { font-size: 11px; color: var(--orange); margin-top: 4px; }
-  .stat-icon   { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 36px; opacity: 0.15; }
+  .stat-value  { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: var(--white); line-height: 1; }
+  .stat-sub    { font-size: 11px; color: var(--gold); margin-top: 4px; }
+  .stat-icon   { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 36px; opacity: 0.08; }
 
   .section-card {
     background: var(--card);
-    border: 1px solid #FF6B3515;
+    border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden; margin-bottom: 20px;
   }
 
   .section-card-header {
     padding: 16px 20px;
-    border-bottom: 1px solid #ffffff08;
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
 
-  .section-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; color: var(--white); }
+  .section-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 600; letter-spacing: 0.02em;
+    color: var(--white);
+  }
 
   .btn-primary {
     padding: 8px 16px;
-    background: linear-gradient(135deg, var(--orange), var(--yellow));
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
     border: none; border-radius: 5px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 13px; letter-spacing: 1px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
     color: var(--bg); cursor: pointer;
     transition: opacity 0.15s, transform 0.15s;
   }
@@ -226,7 +232,7 @@ const styles = `
     font-size: 13px;
   }
 
-  .placeholder-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .placeholder-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
   .placeholder-text { color: var(--gray); }
 
   .badge {
@@ -235,11 +241,10 @@ const styles = `
     font-size: 10px; font-weight: 600;
     letter-spacing: 1px; text-transform: uppercase;
   }
-  .badge-green  { background: #4CAF5020; color: #4CAF50; border: 1px solid #4CAF5040; }
-  .badge-red    { background: #E6394620; color: #E63946; border: 1px solid #E6394640; }
-  .badge-orange { background: #FF6B3520; color: #FF6B35; border: 1px solid #FF6B3540; }
+  .badge-green  { background: rgba(76,175,80,0.12);  color: #6fcf74; border: 1px solid rgba(76,175,80,0.25); }
+  .badge-red    { background: rgba(230,57,70,0.1);   color: #E63946; border: 1px solid rgba(230,57,70,0.25); }
+  .badge-orange { background: rgba(200,137,42,0.12); color: var(--gold); border: 1px solid rgba(200,137,42,0.25); }
 
-  /* Tabla de usuarios */
   .user-table { width: 100%; border-collapse: collapse; }
   .user-table th {
     text-align: left;
@@ -247,19 +252,19 @@ const styles = `
     font-size: 10px; font-weight: 600;
     color: var(--gray); letter-spacing: 2px;
     text-transform: uppercase;
-    border-bottom: 1px solid #ffffff08;
+    border-bottom: 1px solid var(--border);
   }
   .user-table td {
     padding: 14px 20px;
     font-size: 13px; color: var(--white);
-    border-bottom: 1px solid #ffffff05;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
   }
   .user-table tr:last-child td { border-bottom: none; }
-  .user-table tr:hover td { background: #FF6B3508; }
+  .user-table tr:hover td { background: rgba(200,137,42,0.04); }
 
   .user-avatar {
     width: 30px; height: 30px;
-    background: linear-gradient(135deg, var(--orange), var(--yellow));
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
     border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; color: var(--bg);
@@ -280,9 +285,9 @@ function RegistrarUsuario({ onUsuarioCreado }) {
     width: "100%",
     padding: "10px 14px",
     borderRadius: "6px",
-    border: "1px solid #FF6B3540",
-    background: "#1A1A2E",
-    color: "#F5F5F5",
+    border: "1px solid rgba(200,137,42,0.25)",
+    background: "#0C0E14",
+    color: "#F2EDE4",
     fontSize: "13px",
     fontFamily: "DM Sans, sans-serif",
     outline: "none",
@@ -291,7 +296,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
   const labelStyle = {
     fontSize: "10px",
     fontWeight: "600",
-    color: "#A0A0A0",
+    color: "rgba(232,230,223,0.45)",
     letterSpacing: "1.5px",
     textTransform: "uppercase",
     marginBottom: "6px",
@@ -334,64 +339,36 @@ function RegistrarUsuario({ onUsuarioCreado }) {
       onSubmit={manejarRegistro}
       style={{
         padding: "24px",
-        borderTop: "1px solid #ffffff08",
+        borderTop: "1px solid rgba(255,255,255,0.07)",
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        background: "#1e2d50",
+        background: "#141720",
       }}
     >
-      <div style={{ fontSize: "13px", fontWeight: "600", color: "#F5F5F5", marginBottom: "4px" }}>
+      <div style={{ fontSize: "13px", fontWeight: "600", color: "#F2EDE4", marginBottom: "4px" }}>
         Nuevo empleado
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
         <div>
           <label style={labelStyle}>Nombre de usuario</label>
-          <input
-            style={inputStyle}
-            type="text"
-            placeholder="ej: juan123"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+          <input style={inputStyle} type="text" placeholder="ej: juan123" value={username} onChange={(e) => setUsername(e.target.value)} required />
         </div>
-
         <div>
           <label style={labelStyle}>Rol</label>
-          <select
-            style={{ ...inputStyle, cursor: "pointer" }}
-            value={roles}
-            onChange={(e) => setRoles(e.target.value)}
-          >
+          <select style={{ ...inputStyle, cursor: "pointer" }} value={roles} onChange={(e) => setRoles(e.target.value)}>
             <option value="EMPLEADO">Empleado</option>
             <option value="ADMIN">Administrador</option>
           </select>
         </div>
-
         <div>
           <label style={labelStyle}>Contraseña</label>
-          <input
-            style={inputStyle}
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-
         <div>
           <label style={labelStyle}>Confirmar contraseña</label>
-          <input
-            style={inputStyle}
-            type="password"
-            placeholder="••••••••"
-            value={passwordConfirmate}
-            onChange={(e) => setPasswordConfirmate(e.target.value)}
-            required
-          />
+          <input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required />
         </div>
       </div>
 
@@ -400,7 +377,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
           {loading ? "Registrando..." : "Registrar Usuario"}
         </button>
         {mensaje && (
-          <span style={{ fontSize: "13px", color: mensaje.includes("✓") ? "#4CAF50" : "#E63946" }}>
+          <span style={{ fontSize: "13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>
             {mensaje}
           </span>
         )}
@@ -427,26 +404,26 @@ function generarFacturaHTML(venta) {
 <title>Factura #${venta.id?.slice(-6).toUpperCase()}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Arial,sans-serif;color:#222;padding:40px;max-width:600px;margin:0 auto}
-  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;border-bottom:3px solid #FF6B35;padding-bottom:20px}
-  .brand{font-size:26px;font-weight:900;letter-spacing:2px;color:#1A1A2E}
-  .brand span{color:#FF6B35}
+  body{font-family:'Georgia',serif;color:#1a1a1a;padding:40px;max-width:600px;margin:0 auto;background:#faf9f6}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;border-bottom:2px solid #C8892A;padding-bottom:20px}
+  .brand{font-family:'Georgia',serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#0C0E14}
+  .brand span{color:#C8892A}
   .info{text-align:right;font-size:13px;color:#666}
-  .info strong{font-size:18px;color:#1A1A2E;display:block;margin-bottom:4px}
-  .cliente-box{background:#f8f8f8;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between}
-  .cliente-box label{font-size:10px;font-weight:700;color:#999;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
-  .cliente-box span{font-size:14px;color:#222;font-weight:600}
+  .info strong{font-size:16px;color:#0C0E14;display:block;margin-bottom:4px}
+  .cliente-box{background:#f0ede8;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between}
+  .cliente-box label{font-size:9px;font-weight:700;color:#999;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+  .cliente-box span{font-size:14px;color:#1a1a1a;font-weight:600}
   table{width:100%;border-collapse:collapse}
-  thead tr{background:#1A1A2E;color:white}
-  thead th{padding:10px 12px;text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase}
-  tbody tr{border-bottom:1px solid #eee}
+  thead tr{background:#0C0E14;color:#F2EDE4}
+  thead th{padding:10px 12px;text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-family:sans-serif}
+  tbody tr{border-bottom:1px solid #e8e4dc}
   tbody td{padding:11px 12px;font-size:13px}
-  .total-box{background:#1A1A2E;color:white;border-radius:0 0 8px 8px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
-  .total-box span{font-size:13px;letter-spacing:1px;text-transform:uppercase;opacity:.7}
-  .total-box strong{font-size:26px;color:#FFC300}
+  .total-box{background:#0C0E14;color:#F2EDE4;border-radius:0 0 8px 8px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+  .total-box span{font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.6;font-family:sans-serif}
+  .total-box strong{font-size:24px;color:#E8A830;font-family:'Georgia',serif}
   .footer{margin-top:32px;text-align:center;font-size:11px;color:#aaa}
   .print-btn{margin-top:24px;text-align:center}
-  .print-btn button{padding:12px 32px;background:#FF6B35;color:white;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer}
+  .print-btn button{padding:12px 32px;background:linear-gradient(135deg,#C8892A,#E8A830);color:#0C0E14;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer}
   @media print{.print-btn{display:none}}
 </style></head><body>
   <div class="header">
@@ -478,12 +455,10 @@ function generarFacturaHTML(venta) {
 // ── PÁGINAS ───────────────────────────────────────────────────────────────
 
 function PaginaInicio({ username }) {
-  const [stats, setStats] = useState({
-    pedidosHoy: 0, ventasHoy: 0, productos: 0, empleados: 0
-  });
+  const [stats, setStats] = useState({ pedidosHoy: 0, ventasHoy: 0, productos: 0, empleados: 0 });
   const [ventasRecientes, setVentasRecientes] = useState([]);
   const [graficaData, setGraficaData]         = useState([]);
-  const [rango, setRango]                     = useState(7); // 7 o 30 días
+  const [rango, setRango]                     = useState(7);
   const [cargando, setCargando]               = useState(true);
   const [todasVentas, setTodasVentas]         = useState([]);
 
@@ -495,13 +470,8 @@ function PaginaInicio({ username }) {
       axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verMenu"),
       axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verEmpleados"),
     ]).then(([pedidos, ventas, menu, empleados]) => {
-      const pedidosHoy = pedidos.data.filter(p =>
-        new Date(p.fecha).toDateString() === hoy
-      ).length;
-      const ventasHoy = ventas.data
-        .filter(v => new Date(v.fecha).toDateString() === hoy)
-        .reduce((a, v) => a + v.total, 0);
-
+      const pedidosHoy = pedidos.data.filter(p => new Date(p.fecha).toDateString() === hoy).length;
+      const ventasHoy  = ventas.data.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a, v) => a + v.total, 0);
       setStats({ pedidosHoy, ventasHoy, productos: menu.data.length, empleados: empleados.data.length });
       setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
       setTodasVentas(ventas.data);
@@ -509,7 +479,6 @@ function PaginaInicio({ username }) {
       .finally(() => setCargando(false));
   }, []);
 
-  // Recalcula la gráfica cuando cambia el rango o los datos
   useEffect(() => {
     const dias = [];
     for (let i = rango - 1; i >= 0; i--) {
@@ -517,9 +486,7 @@ function PaginaInicio({ username }) {
       d.setDate(d.getDate() - i);
       const label = d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit" });
       const dateStr = d.toDateString();
-      const total = todasVentas
-        .filter(v => new Date(v.fecha).toDateString() === dateStr)
-        .reduce((a, v) => a + v.total, 0);
+      const total = todasVentas.filter(v => new Date(v.fecha).toDateString() === dateStr).reduce((a, v) => a + v.total, 0);
       dias.push({ dia: label, total });
     }
     setGraficaData(dias);
@@ -530,12 +497,9 @@ function PaginaInicio({ username }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) {
       return (
-        <div style={{
-          background: "#16213E", border: "1px solid #FF6B3530",
-          borderRadius: "6px", padding: "10px 14px", fontSize: "12px"
-        }}>
-          <div style={{ color: "#A0A0A0", marginBottom: "4px" }}>{label}</div>
-          <div style={{ color: "#FFC300", fontWeight: "700", fontSize: "15px" }}>
+        <div style={{ background: "#10131C", border: "1px solid rgba(200,137,42,0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "12px" }}>
+          <div style={{ color: "rgba(232,230,223,0.45)", marginBottom: "4px" }}>{label}</div>
+          <div style={{ color: "#E8A830", fontFamily: "'Cormorant Garamond',serif", fontWeight: "700", fontSize: "18px" }}>
             {fmt(payload[0].value)}
           </div>
         </div>
@@ -567,63 +531,41 @@ function PaginaInicio({ username }) {
         ))}
       </div>
 
-      {/* ── GRÁFICA ── */}
       <div className="section-card" style={{ marginBottom: "20px" }}>
         <div className="section-card-header">
           <div className="section-card-title">VENTAS POR DÍA</div>
           <div style={{ display: "flex", gap: "8px" }}>
             {[7, 30].map(r => (
-              <button
-                key={r}
-                onClick={() => setRango(r)}
-                style={{
-                  padding: "5px 14px",
-                  background: rango === r ? "linear-gradient(135deg,#FF6B35,#FFC300)" : "transparent",
-                  border: rango === r ? "none" : "1px solid #ffffff20",
-                  borderRadius: "5px",
-                  color: rango === r ? "#1A1A2E" : "#A0A0A0",
-                  cursor: "pointer",
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  letterSpacing: "1px",
-                }}
-              >
+              <button key={r} onClick={() => setRango(r)} style={{
+                padding: "5px 14px",
+                background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+                border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
+                borderRadius: "5px",
+                color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
+                cursor: "pointer", fontSize: "11px", fontWeight: "700",
+                fontFamily: "'DM Sans', sans-serif", letterSpacing: "1px",
+              }}>
                 {r} DÍAS
               </button>
             ))}
           </div>
         </div>
-
         <div style={{ padding: "20px 16px 8px" }}>
           {cargando ? (
             <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={graficaData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                <XAxis
-                  dataKey="dia"
-                  tick={{ fill: "#A0A0A0", fontSize: 10 }}
-                  axisLine={false} tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: "#A0A0A0", fontSize: 10 }}
-                  axisLine={false} tickLine={false}
-                  tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`}
-                  width={42}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#FF6B3510" }} />
-                <Bar
-                  dataKey="total"
-                  fill="url(#barGradient)"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={40}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="dia" tick={{ fill: "rgba(232,230,223,0.4)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "rgba(232,230,223,0.4)", fontSize: 10 }} axisLine={false} tickLine={false}
+                  tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(200,137,42,0.06)" }} />
+                <Bar dataKey="total" fill="url(#barGradient)" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FF6B35" />
-                    <stop offset="100%" stopColor="#FFC300" stopOpacity={0.6} />
+                    <stop offset="0%"   stopColor="#C8892A" />
+                    <stop offset="100%" stopColor="#E8A830" stopOpacity={0.5} />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -632,7 +574,6 @@ function PaginaInicio({ username }) {
         </div>
       </div>
 
-      {/* ── VENTAS RECIENTES ── */}
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">VENTAS RECIENTES</div>
@@ -652,20 +593,14 @@ function PaginaInicio({ username }) {
             <tbody>
               {ventasRecientes.map((v, i) => (
                 <tr key={i}>
-                  <td style={{ color:"var(--orange)", fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px" }}>
+                  <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>
                     #{v.id?.slice(-6).toUpperCase()}
                   </td>
                   <td>👤 {v.nombreCliente}</td>
                   <td><span className="badge badge-orange">{v.fuente}</span></td>
-                  <td style={{ fontSize:"11px", opacity:.8 }}>
-                    {v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}
-                  </td>
-                  <td style={{ color:"#FFC300", fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px" }}>
-                    {fmt(v.total)}
-                  </td>
-                  <td style={{ color:"var(--gray)", fontSize:"12px" }}>
-                    {new Date(v.fecha).toLocaleTimeString("es-CO", { hour:"2-digit", minute:"2-digit" })}
-                  </td>
+                  <td style={{ fontSize:"11px", opacity:.8 }}>{v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
+                  <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(v.total)}</td>
+                  <td style={{ color:"var(--gray)", fontSize:"12px" }}>{new Date(v.fecha).toLocaleTimeString("es-CO", { hour:"2-digit", minute:"2-digit" })}</td>
                 </tr>
               ))}
             </tbody>
@@ -683,37 +618,27 @@ function PaginaMenu() {
   const [mensaje, setMensaje]     = useState("");
   const [loading, setLoading]     = useState(false);
   const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "" });
-
-  // edición
-  const [editId, setEditId]     = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [editando, setEditando] = useState(false);
-
-  // eliminación
+  const [editId, setEditId]       = useState(null);
+  const [editForm, setEditForm]   = useState({});
+  const [editando, setEditando]   = useState(false);
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
 
   const inputStyle = {
     width: "100%", padding: "10px 14px", borderRadius: "6px",
-    border: "1px solid #FF6B3540", background: "#1A1A2E",
-    color: "#F5F5F5", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
+    border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
+    color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
   };
   const labelStyle = {
-    fontSize: "10px", fontWeight: "600", color: "#A0A0A0",
-    letterSpacing: "1.5px", textTransform: "uppercase",
-    marginBottom: "6px", display: "block",
+    fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
+    letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
   };
-  const smallInput = {
-    ...inputStyle, padding: "7px 10px", fontSize: "12px",
-  };
+  const smallInput = { ...inputStyle, padding: "7px 10px", fontSize: "12px" };
 
   const cargarProductos = async () => {
     setCargando(true);
-    try {
-      const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verMenu");
-      setProductos(res.data);
-    } catch (e) { console.error(e); }
-    finally { setCargando(false); }
+    try { const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verMenu"); setProductos(res.data); }
+    catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
   useEffect(() => { cargarProductos(); }, []);
@@ -721,45 +646,33 @@ function PaginaMenu() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); setMensaje("");
+    e.preventDefault(); setLoading(true); setMensaje("");
     try {
-      await axios.post("https://kitchen-manager-back-production.up.railway.app/admin/agregarMenu", {
-        ...form, precio: parseFloat(form.precio), disponible: true,
-      });
+      await axios.post("https://kitchen-manager-back-production.up.railway.app/admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
       setMensaje("✓ Producto agregado correctamente");
       setForm({ nombre: "", categoria: "", precio: "" });
-      cargarProductos();
-      setMostrarFormulario(false);
+      cargarProductos(); setMostrarFormulario(false);
     } catch { setMensaje("✗ Error al agregar el producto"); }
     finally { setLoading(false); }
   };
 
-  const abrirEdicion = (p) => {
-    setEditId(p.id);
-    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
-  };
+  const abrirEdicion = (p) => { setEditId(p.id); setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible }); };
 
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-      await axios.put(`https://kitchen-manager-back-production.up.railway.app/admin/menu/${id}`, {
-        ...editForm, precio: parseFloat(editForm.precio),
-      });
+      await axios.put(`https://kitchen-manager-back-production.up.railway.app/admin/menu/${id}`, { ...editForm, precio: parseFloat(editForm.precio) });
       setProductos(prev => prev.map(p => p.id === id ? { ...p, ...editForm, precio: parseFloat(editForm.precio) } : p));
       setEditId(null);
-    } catch (e) { console.error(e); }
-    finally { setEditando(false); }
+    } catch (e) { console.error(e); } finally { setEditando(false); }
   };
 
   const eliminar = async (id) => {
     setEliminando(id);
     try {
       await axios.delete(`https://kitchen-manager-back-production.up.railway.app/admin/menu/${id}`);
-      setProductos(prev => prev.filter(p => p.id !== id));
-      setConfirmElimId(null);
-    } catch (e) { console.error(e); }
-    finally { setEliminando(null); }
+      setProductos(prev => prev.filter(p => p.id !== id)); setConfirmElimId(null);
+    } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
 
   const categorias = ["Platos", "Bebidas", "Entradas", "Postres"];
@@ -770,7 +683,6 @@ function PaginaMenu() {
         <div className="page-title">GESTIÓN DEL MENÚ</div>
         <div className="page-subtitle">Administra los productos disponibles</div>
       </div>
-
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">PRODUCTOS ({productos.length})</div>
@@ -779,15 +691,11 @@ function PaginaMenu() {
           </button>
         </div>
 
-        {/* Formulario nuevo producto */}
         {mostrarFormulario && (
-          <form onSubmit={handleSubmit} style={{ padding:"24px", borderTop:"1px solid #ffffff08", display:"flex", flexDirection:"column", gap:"16px", background:"#1e2d50" }}>
-            <div style={{ fontSize:"13px", fontWeight:"600", color:"#F5F5F5" }}>Nuevo producto</div>
+          <form onSubmit={handleSubmit} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
+            <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4" }}>Nuevo producto</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"16px" }}>
-              <div>
-                <label style={labelStyle}>Nombre</label>
-                <input style={inputStyle} name="nombre" placeholder="ej: Bandeja Paisa" value={form.nombre} onChange={handleChange} required />
-              </div>
+              <div><label style={labelStyle}>Nombre</label><input style={inputStyle} name="nombre" placeholder="ej: Bandeja Paisa" value={form.nombre} onChange={handleChange} required /></div>
               <div>
                 <label style={labelStyle}>Categoría</label>
                 <select style={{ ...inputStyle, cursor:"pointer" }} name="categoria" value={form.categoria} onChange={handleChange} required>
@@ -795,16 +703,11 @@ function PaginaMenu() {
                   {categorias.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div>
-                <label style={labelStyle}>Precio ($)</label>
-                <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
-              </div>
+              <div><label style={labelStyle}>Precio ($)</label><input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required /></div>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-              <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>
-                {loading ? "Guardando..." : "Guardar Producto"}
-              </button>
-              {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#4CAF50" : "#E63946" }}>{mensaje}</span>}
+              <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Guardando..." : "Guardar Producto"}</button>
+              {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
             </div>
           </form>
         )}
@@ -812,115 +715,42 @@ function PaginaMenu() {
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando productos...</div></div>
         ) : productos.length === 0 ? (
-          <div className="placeholder-content">
-            <div className="placeholder-icon">🍽️</div>
-            <div className="placeholder-text">Empieza agregando tu primer producto</div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">Empieza agregando tu primer producto</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Estado</th>
-                <th></th>
-              </tr>
-            </thead>
+            <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
             <tbody>
               {productos.map((p) => (
                 <tr key={p.id}>
                   {editId === p.id ? (
-                    // ── FILA EN MODO EDICIÓN ──────────────────────────
                     <>
-                      <td>
-                        <input
-                          style={smallInput}
-                          value={editForm.nombre}
-                          onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
-                        />
-                      </td>
-                      <td>
-                        <select
-                          style={{ ...smallInput, cursor:"pointer" }}
-                          value={editForm.categoria}
-                          onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}
-                        >
-                          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          style={{ ...smallInput, width:"110px" }}
-                          type="number"
-                          value={editForm.precio}
-                          onChange={e => setEditForm({ ...editForm, precio: e.target.value })}
-                        />
-                      </td>
-                      <td>
-                        <select
-                          style={{ ...smallInput, cursor:"pointer", width:"120px" }}
-                          value={editForm.disponible ? "true" : "false"}
-                          onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}
-                        >
-                          <option value="true">Disponible</option>
-                          <option value="false">Agotado</option>
-                        </select>
-                      </td>
+                      <td><input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} /></td>
+                      <td><select style={{ ...smallInput, cursor:"pointer" }} value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>{categorias.map(c => <option key={c} value={c}>{c}</option>)}</select></td>
+                      <td><input style={{ ...smallInput, width:"110px" }} type="number" value={editForm.precio} onChange={e => setEditForm({ ...editForm, precio: e.target.value })} /></td>
+                      <td><select style={{ ...smallInput, cursor:"pointer", width:"120px" }} value={editForm.disponible ? "true" : "false"} onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}><option value="true">Disponible</option><option value="false">Agotado</option></select></td>
                       <td>
                         <div style={{ display:"flex", gap:"6px" }}>
-                          <button
-                            onClick={() => guardarEdicion(p.id)}
-                            disabled={editando}
-                            style={{ padding:"5px 12px", background:"#4CAF5020", border:"1px solid #4CAF5050", borderRadius:"4px", color:"#4CAF50", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                            {editando ? "..." : "✓ Guardar"}
-                          </button>
-                          <button
-                            onClick={() => setEditId(null)}
-                            style={{ padding:"5px 10px", background:"transparent", border:"1px solid #ffffff20", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>
-                            Cancelar
-                          </button>
+                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
+                          <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                         </div>
                       </td>
                     </>
                   ) : (
-                    // ── FILA NORMAL ───────────────────────────────────
                     <>
                       <td>🍽️ {p.nombre}</td>
                       <td><span className="badge badge-orange">{p.categoria}</span></td>
-                      <td style={{ color:"#FFC300", fontWeight:"600" }}>${p.precio?.toLocaleString()}</td>
-                      <td>
-                        <span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>
-                          {p.disponible ? "Disponible" : "Agotado"}
-                        </span>
-                      </td>
+                      <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
+                      <td><span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>{p.disponible ? "Disponible" : "Agotado"}</span></td>
                       <td>
                         {confirmElimId === p.id ? (
                           <div style={{ display:"flex", gap:"6px" }}>
-                            <button
-                              onClick={() => eliminar(p.id)}
-                              disabled={eliminando === p.id}
-                              style={{ padding:"4px 10px", background:"#E6394620", border:"1px solid #E6394650", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                              {eliminando === p.id ? "..." : "Confirmar"}
-                            </button>
-                            <button
-                              onClick={() => setConfirmElimId(null)}
-                              style={{ padding:"4px 10px", background:"transparent", border:"1px solid #ffffff20", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>
-                              Cancelar
-                            </button>
+                            <button onClick={() => eliminar(p.id)} disabled={eliminando === p.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === p.id ? "..." : "Confirmar"}</button>
+                            <button onClick={() => setConfirmElimId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                           </div>
                         ) : (
                           <div style={{ display:"flex", gap:"6px" }}>
-                            <button
-                              onClick={() => abrirEdicion(p)}
-                              style={{ padding:"4px 10px", background:"#4A90D920", border:"1px solid #4A90D940", borderRadius:"4px", color:"#4A90D9", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                              ✏️ Editar
-                            </button>
-                            <button
-                              onClick={() => setConfirmElimId(p.id)}
-                              style={{ padding:"4px 10px", background:"#E6394610", border:"1px solid #E6394630", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                              🗑 Borrar
-                            </button>
+                            <button onClick={() => abrirEdicion(p)} style={{ padding:"4px 10px", background:"rgba(91,155,213,0.1)", border:"1px solid rgba(91,155,213,0.25)", borderRadius:"4px", color:"#5B9BD5", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>✏️ Editar</button>
+                            <button onClick={() => setConfirmElimId(p.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
                           </div>
                         )}
                       </td>
@@ -935,18 +765,17 @@ function PaginaMenu() {
     </div>
   );
 }
+
 function PaginaPedidos() {
-  const [pedidos, setPedidos]     = useState([]);
-  const [cargando, setCargando]   = useState(true);
-  const [confirmId, setConfirmId] = useState(null);
+  const [pedidos, setPedidos]       = useState([]);
+  const [cargando, setCargando]     = useState(true);
+  const [confirmId, setConfirmId]   = useState(null);
   const [eliminando, setEliminando] = useState(null);
 
   const cargarPedidos = () => {
     setCargando(true);
     axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verPedidos")
-      .then(res => setPedidos(res.data))
-      .catch(err => console.error(err))
-      .finally(() => setCargando(false));
+      .then(res => setPedidos(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   };
 
   useEffect(() => { cargarPedidos(); const iv = setInterval(cargarPedidos, 30000); return () => clearInterval(iv); }, []);
@@ -955,17 +784,14 @@ function PaginaPedidos() {
     setEliminando(id);
     try {
       await axios.delete(`https://kitchen-manager-back-production.up.railway.app/admin/pedido/${id}`);
-      setPedidos(prev => prev.filter(p => p.id !== id));
-      setConfirmId(null);
-    } catch (e) { console.error(e); }
-    finally { setEliminando(null); }
+      setPedidos(prev => prev.filter(p => p.id !== id)); setConfirmId(null);
+    } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
 
-  const colores = { recibido:"#4A90D9", preparacion:"#FF6B35", listo:"#4CAF50", entregado:"#78909C" };
+  const colores = { recibido:"#4A90D9", preparacion:"#C8892A", listo:"#6fcf74", entregado:"rgba(232,230,223,0.35)" };
   const labels  = { recibido:"Recibido", preparacion:"En Preparación", listo:"Listo", entregado:"Entregado" };
   const badgeCls= { recibido:"badge-orange", preparacion:"badge-orange", listo:"badge-green", entregado:"badge-red" };
-
-  const count = (k) => pedidos.filter(p => (p.estado || "recibido") === k).length;
+  const count   = (k) => pedidos.filter(p => (p.estado || "recibido") === k).length;
 
   return (
     <div>
@@ -980,9 +806,9 @@ function PaginaPedidos() {
       <div className="stats-grid">
         {[
           { label:"Recibidos",      key:"recibido",    color:"#4A90D9" },
-          { label:"En preparación", key:"preparacion", color:"#FF6B35" },
-          { label:"Listos",         key:"listo",       color:"#4CAF50" },
-          { label:"Entregados",     key:"entregado",   color:"#78909C" },
+          { label:"En preparación", key:"preparacion", color:"#C8892A" },
+          { label:"Listos",         key:"listo",       color:"#6fcf74" },
+          { label:"Entregados",     key:"entregado",   color:"rgba(232,230,223,0.35)" },
         ].map((s,i) => (
           <div className="stat-card" key={i} style={{ borderTop:`2px solid ${s.color}` }}>
             <div className="stat-label">{s.label}</div>
@@ -995,72 +821,36 @@ function PaginaPedidos() {
         <div className="section-card-header">
           <div className="section-card-title">PEDIDOS REGISTRADOS ({pedidos.length})</div>
         </div>
-
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando pedidos...</div></div>
         ) : pedidos.length === 0 ? (
-          <div className="placeholder-content">
-            <div className="placeholder-icon">📦</div>
-            <div className="placeholder-text">No hay pedidos activos en este momento</div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-icon">📦</div><div className="placeholder-text">No hay pedidos activos en este momento</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Fuente</th>
-                <th>Productos</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Hora</th>
-                <th></th>
-              </tr>
-            </thead>
+            <thead><tr><th>ID</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Estado</th><th>Hora</th><th></th></tr></thead>
             <tbody>
               {pedidos.slice().reverse().map((p, i) => (
                 <tr key={i}>
-                  <td style={{ color:"var(--orange)", fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px" }}>
-                    #{p.id?.slice(-5).toUpperCase()}
-                  </td>
+                  <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>#{p.id?.slice(-5).toUpperCase()}</td>
                   <td>👤 {p.nombreCliente}</td>
                   <td><span className="badge badge-orange">{p.fuente}</span></td>
-                  <td style={{ fontSize:"11px", opacity:.8, maxWidth:"180px" }}>
-                    {p.itemsSeleccionados?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}
-                  </td>
-                  <td style={{ color:"#FFC300", fontWeight:"600", fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px" }}>
-                    ${Number(p.total).toLocaleString("es-CO")}
-                  </td>
+                  <td style={{ fontSize:"11px", opacity:.8, maxWidth:"180px" }}>{p.itemsSeleccionados?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
+                  <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontWeight:"700", fontSize:"17px" }}>${Number(p.total).toLocaleString("es-CO")}</td>
                   <td>
                     <span className={`badge ${badgeCls[p.estado || "recibido"]}`}
                       style={{ color: colores[p.estado || "recibido"], borderColor: colores[p.estado || "recibido"] + "40", background: colores[p.estado || "recibido"] + "15" }}>
                       {labels[p.estado || "recibido"]}
                     </span>
                   </td>
-                  <td style={{ color:"var(--gray)", fontSize:"12px" }}>
-                    {new Date(p.fecha).toLocaleTimeString("es-CO", { hour:"2-digit", minute:"2-digit" })}
-                  </td>
+                  <td style={{ color:"var(--gray)", fontSize:"12px" }}>{new Date(p.fecha).toLocaleTimeString("es-CO", { hour:"2-digit", minute:"2-digit" })}</td>
                   <td>
                     {confirmId === p.id ? (
                       <div style={{ display:"flex", gap:"6px" }}>
-                        <button
-                          onClick={() => eliminar(p.id)}
-                          disabled={eliminando === p.id}
-                          style={{ padding:"4px 10px", background:"#E6394620", border:"1px solid #E6394650", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                          {eliminando === p.id ? "..." : "Confirmar"}
-                        </button>
-                        <button
-                          onClick={() => setConfirmId(null)}
-                          style={{ padding:"4px 10px", background:"transparent", border:"1px solid #ffffff20", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>
-                          Cancelar
-                        </button>
+                        <button onClick={() => eliminar(p.id)} disabled={eliminando === p.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === p.id ? "..." : "Confirmar"}</button>
+                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => setConfirmId(p.id)}
-                        style={{ padding:"4px 10px", background:"#E6394610", border:"1px solid #E6394630", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                        🗑 Borrar
-                      </button>
+                      <button onClick={() => setConfirmId(p.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
                     )}
                   </td>
                 </tr>
@@ -1080,25 +870,11 @@ function exportarExcel(ventas) {
     "Fuente":    v.fuente,
     "Productos": v.itemsVendidos?.map(it => `${it.cantidad}x ${it.nombre}`).join(" | ") || "",
     "Total":     v.total,
-    "Fecha":     new Date(v.fecha).toLocaleString("es-CO", {
-      day:"2-digit", month:"2-digit", year:"numeric",
-      hour:"2-digit", minute:"2-digit"
-    })
+    "Fecha":     new Date(v.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" })
   }));
-
-  const hoja    = XLSX.utils.json_to_sheet(filas);
-  const libro   = XLSX.utils.book_new();
-
-  // Ancho de columnas
-  hoja["!cols"] = [
-    { wch: 12 }, // Factura
-    { wch: 22 }, // Cliente
-    { wch: 14 }, // Fuente
-    { wch: 40 }, // Productos
-    { wch: 14 }, // Total
-    { wch: 18 }, // Fecha
-  ];
-
+  const hoja  = XLSX.utils.json_to_sheet(filas);
+  const libro = XLSX.utils.book_new();
+  hoja["!cols"] = [{ wch:12 },{ wch:22 },{ wch:14 },{ wch:40 },{ wch:14 },{ wch:18 }];
   XLSX.utils.book_append_sheet(libro, hoja, "Ventas");
   XLSX.writeFile(libro, `ventas_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
@@ -1111,9 +887,7 @@ function PaginaVentas() {
 
   useEffect(() => {
     axios.get("https://kitchen-manager-back-production.up.railway.app/admin/ventas")
-      .then(res => setVentas(res.data))
-      .catch(err => console.error(err))
-      .finally(() => setCargando(false));
+      .then(res => setVentas(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   }, []);
 
   const hoy    = new Date().toDateString();
@@ -1121,7 +895,6 @@ function PaginaVentas() {
   const mes    = new Date(Date.now() - 30 * 86400000);
   const fmt    = n => `$${Number(n).toLocaleString("es-CO")}`;
 
-  // Ventas filtradas por rango de fecha
   const ventasFiltradas = ventas.filter(v => {
     const fecha = new Date(v.fecha);
     const desdeFecha = desde ? new Date(desde + "T00:00:00") : null;
@@ -1131,8 +904,7 @@ function PaginaVentas() {
     return true;
   });
 
-  const hayFiltro = desde || hasta;
-
+  const hayFiltro    = desde || hasta;
   const ventasHoy    = ventas.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a,v) => a + v.total, 0);
   const ventasSemana = ventas.filter(v => new Date(v.fecha) >= semana).reduce((a,v) => a + v.total, 0);
   const ventasMes    = ventas.filter(v => new Date(v.fecha) >= mes).reduce((a,v) => a + v.total, 0);
@@ -1140,15 +912,10 @@ function PaginaVentas() {
   const ticketProm   = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
 
   const inputFecha = {
-    padding: "7px 12px",
-    background: "#1A1A2E",
-    border: "1px solid #ffffff15",
-    borderRadius: "5px",
-    color: "#F5F5F5",
-    fontSize: "12px",
-    fontFamily: "DM Sans, sans-serif",
-    outline: "none",
-    cursor: "pointer",
+    padding: "7px 12px", background: "#0C0E14",
+    border: "1px solid rgba(200,137,42,0.2)", borderRadius: "5px",
+    color: "#F2EDE4", fontSize: "12px", fontFamily: "DM Sans, sans-serif",
+    outline: "none", cursor: "pointer",
   };
 
   return (
@@ -1157,7 +924,6 @@ function PaginaVentas() {
         <div className="page-title">HISTORIAL DE VENTAS</div>
         <div className="page-subtitle">Registro de todas las ventas facturadas</div>
       </div>
-
       <div className="stats-grid">
         {[
           { label:"Ventas hoy",      value: cargando ? "..." : fmt(ventasHoy) },
@@ -1167,73 +933,36 @@ function PaginaVentas() {
         ].map((s, i) => (
           <div className="stat-card" key={i}>
             <div className="stat-label">{s.label}</div>
-            <div className="stat-value" style={{ fontSize:"28px" }}>{s.value}</div>
+            <div className="stat-value" style={{ fontSize:"1.8rem" }}>{s.value}</div>
           </div>
         ))}
       </div>
 
       <div className="section-card">
         <div className="section-card-header">
-          <div className="section-card-title">
-            VENTAS REGISTRADAS ({hayFiltro ? `${ventasFiltradas.length} de ${ventas.length}` : ventas.length})
-          </div>
+          <div className="section-card-title">VENTAS REGISTRADAS ({hayFiltro ? `${ventasFiltradas.length} de ${ventas.length}` : ventas.length})</div>
           {ventas.length > 0 && (
-            <button
-              onClick={() => exportarExcel(ventasFiltradas)}
-              style={{
-                padding: "7px 16px", background: "transparent",
-                border: "1px solid #4CAF5040", borderRadius: "5px",
-                color: "#4CAF50", cursor: "pointer", fontSize: "11px",
-                fontWeight: "700", fontFamily: "'Bebas Neue', sans-serif",
-                letterSpacing: "1px", display: "flex", alignItems: "center", gap: "6px",
-              }}
-            >
+            <button onClick={() => exportarExcel(ventasFiltradas)} style={{ padding:"7px 16px", background:"transparent", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"5px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600", fontFamily:"DM Sans, sans-serif", display:"flex", alignItems:"center", gap:"6px" }}>
               ⬇ EXPORTAR EXCEL
             </button>
           )}
         </div>
 
-        {/* ── FILTRO FECHAS ── */}
-        <div style={{
-          padding: "14px 20px", borderBottom: "1px solid #ffffff08",
-          display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap",
-          background: "#1e2d50"
-        }}>
-          <span style={{ fontSize: "10px", fontWeight: "600", color: "#A0A0A0", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-            Filtrar por fecha
-          </span>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "11px", color: "#A0A0A0" }}>Desde</span>
-            <input
-              type="date"
-              value={desde}
-              onChange={e => setDesde(e.target.value)}
-              style={inputFecha}
-            />
+        <div style={{ padding:"14px 20px", borderBottom:"1px solid rgba(255,255,255,0.07)", display:"flex", alignItems:"center", gap:"12px", flexWrap:"wrap", background:"#141720" }}>
+          <span style={{ fontSize:"10px", fontWeight:"600", color:"rgba(232,230,223,0.45)", letterSpacing:"1.5px", textTransform:"uppercase" }}>Filtrar por fecha</span>
+          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+            <span style={{ fontSize:"11px", color:"rgba(232,230,223,0.45)" }}>Desde</span>
+            <input type="date" value={desde} onChange={e => setDesde(e.target.value)} style={inputFecha} />
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "11px", color: "#A0A0A0" }}>Hasta</span>
-            <input
-              type="date"
-              value={hasta}
-              onChange={e => setHasta(e.target.value)}
-              style={inputFecha}
-            />
+          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+            <span style={{ fontSize:"11px", color:"rgba(232,230,223,0.45)" }}>Hasta</span>
+            <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} style={inputFecha} />
           </div>
           {hayFiltro && (
-            <button
-              onClick={() => { setDesde(""); setHasta(""); }}
-              style={{
-                padding: "6px 12px", background: "transparent",
-                border: "1px solid #ffffff20", borderRadius: "5px",
-                color: "#A0A0A0", cursor: "pointer", fontSize: "11px",
-              }}
-            >
-              ✕ Limpiar
-            </button>
+            <button onClick={() => { setDesde(""); setHasta(""); }} style={{ padding:"6px 12px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"5px", color:"rgba(232,230,223,0.45)", cursor:"pointer", fontSize:"11px", fontFamily:"DM Sans, sans-serif" }}>✕ Limpiar</button>
           )}
           {hayFiltro && (
-            <span style={{ fontSize: "11px", color: "#FF6B35", marginLeft: "auto" }}>
+            <span style={{ fontSize:"11px", color:"var(--gold)", marginLeft:"auto" }}>
               Total filtrado: <strong>{fmt(ventasFiltradas.reduce((a,v) => a + v.total, 0))}</strong>
             </span>
           )}
@@ -1244,42 +973,22 @@ function PaginaVentas() {
         ) : ventasFiltradas.length === 0 ? (
           <div className="placeholder-content">
             <div className="placeholder-icon">💰</div>
-            <div className="placeholder-text">
-              {hayFiltro ? "No hay ventas en ese rango de fechas." : "Aquí aparecerá el historial de ventas cuando se facturen pedidos."}
-            </div>
+            <div className="placeholder-text">{hayFiltro ? "No hay ventas en ese rango de fechas." : "Aquí aparecerá el historial de ventas cuando se facturen pedidos."}</div>
           </div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr><th>Factura</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Fecha</th><th></th></tr>
-            </thead>
+            <thead><tr><th>Factura</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Fecha</th><th></th></tr></thead>
             <tbody>
               {ventasFiltradas.map((v, i) => (
                 <tr key={i}>
-                  <td style={{ color:"var(--orange)", fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px" }}>
-                    #{v.id?.slice(-6).toUpperCase()}
-                  </td>
+                  <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>#{v.id?.slice(-6).toUpperCase()}</td>
                   <td>👤 {v.nombreCliente}</td>
                   <td><span className="badge badge-orange">{v.fuente}</span></td>
-                  <td style={{ fontSize:"11px", opacity:.8, maxWidth:"200px" }}>
-                    {v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}
-                  </td>
-                  <td style={{ color:"#FFC300", fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px" }}>
-                    {fmt(v.total)}
-                  </td>
-                  <td style={{ color:"var(--gray)", fontSize:"12px" }}>
-                    {new Date(v.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}
-                  </td>
+                  <td style={{ fontSize:"11px", opacity:.8, maxWidth:"200px" }}>{v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
+                  <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(v.total)}</td>
+                  <td style={{ color:"var(--gray)", fontSize:"12px" }}>{new Date(v.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}</td>
                   <td>
-                    <button
-                      onClick={() => generarFacturaHTML(v)}
-                      style={{
-                        padding:"5px 12px", background:"#FF6B3515",
-                        border:"1px solid #FF6B3540", borderRadius:"5px",
-                        color:"var(--orange)", cursor:"pointer",
-                        fontSize:"11px", fontWeight:"600", whiteSpace:"nowrap"
-                      }}
-                    >🧾 Ver factura</button>
+                    <button onClick={() => generarFacturaHTML(v)} style={{ padding:"5px 12px", background:"rgba(200,137,42,0.08)", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"5px", color:"var(--gold)", cursor:"pointer", fontSize:"11px", fontWeight:"500", whiteSpace:"nowrap", fontFamily:"DM Sans, sans-serif" }}>🧾 Ver factura</button>
                   </td>
                 </tr>
               ))}
@@ -1290,6 +999,7 @@ function PaginaVentas() {
     </div>
   );
 }
+
 function PaginaUsuarios() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [usuarios, setUsuarios]     = useState([]);
@@ -1299,11 +1009,8 @@ function PaginaUsuarios() {
 
   const cargarUsuarios = async () => {
     setCargando(true);
-    try {
-      const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verEmpleados");
-      setUsuarios(res.data);
-    } catch (e) { console.error(e); }
-    finally { setCargando(false); }
+    try { const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/admin/verEmpleados"); setUsuarios(res.data); }
+    catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
   useEffect(() => { cargarUsuarios(); }, []);
@@ -1312,10 +1019,8 @@ function PaginaUsuarios() {
     setEliminando(id);
     try {
       await axios.delete(`https://kitchen-manager-back-production.up.railway.app/admin/usuario/${id}`);
-      setUsuarios(prev => prev.filter(u => u.id !== id));
-      setConfirmId(null);
-    } catch (e) { console.error(e); }
-    finally { setEliminando(null); }
+      setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
+    } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
 
   return (
@@ -1324,7 +1029,6 @@ function PaginaUsuarios() {
         <div className="page-title">GESTIÓN DE USUARIOS</div>
         <div className="page-subtitle">Administra los empleados del sistema</div>
       </div>
-
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">EMPLEADOS ({usuarios.length})</div>
@@ -1332,62 +1036,27 @@ function PaginaUsuarios() {
             {mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}
           </button>
         </div>
-
-        {mostrarFormulario && (
-          <RegistrarUsuario onUsuarioCreado={() => { cargarUsuarios(); setMostrarFormulario(false); }} />
-        )}
-
+        {mostrarFormulario && <RegistrarUsuario onUsuarioCreado={() => { cargarUsuarios(); setMostrarFormulario(false); }} />}
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando empleados...</div></div>
         ) : usuarios.length === 0 ? (
-          <div className="placeholder-content">
-            <div className="placeholder-icon">👤</div>
-            <div className="placeholder-text">No hay empleados registrados aún</div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-icon">👤</div><div className="placeholder-text">No hay empleados registrados aún</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th></th>
-              </tr>
-            </thead>
+            <thead><tr><th>Usuario</th><th>Rol</th><th></th></tr></thead>
             <tbody>
               {usuarios.map((u) => (
                 <tr key={u.id}>
-                  <td>
-                    <span className="user-avatar">{u.username?.charAt(0).toUpperCase()}</span>
-                    {u.username}
-                  </td>
-                  <td>
-                    {u.roles?.map((r, j) => (
-                      <span key={j} className={`badge ${r === "ADMIN" ? "badge-orange" : "badge-green"}`}>
-                        {r}
-                      </span>
-                    ))}
-                  </td>
+                  <td><span className="user-avatar">{u.username?.charAt(0).toUpperCase()}</span>{u.username}</td>
+                  <td>{u.roles?.map((r, j) => <span key={j} className={`badge ${r === "ADMIN" ? "badge-orange" : "badge-green"}`}>{r}</span>)}</td>
                   <td>
                     {confirmId === u.id ? (
                       <div style={{ display:"flex", gap:"6px" }}>
-                        <button
-                          onClick={() => eliminar(u.id)}
-                          disabled={eliminando === u.id}
-                          style={{ padding:"4px 10px", background:"#E6394620", border:"1px solid #E6394650", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                          {eliminando === u.id ? "..." : "Confirmar"}
-                        </button>
-                        <button
-                          onClick={() => setConfirmId(null)}
-                          style={{ padding:"4px 10px", background:"transparent", border:"1px solid #ffffff20", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>
-                          Cancelar
-                        </button>
+                        <button onClick={() => eliminar(u.id)} disabled={eliminando === u.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === u.id ? "..." : "Confirmar"}</button>
+                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => setConfirmId(u.id)}
-                        style={{ padding:"4px 10px", background:"#E6394610", border:"1px solid #E6394630", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                        🗑 Borrar
-                      </button>
+                      <button onClick={() => setConfirmId(u.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
                     )}
                   </td>
                 </tr>
@@ -1399,6 +1068,7 @@ function PaginaUsuarios() {
     </div>
   );
 }
+
 // ── NAV ──────────────────────────────────────────────────────────────────
 const NAV = [
   { key: "inicio",   label: "Inicio",           icon: "🏠", section: "GENERAL" },
@@ -1433,7 +1103,11 @@ export default function Admin() {
       <div className="admin-root">
         <aside className="sidebar">
           <div className="sidebar-logo">
-            <div className="sidebar-logo-icon">🔥</div>
+            <div className="sidebar-logo-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M8.5 2a6.5 6.5 0 0 1 0 13h-1v7H5V15H3.5a6.5 6.5 0 0 1 0-13h5zm7 2a4 4 0 0 1 4 4v1h1v2h-1v8h-2V11h-1V9h1V8a2 2 0 0 0-2-2V4z"/>
+              </svg>
+            </div>
             <div className="sidebar-logo-name">KITCHEN MANAGER</div>
             <div className="sidebar-logo-sub">Panel Admin</div>
           </div>
@@ -1443,11 +1117,7 @@ export default function Admin() {
               <div key={section}>
                 <div className="nav-section-label">{section}</div>
                 {NAV.filter((n) => n.section === section).map((item) => (
-                  <div
-                    key={item.key}
-                    className={`nav-item ${activePage === item.key ? "active" : ""}`}
-                    onClick={() => setActivePage(item.key)}
-                  >
+                  <div key={item.key} className={`nav-item ${activePage === item.key ? "active" : ""}`} onClick={() => setActivePage(item.key)}>
                     <span className="nav-icon">{item.icon}</span>
                     {item.label}
                   </div>
@@ -1480,10 +1150,7 @@ export default function Admin() {
               </div>
             </div>
           </div>
-
-          <div className="content" key={activePage}>
-            {renderPage()}
-          </div>
+          <div className="content" key={activePage}>{renderPage()}</div>
         </main>
       </div>
     </>
