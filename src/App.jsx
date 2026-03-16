@@ -4,13 +4,13 @@ import Login from './Login';
 import Admin from './Admin';
 import Empleado from './Empleado';
 import ProtectedRoute from "./ProtectedRoute";
-import LandingPage from './LandingPage'; 
+import LandingPage from './LandinPage'; 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"       element={<LandingPage />} />  
+        <Route path="/"       element={<LandinPage />} />  
         <Route path="/login"  element={<Login />} />         
         <Route path="/admin" element={
           <ProtectedRoute rolesPermitidos={["ADMIN"]}>
