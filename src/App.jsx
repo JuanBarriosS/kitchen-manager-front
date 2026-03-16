@@ -4,7 +4,7 @@ import Login from './Login';
 import Admin from './Admin';
 import Empleado from './Empleado';
 import ProtectedRoute from "./ProtectedRoute";
-import LandingPage from './LandinPage'; 
+import LandinPage from './LandinPage'; 
 
 function App() {
   return (
