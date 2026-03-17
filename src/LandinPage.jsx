@@ -283,8 +283,8 @@ export default function LandingPage() {
                 <div className="lp-mini-label" style={{ marginBottom: "0.75rem" }}>Últimas comandas</div>
                 {[
                   { dot: "#4CAF80", name: "Mesa 5 — Lomo al trapo x2",      val: "12 min", bg: "rgba(76,175,128,0.15)",  c: "#4CAF80", label: "Listo" },
-                  { dot: "#C8892A", name: "Barra 2 — Ceviche clásico",       val: "6 min",  bg: "rgba(200,137,42,0.15)", c: "#C8892A", label: "En proceso" },
-                  { dot: "#5B9BD5", name: "Mesa 12 — Risotto de hongos x3",  val: "2 min",  bg: "rgba(91,155,213,0.15)", c: "#5B9BD5", label: "Iniciando" },
+                  { dot: "#C8892A", name: "Barra 2 — Ceviche clásico",       val: "6 min",  bg: "rgba(200,137,42,0.15)", c: "#C8892A", label: "En preparacion" },
+                  { dot: "#5B9BD5", name: "Mesa 12 — Risotto de hongos x3",  val: "2 min",  bg: "rgba(91,155,213,0.15)", c: "#5B9BD5", label: "Recibido" },
                   { dot: "#E85C5C", name: "Domicilio — Pollo asado + papas", val: "18 min", bg: "rgba(232,92,92,0.15)",  c: "#E85C5C", label: "Demorado" },
                 ].map((row, i) => (
                   <div className="lp-list-row" key={i}>

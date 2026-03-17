@@ -5,12 +5,14 @@ import Admin from './Admin';
 import Empleado from './Empleado';
 import ProtectedRoute from "./ProtectedRoute";
 import LandinPage from './LandinPage'; 
+import Clientes from './Clientes';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/"       element={<LandinPage />} />  
+        <Route path="/clientes" element={<Clientes />} />
         <Route path="/login"  element={<Login />} />         
         <Route path="/admin" element={
           <ProtectedRoute rolesPermitidos={["ADMIN"]}>
