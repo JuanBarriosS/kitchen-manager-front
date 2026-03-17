@@ -272,10 +272,8 @@ function Login() {
                 <div className="login-card">
 
                     <div className="login-logo">
-                        <div className="login-logo-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8.5 2a6.5 6.5 0 0 1 0 13h-1v7H5V15H3.5a6.5 6.5 0 0 1 0-13h5zm7 2a4 4 0 0 1 4 4v1h1v2h-1v8h-2V11h-1V9h1V8a2 2 0 0 0-2-2V4z"/>
-                            </svg>
+                        <div className="...logo-icon" style={{ fontSize: "20px" }}>
+                            🫕
                         </div>
                         <div>
                             <div className="login-logo-text">Kitchen<span>Manager</span></div>
