@@ -350,7 +350,7 @@ export default function PortalClientes() {
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back-production.up.railway.app/clientes/verMenu")
+    axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/verMenu")
       .then(res => setMenu(res.data))
       .catch(err => console.error(err))
       .finally(() => setCargando(false));
@@ -394,7 +394,7 @@ export default function PortalClientes() {
     setResultado(null);
     try {
       const res = await axios.post(
-        "https://kitchen-manager-back-production.up.railway.app/clientes/registrarPedido",
+        "https://kitchen-manager-back-production.up.railway.app/empleado/registrarPedido",
         {
           fuente: "Presencial",
           nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
@@ -433,7 +433,15 @@ export default function PortalClientes() {
               </div>
               <span className="cp-logo-text">Kitchen<span>Manager</span></span>
             </div>
-            <span className="cp-nav-pill">Portal Clientes</span>
+            <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+              <button
+                onClick={() => navigate("/")}
+                style={{ display:"flex", alignItems:"center", gap:"6px", padding:"6px 14px", background:"transparent", border:"1px solid rgba(255,255,255,0.1)", borderRadius:"20px", color:"rgba(232,230,223,0.5)", fontSize:"0.75rem", fontWeight:"500", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"all 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(200,137,42,0.35)"; e.currentTarget.style.color="#F2EDE4"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(255,255,255,0.1)"; e.currentTarget.style.color="rgba(232,230,223,0.5)"; }}
+              >← Volver al inicio</button>
+              <span className="cp-nav-pill">Portal Clientes</span>
+            </div>
           </nav>
 
           <div className="cp-success">
@@ -454,6 +462,13 @@ export default function PortalClientes() {
               onClick={limpiar}
             >
               Hacer otro pedido
+            </button>
+            <button
+              className="cp-btn-sec"
+              style={{ maxWidth: "240px" }}
+              onClick={() => navigate("/")}
+            >
+              ← Volver al inicio
             </button>
           </div>
 
@@ -480,7 +495,15 @@ export default function PortalClientes() {
             </div>
             <span className="cp-logo-text">Kitchen<span>Manager</span></span>
           </div>
-          <span className="cp-nav-pill">Portal Clientes</span>
+          <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+            <button
+              onClick={() => navigate("/")}
+              style={{ display:"flex", alignItems:"center", gap:"6px", padding:"6px 14px", background:"transparent", border:"1px solid rgba(255,255,255,0.1)", borderRadius:"20px", color:"rgba(232,230,223,0.5)", fontSize:"0.75rem", fontWeight:"500", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"all 0.15s" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(200,137,42,0.35)"; e.currentTarget.style.color="#F2EDE4"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(255,255,255,0.1)"; e.currentTarget.style.color="rgba(232,230,223,0.5)"; }}
+            >← Volver al inicio</button>
+            <span className="cp-nav-pill">Portal Clientes</span>
+          </div>
         </nav>
 
         {/* HERO */}
