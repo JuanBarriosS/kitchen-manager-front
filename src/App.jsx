@@ -6,14 +6,14 @@ import Empleado from './Empleado';
 import ProtectedRoute from "./ProtectedRoute";
 import LandinPage from './LandinPage'; 
 import Clientes from './Clientes';
-import CocinaTV from './CocinatV';
+import CocinaTV from './CocinaTV';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/"       element={<LandinPage />} />  
-        <Route path="/cocina" element={<Cocinatv />} />
+        <Route path="/cocina" element={<CocinaTV />} />
         <Route path="/clientes" element={<Clientes />} />
         <Route path="/login"  element={<Login />} />         
         <Route path="/admin" element={
