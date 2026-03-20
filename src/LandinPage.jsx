@@ -331,7 +331,7 @@ export default function LandingPage() {
             </svg>
             <div className="lp-btn-label">
               <span>Portal de Clientes</span>
-              <span className="lp-btn-hint">Próximamente disponible</span>
+              <span className="lp-btn-hint">Realiza tus pedidos</span>
             </div>
           </button>
         </div>
