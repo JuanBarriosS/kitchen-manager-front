@@ -93,15 +93,12 @@ export default function CocinaTV() {
   const cargarPedidos = async () => {
     try {
       const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/cocina/pedidos");
-      const enPrep = res.data.filter(
-        p => p.estado === "en preparación" || p.estado === "en preparacion"
-      );
-      setPedidos(enPrep);
+      console.log("PEDIDOS:", res.data);
+      setPedidos(res.data); // ← sin filtro por ahora
     } catch (e) {
       console.error("Error:", e);
     }
-  };
-
+};
   useEffect(() => {
     cargarPedidos();
     const iv = setInterval(() => { cargarPedidos(); setTick(t => t + 1); }, 5000);
