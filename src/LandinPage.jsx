@@ -337,7 +337,7 @@ export default function LandingPage() {
         </div>
         </section>
 
-        {/* FOOTER */}
+        {/* FOOTER    */}
         <footer className="lp-footer">
           <span className="lp-footer-copy">© 2026 Kitchen Manager · Todos los derechos reservados</span>
           <span className="lp-footer-logo">Kitchen<span>Manager</span></span>
