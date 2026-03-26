@@ -915,7 +915,7 @@ function PaginaDashboardFinanciero() {
     "Presencial": "#C9A84C",
     "Directo":    "#4A90D9",
     "DiDi Food":  "#FFC400",
-    "Whatsapp":  "#01391e",
+    "WhatsApp":  "#01391e",
   };
   const getColor = (fuente) => COLORES[fuente] || "#A0A0A0";
 
