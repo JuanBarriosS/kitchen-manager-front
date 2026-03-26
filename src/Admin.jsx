@@ -900,7 +900,7 @@ function PaginaDashboardFinanciero() {
 
   const porFuente = {};
   ventasFiltradas.forEach(v => {
-    const fuente = v.fuente || "Directo";
+    const fuente = v.fuente || "WhatsApp";
     if (!porFuente[fuente]) porFuente[fuente] = { total: 0, count: 0, fuente };
     porFuente[fuente].total += v.total;
     porFuente[fuente].count += 1;
@@ -913,9 +913,9 @@ function PaginaDashboardFinanciero() {
     "Rappi":      "#FF6314",
     "Uber Eats":  "#06C167",
     "Presencial": "#C9A84C",
-    "Directo":    "#4A90D9",
-    "DiDi Food":  "#FFC400",
     "WhatsApp":  "#01391e",
+    "DiDi Food":  "#FFC400",
+    
   };
   const getColor = (fuente) => COLORES[fuente] || "#A0A0A0";
 
