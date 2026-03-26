@@ -942,7 +942,7 @@ function PaginaDashboardFinanciero() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) {
       return (
-        <div style={{ background:"#10131C", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
+        <div style={{ background:"#10131C", border:"1px solid rgb(238, 230, 230)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
           <div style={{ color:"var(--gray)", marginBottom:"6px" }}>{label}</div>
           {payload.map((p, i) => (
             <div key={i} style={{ color: p.color, marginBottom:"2px" }}>
