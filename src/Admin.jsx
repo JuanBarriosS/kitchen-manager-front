@@ -914,7 +914,8 @@ function PaginaDashboardFinanciero() {
     "Uber Eats":  "#06C167",
     "Presencial": "#C9A84C",
     "Directo":    "#4A90D9",
-    "Didi Food":  "#FFC400",
+    "DiDi Food":  "#FFC400",
+    "Whatsapp":  "#01391e",
   };
   const getColor = (fuente) => COLORES[fuente] || "#A0A0A0";
 
