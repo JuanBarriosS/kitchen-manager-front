@@ -879,6 +879,211 @@ function exportarExcel(ventas) {
   XLSX.writeFile(libro, `ventas_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
+function PaginaDashboardFinanciero() {
+  const [ventas, setVentas]     = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [rango, setRango]       = useState(30);
+
+  useEffect(() => {
+    axios.get("https://kitchen-manager-back-production.up.railway.app/admin/ventas")
+      .then(res => setVentas(res.data))
+      .catch(err => console.error(err))
+      .finally(() => setCargando(false));
+  }, []);
+
+  const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
+
+  const ventasFiltradas = ventas.filter(v => {
+    const fecha = new Date(v.fecha);
+    return fecha >= new Date(Date.now() - rango * 86400000);
+  });
+
+  const porFuente = {};
+  ventasFiltradas.forEach(v => {
+    const fuente = v.fuente || "Directo";
+    if (!porFuente[fuente]) porFuente[fuente] = { total: 0, count: 0, fuente };
+    porFuente[fuente].total += v.total;
+    porFuente[fuente].count += 1;
+  });
+
+  const canales = Object.values(porFuente).sort((a, b) => b.total - a.total);
+  const totalGeneral = canales.reduce((a, c) => a + c.total, 0);
+
+  const COLORES = {
+    "Rappi":      "#FF6314",
+    "Uber Eats":  "#06C167",
+    "Presencial": "#C9A84C",
+    "Directo":    "#4A90D9",
+    "PedidosYa":  "#FFC400",
+  };
+  const getColor = (fuente) => COLORES[fuente] || "#A0A0A0";
+
+  const ventasPorDiaCanal = () => {
+    const dias = [];
+    for (let i = rango - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const label   = d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit" });
+      const dateStr = d.toDateString();
+      const entry   = { dia: label };
+      canales.forEach(c => {
+        entry[c.fuente] = ventasFiltradas
+          .filter(v => new Date(v.fecha).toDateString() === dateStr && (v.fuente || "Directo") === c.fuente)
+          .reduce((a, v) => a + v.total, 0);
+      });
+      dias.push(entry);
+    }
+    return dias;
+  };
+
+  const graficaData = ventasPorDiaCanal();
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload?.length) {
+      return (
+        <div style={{ background:"#10131C", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
+          <div style={{ color:"var(--gray)", marginBottom:"6px" }}>{label}</div>
+          {payload.map((p, i) => (
+            <div key={i} style={{ color: p.color, marginBottom:"2px" }}>
+              {p.name}: {fmt(p.value)}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div>
+      <div className="page-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div>
+          <div className="page-title">DASHBOARD FINANCIERO</div>
+          <div className="page-subtitle">Comparativo de ingresos por plataforma</div>
+        </div>
+        <div style={{ display:"flex", gap:"8px" }}>
+          {[7, 30, 90].map(r => (
+            <button key={r} onClick={() => setRango(r)} style={{
+              padding:"6px 14px",
+              background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+              border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
+              borderRadius:"5px",
+              color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
+              cursor:"pointer", fontSize:"11px", fontWeight:"700",
+              fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
+            }}>
+              {r} DÍAS
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        {canales.map((c, i) => {
+          const pct = totalGeneral > 0 ? Math.round((c.total / totalGeneral) * 100) : 0;
+          const ticket = c.count > 0 ? Math.round(c.total / c.count) : 0;
+          return (
+            <div className="stat-card" key={i} style={{ borderTop:`2px solid ${getColor(c.fuente)}` }}>
+              <div className="stat-label">{c.fuente}</div>
+              <div className="stat-value" style={{ fontSize:"1.6rem", color: getColor(c.fuente) }}>{fmt(c.total)}</div>
+              <div className="stat-sub">{c.count} ventas · ticket ${ticket.toLocaleString("es-CO")}</div>
+              <div style={{ marginTop:"10px", height:"4px", background:"rgba(255,255,255,0.06)", borderRadius:"2px", overflow:"hidden" }}>
+                <div style={{ height:"100%", width:`${pct}%`, background: getColor(c.fuente), borderRadius:"2px", transition:"width .5s" }} />
+              </div>
+              <div style={{ fontSize:"10px", color:"var(--gray)", marginTop:"4px" }}>{pct}% del total</div>
+            </div>
+          );
+        })}
+        {cargando && (
+          <div className="stat-card">
+            <div className="stat-label">Cargando...</div>
+            <div className="stat-value">—</div>
+          </div>
+        )}
+      </div>
+
+      <div className="section-card" style={{ marginBottom:"20px" }}>
+        <div className="section-card-header">
+          <div className="section-card-title">VENTAS POR CANAL — EVOLUCIÓN</div>
+        </div>
+        <div style={{ padding:"20px 16px 8px" }}>
+          {cargando ? (
+            <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
+          ) : canales.length === 0 ? (
+            <div className="placeholder-content"><div className="placeholder-icon">📊</div><div className="placeholder-text">No hay ventas en este período</div></div>
+          ) : (
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={graficaData} margin={{ top:4, right:8, left:8, bottom:0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="dia" tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false}
+                  tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill:"rgba(255,255,255,0.03)" }} />
+                {canales.map(c => (
+                  <Bar key={c.fuente} dataKey={c.fuente} stackId="a" fill={getColor(c.fuente)} radius={[0,0,0,0]} maxBarSize={40} />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      <div className="section-card">
+        <div className="section-card-header">
+          <div className="section-card-title">RESUMEN POR CANAL</div>
+        </div>
+        {cargando ? (
+          <div className="placeholder-content"><div className="placeholder-text">Cargando...</div></div>
+        ) : canales.length === 0 ? (
+          <div className="placeholder-content"><div className="placeholder-icon">💰</div><div className="placeholder-text">No hay ventas registradas en este período</div></div>
+        ) : (
+          <table className="user-table">
+            <thead>
+              <tr><th>Canal</th><th>Ventas</th><th>Ingresos</th><th>Ticket prom.</th><th>Participación</th></tr>
+            </thead>
+            <tbody>
+              {canales.map((c, i) => {
+                const pct    = totalGeneral > 0 ? Math.round((c.total / totalGeneral) * 100) : 0;
+                const ticket = c.count > 0 ? Math.round(c.total / c.count) : 0;
+                return (
+                  <tr key={i}>
+                    <td>
+                      <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+                        <div style={{ width:"10px", height:"10px", borderRadius:"50%", background: getColor(c.fuente), flexShrink:0 }} />
+                        {c.fuente}
+                      </div>
+                    </td>
+                    <td style={{ color:"var(--gray)" }}>{c.count}</td>
+                    <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(c.total)}</td>
+                    <td style={{ color:"var(--white)" }}>{fmt(ticket)}</td>
+                    <td>
+                      <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+                        <div style={{ flex:1, height:"6px", background:"rgba(255,255,255,0.06)", borderRadius:"3px", overflow:"hidden" }}>
+                          <div style={{ height:"100%", width:`${pct}%`, background: getColor(c.fuente), borderRadius:"3px" }} />
+                        </div>
+                        <span style={{ fontSize:"12px", color:"var(--gray)", minWidth:"32px" }}>{pct}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              <tr>
+                <td style={{ fontWeight:"600" }}>Total</td>
+                <td style={{ color:"var(--gray)" }}>{ventasFiltradas.length}</td>
+                <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(totalGeneral)}</td>
+                <td style={{ color:"var(--white)" }}>
+                  {fmt(ventasFiltradas.length > 0 ? Math.round(totalGeneral / ventasFiltradas.length) : 0)}
+                </td>
+                <td style={{ color:"var(--gray)" }}>100%</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PaginaVentas() {
   const [ventas, setVentas]     = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -1075,6 +1280,7 @@ const NAV = [
   { key: "menu",     label: "Gestión del Menú",  icon: "🍽️", section: "OPERACIONES" },
   { key: "pedidos",  label: "Panel de Pedidos",  icon: "📦", section: "OPERACIONES" },
   { key: "ventas",   label: "Historial Ventas",  icon: "💰", section: "REPORTES" },
+  { key: "financiero",  label: "Dashboard Financiero",   icon: "📈", section: "REPORTES" },
   { key: "usuarios", label: "Usuarios",           icon: "👤", section: "CONFIGURACIÓN" },
 ];
 
@@ -1085,15 +1291,16 @@ export default function Admin() {
   const sections = [...new Set(NAV.map((n) => n.section))];
 
   const renderPage = () => {
-    switch (activePage) {
-      case "inicio":   return <PaginaInicio username={username} />;
-      case "menu":     return <PaginaMenu />;
-      case "pedidos":  return <PaginaPedidos />;
-      case "ventas":   return <PaginaVentas />;
-      case "usuarios": return <PaginaUsuarios />;
-      default:         return <PaginaInicio username={username} />;
-    }
-  };
+  switch (activePage) {
+    case "inicio":     return <PaginaInicio username={username} />;
+    case "menu":       return <PaginaMenu />;
+    case "pedidos":    return <PaginaPedidos />;
+    case "ventas":     return <PaginaVentas />;
+    case "financiero": return <PaginaDashboardFinanciero />;
+    case "usuarios":   return <PaginaUsuarios />;
+    default:           return <PaginaInicio username={username} />;
+  }
+};
 
   const activeLabel = NAV.find((n) => n.key === activePage)?.label;
 
