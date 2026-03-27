@@ -1471,6 +1471,7 @@ const NAV = [
   { key: "ventas",   label: "Historial Ventas",  icon: "💰", section: "REPORTES" },
   { key: "financiero",  label: "Dashboard Financiero",   icon: "📈", section: "REPORTES" },
   { key: "usuarios", label: "Usuarios",           icon: "👤", section: "CONFIGURACIÓN" },
+  { key: "platos", label: "Análisis de Platos", icon: "⭐", section: "REPORTES" },
 ];
 
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────
@@ -1487,7 +1488,9 @@ export default function Admin() {
     case "ventas":     return <PaginaVentas />;
     case "financiero": return <PaginaDashboardFinanciero />;
     case "usuarios":   return <PaginaUsuarios />;
+    case "platos": return <PaginaPlatos />;
     default:           return <PaginaInicio username={username} />;
+    
   }
 };
 
