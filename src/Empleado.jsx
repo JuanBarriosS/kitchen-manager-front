@@ -650,7 +650,7 @@ function PaginaMenu() {
     axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/verMenu")
       .then(res => setMenu(res.data))
       .catch(err => console.error("Error cargando menú:", err))
-      .finally(() => setCargando(false));
+      .finally(() => setCargando(false));//
   }, []);
 
   return (
