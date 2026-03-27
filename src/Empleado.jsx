@@ -301,6 +301,20 @@ function PaginaPedidos() {
                         {p.itemsSeleccionados?.map((item, j) => (
                           <div key={j}>{item.cantidad}× {item.nombre}</div>
                         ))}
+                        <button
+                        onClick={() => {
+                          const link = `https://kitchen-manager-front.vercel.app/seguimiento/${p.id}`;
+                          navigator.clipboard.writeText(link);
+                        }}
+                        style={{
+                          padding:"4px 10px", background:"rgba(74,144,217,0.1)",
+                          border:"1px solid rgba(74,144,217,0.25)", borderRadius:"4px",
+                          color:"#4A90D9", cursor:"pointer", fontSize:"10px",
+                          fontWeight:"600", marginTop:"6px", width:"100%"
+                        }}
+                      >
+                        🔗 Copiar enlace cliente
+                      </button>
                       </div>
                       <div style={{ marginTop:"8px", fontFamily:"'Cormorant Garamond',serif", fontSize:"1.2rem", fontWeight:"700", color:"#E8A830" }}>
                         ${Number(p.total).toLocaleString("es-CO")}
