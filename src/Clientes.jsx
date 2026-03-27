@@ -353,14 +353,17 @@ export default function PortalClientes() {
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
 
   useEffect(() => {
-    const url = token 
+    const url = token
       ? `https://kitchen-manager-back-production.up.railway.app/menu/${token}`
-      : "https://kitchen-manager-back-production.up.railway.app/empleado/verMenu";
+      : "https://kitchen-manager-back-production.up.railway.app/clientes/verMenu";
+
     axios.get(url)
       .then(res => {
         if (token) {
           if (res.data.menu) {
             setMenu(res.data.menu);
+            // Prellenar mesa con el nombre del QR para mayor usabilidad
+            if (res.data.qr?.nombre) setMesa(res.data.qr.nombre);
           } else {
             setErrorQr("QR no válido o inactivo");
           }
@@ -370,7 +373,13 @@ export default function PortalClientes() {
       })
       .catch(err => {
         if (token) {
-          setErrorQr("QR no encontrado o inactivo");
+          if (err.response?.status === 403) {
+            setErrorQr("Acceso denegado: QR inactivo o sin permisos");
+          } else if (err.response?.status === 404) {
+            setErrorQr("QR no encontrado");
+          } else {
+            setErrorQr("Error al cargar QR");
+          }
         } else {
           console.error(err);
         }
@@ -417,7 +426,7 @@ export default function PortalClientes() {
     try {
       const url = token 
         ? `https://kitchen-manager-back-production.up.railway.app/menu/${token}/pedido`
-        : "https://kitchen-manager-back-production.up.railway.app/empleado/registrarPedido";
+        : "https://kitchen-manager-back-production.up.railway.app/cliente/registrarPedido";
       const payload = token ? {
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas,
@@ -442,6 +451,7 @@ export default function PortalClientes() {
           cantidad:  i.cantidad,
         })),
       };
+      if (!token) payload.fuente = "Presencial";
       const res = await axios.post(url, payload);
       const pedidoId = res.data?.id || res.data?.pedidoId || "";
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
@@ -559,6 +569,7 @@ export default function PortalClientes() {
   }
 
   // ── VISTA PRINCIPAL ──
+  return (
     <>
       <style>{styles}</style>
       <div className="cp-root">
@@ -747,5 +758,5 @@ export default function PortalClientes() {
 
       </div>
     </>
-  ;
+  );
 }
