@@ -879,6 +879,194 @@ function exportarExcel(ventas) {
   XLSX.writeFile(libro, `ventas_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
+function PaginaPlatos() {
+  const [ventas, setVentas]     = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [rango, setRango]       = useState(30);
+  const [vista, setVista]       = useState("frecuencia");
+
+  useEffect(() => {
+    axios.get("https://kitchen-manager-back-production.up.railway.app/admin/ventas")
+      .then(res => setVentas(res.data))
+      .catch(err => console.error(err))
+      .finally(() => setCargando(false));
+  }, []);
+
+  const ventasFiltradas = ventas.filter(v =>
+    new Date(v.fecha) >= new Date(Date.now() - rango * 86400000)
+  );
+
+  const porPlato = {};
+  ventasFiltradas.forEach(v => {
+    (v.itemsVendidos || []).forEach(item => {
+      if (!porPlato[item.nombre]) {
+        porPlato[item.nombre] = { nombre: item.nombre, veces: 0, ingresos: 0, cantidadTotal: 0 };
+      }
+      porPlato[item.nombre].veces        += 1;
+      porPlato[item.nombre].cantidadTotal += item.cantidad || 1;
+      porPlato[item.nombre].ingresos     += (item.precio || 0) * (item.cantidad || 1);
+    });
+  });
+
+  const platos = Object.values(porPlato);
+  const total  = platos.length;
+
+  const ordenados = [...platos].sort((a, b) =>
+    vista === "frecuencia" ? b.veces - a.veces : b.ingresos - a.ingresos
+  );
+
+  const maxVeces    = Math.max(...platos.map(p => p.veces), 1);
+  const maxIngresos = Math.max(...platos.map(p => p.ingresos), 1);
+
+  const getCategoria = (p, index) => {
+    if (index < Math.ceil(total * 0.3))  return { label: "Estrella",  color: "#E8A830", bg: "rgba(232,168,48,0.12)",  border: "rgba(232,168,48,0.3)"  };
+    if (index >= Math.floor(total * 0.7)) return { label: "Muerto",   color: "#E63946", bg: "rgba(230,57,70,0.1)",   border: "rgba(230,57,70,0.25)"  };
+    return                                       { label: "Normal",    color: "#4A90D9", bg: "rgba(74,144,217,0.1)",  border: "rgba(74,144,217,0.25)" };
+  };
+
+  const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
+
+  const estrellas = ordenados.filter((_, i) => i < Math.ceil(total * 0.3));
+  const muertos   = ordenados.filter((_, i) => i >= Math.floor(total * 0.7));
+
+  return (
+    <div>
+      <div className="page-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div>
+          <div className="page-title">ANÁLISIS DE PLATOS</div>
+          <div className="page-subtitle">Detecta tus platos estrella y los que no están funcionando</div>
+        </div>
+        <div style={{ display:"flex", gap:"8px" }}>
+          {[7, 30, 90].map(r => (
+            <button key={r} onClick={() => setRango(r)} style={{
+              padding:"6px 14px",
+              background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+              border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
+              borderRadius:"5px",
+              color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
+              cursor:"pointer", fontSize:"11px", fontWeight:"700",
+              fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
+            }}>
+              {r} DÍAS
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        {[
+          { label:"Platos analizados", value: cargando ? "..." : total,           sub:"En el período",        color:"var(--gold2)" },
+          { label:"Platos estrella",   value: cargando ? "..." : estrellas.length, sub:"Top 30% en ventas",   color:"#E8A830" },
+          { label:"Platos muertos",    value: cargando ? "..." : muertos.length,   sub:"Bottom 30% — revisar", color:"#E63946" },
+          { label:"Plato #1",          value: cargando ? "..." : (ordenados[0]?.nombre?.split(" ")[0] || "—"), sub: ordenados[0] ? `${ordenados[0].veces} pedidos` : "Sin datos", color:"var(--gold)" },
+        ].map((s, i) => (
+          <div className="stat-card" key={i} style={{ borderTop:`2px solid ${s.color}` }}>
+            <div className="stat-label">{s.label}</div>
+            <div className="stat-value" style={{ fontSize:"1.6rem", color: s.color }}>{s.value}</div>
+            <div className="stat-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {estrellas.length > 0 && (
+        <div style={{ padding:"14px 20px", background:"rgba(232,168,48,0.06)", border:"1px solid rgba(232,168,48,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
+          <span style={{ fontSize:"20px" }}>⭐</span>
+          <div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E8A830", letterSpacing:"1px", textTransform:"uppercase" }}>Platos estrella</div>
+            <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>
+              {estrellas.map(p => p.nombre).join(" · ")}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {muertos.length > 0 && (
+        <div style={{ padding:"14px 20px", background:"rgba(230,57,70,0.06)", border:"1px solid rgba(230,57,70,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
+          <span style={{ fontSize:"20px" }}>⚠️</span>
+          <div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E63946", letterSpacing:"1px", textTransform:"uppercase" }}>Considera retirar del menú</div>
+            <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>
+              {muertos.map(p => p.nombre).join(" · ")}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="section-card">
+        <div className="section-card-header">
+          <div className="section-card-title">RANKING DE PLATOS</div>
+          <div style={{ display:"flex", gap:"8px" }}>
+            {[
+              { key:"frecuencia", label:"Por pedidos" },
+              { key:"ingresos",   label:"Por ingresos" },
+            ].map(v => (
+              <button key={v.key} onClick={() => setVista(v.key)} style={{
+                padding:"5px 14px",
+                background: vista === v.key ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+                border: vista === v.key ? "none" : "1px solid rgba(255,255,255,0.12)",
+                borderRadius:"5px",
+                color: vista === v.key ? "#0C0E14" : "rgba(232,230,223,0.45)",
+                cursor:"pointer", fontSize:"11px", fontWeight:"700",
+                fontFamily:"'DM Sans',sans-serif",
+              }}>
+                {v.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {cargando ? (
+          <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
+        ) : ordenados.length === 0 ? (
+          <div className="placeholder-content">
+            <div className="placeholder-icon">🍽️</div>
+            <div className="placeholder-text">No hay ventas en este período para analizar</div>
+          </div>
+        ) : (
+          <table className="user-table">
+            <thead>
+              <tr><th>#</th><th>Plato</th><th>Categoría</th><th>Pedidos</th><th>Ingresos</th><th>Tendencia</th></tr>
+            </thead>
+            <tbody>
+              {ordenados.map((p, i) => {
+                const cat  = getCategoria(p, i);
+                const pct  = vista === "frecuencia"
+                  ? Math.round((p.veces / maxVeces) * 100)
+                  : Math.round((p.ingresos / maxIngresos) * 100);
+                return (
+                  <tr key={i}>
+                    <td style={{ color:"var(--gray)", fontSize:"12px", fontWeight:"600" }}>
+                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`}
+                    </td>
+                    <td style={{ fontWeight:"500" }}>🍽️ {p.nombre}</td>
+                    <td>
+                      <span style={{ fontSize:"10px", fontWeight:"600", letterSpacing:"1px", textTransform:"uppercase", padding:"3px 10px", borderRadius:"20px", background: cat.bg, color: cat.color, border:`1px solid ${cat.border}` }}>
+                        {cat.label}
+                      </span>
+                    </td>
+                    <td style={{ color:"var(--gray)" }}>{p.veces} pedidos · {p.cantidadTotal} uds</td>
+                    <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>
+                      {fmt(p.ingresos)}
+                    </td>
+                    <td style={{ minWidth:"120px" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+                        <div style={{ flex:1, height:"6px", background:"rgba(255,255,255,0.06)", borderRadius:"3px", overflow:"hidden" }}>
+                          <div style={{ height:"100%", width:`${pct}%`, background: cat.color, borderRadius:"3px", transition:"width .5s" }} />
+                        </div>
+                        <span style={{ fontSize:"11px", color:"var(--gray)", minWidth:"32px" }}>{pct}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PaginaDashboardFinanciero() {
   const [ventas, setVentas]     = useState([]);
   const [cargando, setCargando] = useState(true);
