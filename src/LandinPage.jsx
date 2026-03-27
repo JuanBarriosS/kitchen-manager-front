@@ -313,16 +313,6 @@ export default function LandingPage() {
             </div>
           </button>
 
-          <button className="lp-btn lp-btn-secondary" onClick={() => navigate("/cocina")}>
-            <svg viewBox="0 0 24 24" style={{ stroke: "#F2EDE4", fill: "none", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }}>
-              <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
-            </svg>
-            <div className="lp-btn-label">
-              <span>Panel TV Cocina</span>
-              <span className="lp-btn-hint">Vista en tiempo real</span>
-            </div>
-          </button>
-
           <button className="lp-btn lp-btn-secondary" onClick={() => navigate("/clientes")}>
             <svg viewBox="0 0 24 24" style={{ stroke: "#F2EDE4", fill: "none", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }}>
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>

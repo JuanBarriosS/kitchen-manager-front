@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import CocinaTV from "./CocinaTV";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -779,6 +780,7 @@ const NAV = [
   { key: "pedidos", label: "Panel de Pedidos", icon: "📦", section: "COCINA" },
   { key: "nuevo",   label: "Nuevo Pedido",      icon: "➕", section: "COCINA" },
   { key: "menu",    label: "Ver Menú",           icon: "🍽️", section: "COCINA" },
+  { key: "cocina",  label:  "Panel para cocinero", icon: "📺", serction: "COCINA"},
   { key: "ventas",  label: "Mis Ventas",         icon: "💰", section: "REGISTRO" },
 ];
 
@@ -795,6 +797,7 @@ export default function Empleado() {
       case "nuevo":   return <PaginaNuevoPedido />;
       case "menu":    return <PaginaMenu />;
       case "ventas":  return <PaginaVentas />;
+      case "cocina":  return <CocinaTV />;
       default:        return <PaginaPedidos />;
     }
   };
