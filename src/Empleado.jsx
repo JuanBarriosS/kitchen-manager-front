@@ -454,7 +454,7 @@ function PaginaNuevoPedido() {
   const [cargandoMenu, setCargandoMenu]   = useState(true);
   const [enviando, setEnviando]           = useState(false);
   const [resultado, setResultado]         = useState(null);
-
+  const [linkSeguimiento, setLinkSeguimiento] = useState("");
   useEffect(() => {
     axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/verMenu")
       .then(res => setMenu(res.data))
@@ -487,23 +487,28 @@ function PaginaNuevoPedido() {
   const puedeRegistrar = itemsCarrito.length > 0 && fuente && nombreCliente.trim();
 
   const handleRegistrar = async () => {
-    setEnviando(true); setResultado(null);
-    try {
-      await axios.post("https://kitchen-manager-back-production.up.railway.app/empleado/registrarPedido", {
-        fuente, nombreCliente, notas, total,
-        itemsSeleccionados: itemsCarrito.map(i => ({
-          id: i.id, nombre: i.nombre, categoria: i.categoria, precio: i.precio, cantidad: i.cantidad,
-        })),
-      });
-      setResultado({ ok: true, msg: "✓ Pedido registrado correctamente" });
-      limpiar();
-    } catch (error) {
-      setResultado({ ok: false, msg: "✗ Error al registrar el pedido" });
-      console.error(error);
-    } finally {
-      setEnviando(false);
-    }
-  };
+  setEnviando(true); setResultado(null);
+  try {
+    const res = await axios.post("https://kitchen-manager-back-production.up.railway.app/empleado/registrarPedido", {
+      fuente, nombreCliente, notas, total,
+      itemsSeleccionados: itemsCarrito.map(i => ({
+        id: i.id, nombre: i.nombre, categoria: i.categoria, precio: i.precio, cantidad: i.cantidad,
+      })),
+    });
+    const link = `https://kitchen-manager-front.vercel.app/seguimiento/${res.data.id}`;
+    setLinkSeguimiento(link);
+    setResultado({ ok: true, msg: "✓ Pedido registrado correctamente" });
+
+    // limpia todo menos el link
+    setCarrito({}); setFuente(""); setNombreCliente(""); setNotas("");
+
+  } catch (error) {
+    setResultado({ ok: false, msg: "✗ Error al registrar el pedido" });
+    console.error(error);
+  } finally {
+    setEnviando(false);
+  }
+};
 
   return (
     <div>
@@ -601,12 +606,36 @@ function PaginaNuevoPedido() {
             <div className="resumen-total-value">{fmt(total)}</div>
           </div>
           <div className="resumen-actions">
-            <button className="btn-primary" disabled={!puedeRegistrar || enviando} onClick={handleRegistrar} style={{ padding:"12px 16px", fontSize:"14px" }}>
-              {enviando ? "REGISTRANDO..." : "REGISTRAR PEDIDO"}
-            </button>
-            <button className="btn-secondary" onClick={limpiar}>LIMPIAR</button>
-            {resultado && <div className={`alerta ${resultado.ok ? "alerta-ok" : "alerta-err"}`}>{resultado.msg}</div>}
-          </div>
+          <button className="btn-primary" disabled={!puedeRegistrar || enviando} onClick={handleRegistrar} style={{ padding:"12px 16px", fontSize:"14px" }}>
+            {enviando ? "REGISTRANDO..." : "REGISTRAR PEDIDO"}
+          </button>
+          <button className="btn-secondary" onClick={limpiar}>LIMPIAR</button>
+          {resultado && <div className={`alerta ${resultado.ok ? "alerta-ok" : "alerta-err"}`}>{resultado.msg}</div>}
+
+          {linkSeguimiento && (
+            <div style={{
+              padding:"14px", background:"rgba(76,175,80,0.08)",
+              border:"1px solid rgba(76,175,80,0.2)", borderRadius:"8px", marginTop:"8px"
+            }}>
+              <div style={{ fontSize:"10px", color:"#6fcf74", letterSpacing:"2px",
+                textTransform:"uppercase", marginBottom:"6px" }}>
+                Enlace para el cliente
+              </div>
+              <div style={{ fontSize:"11px", color:"rgba(232,230,223,0.6)",
+                wordBreak:"break-all", marginBottom:"10px" }}>
+                {linkSeguimiento}
+              </div>
+              <button onClick={() => navigator.clipboard.writeText(linkSeguimiento)} style={{
+                padding:"6px 14px", background:"rgba(76,175,80,0.15)",
+                border:"1px solid rgba(76,175,80,0.3)", borderRadius:"5px",
+                color:"#6fcf74", cursor:"pointer", fontSize:"11px",
+                fontFamily:"DM Sans,sans-serif", fontWeight:"600", width:"100%"
+              }}>
+                📋 Copiar y enviar al cliente
+              </button>
+            </div>
+          )}
+        </div>
         </div>
       </div>
     </div>
