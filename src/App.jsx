@@ -7,6 +7,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LandinPage from './LandinPage'; 
 import Clientes from './Clientes';
 import CocinaTV from './CocinaTV';
+import SeguimientoPedido from './SeguimientoPedido';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/"       element={<LandinPage />} />  
         <Route path="/cocina" element={<CocinaTV />} />
         <Route path="/clientes" element={<Clientes />} />
+        <Route path="/seguimiento/:id" element={<SeguimientoPedido />} />
         <Route path="/login"  element={<Login />} />         
         <Route path="/admin" element={
           <ProtectedRoute rolesPermitidos={["ADMIN"]}>
