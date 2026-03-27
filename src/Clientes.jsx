@@ -360,25 +360,30 @@ export default function PortalClientes() {
     axios.get(url)
       .then(res => {
         if (token) {
-          if (res.data.menu) {
-            setMenu(res.data.menu);
-            // Prellenar mesa con el nombre del QR para mayor usabilidad
-            if (res.data.qr?.nombre) setMesa(res.data.qr.nombre);
-          } else {
-            setErrorQr("QR no válido o inactivo");
+          const data = res.data;
+          if (Array.isArray(data)) {
+            setMenu(data);
+            return;
           }
+          if (data.menu && Array.isArray(data.menu)) {
+            setMenu(data.menu);
+            if (data.qr?.nombre) setMesa(data.qr.nombre);
+            return;
+          }
+          setErrorQr(typeof data === "string" ? data : "QR no válido o inactivo");
         } else {
           setMenu(res.data);
         }
       })
       .catch(err => {
         if (token) {
+          const message = err.response?.data || err.message;
           if (err.response?.status === 403) {
-            setErrorQr("Acceso denegado: QR inactivo o sin permisos");
+            setErrorQr(`Acceso denegado: ${message}`);
           } else if (err.response?.status === 404) {
-            setErrorQr("QR no encontrado");
+            setErrorQr(`QR no encontrado: ${message}`);
           } else {
-            setErrorQr("Error al cargar QR");
+            setErrorQr(`Error al cargar QR: ${message}`);
           }
         } else {
           console.error(err);
@@ -426,7 +431,7 @@ export default function PortalClientes() {
     try {
       const url = token 
         ? `https://kitchen-manager-back-production.up.railway.app/menu/${token}/pedido`
-        : "https://kitchen-manager-back-production.up.railway.app/cliente/registrarPedido";
+        : "https://kitchen-manager-back-production.up.railway.app/clientes/registrarPedido";
       const payload = token ? {
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas,
