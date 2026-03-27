@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import * as XLSX from "xlsx";
+import QRCode from 'react-qr-code';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -1463,11 +1464,153 @@ function PaginaUsuarios() {
   );
 }
 
+function PaginaQRs() {
+  const [qrs, setQrs] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [mostrarCrear, setMostrarCrear] = useState(false);
+  const [nuevoQr, setNuevoQr] = useState({ nombre: "", descripcion: "" });
+  const [qrSeleccionado, setQrSeleccionado] = useState(null);
+
+  useEffect(() => {
+    cargarQrs();
+  }, []);
+
+  const cargarQrs = async () => {
+    try {
+      const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/admin/qrs");
+      setQrs(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const crearQr = async () => {
+    try {
+      await axios.post("https://kitchen-manager-back-production.up.railway.app/admin/qrs", nuevoQr);
+      setNuevoQr({ nombre: "", descripcion: "" });
+      setMostrarCrear(false);
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleActivo = async (id, activo) => {
+    try {
+      await axios.patch(`https://kitchen-manager-back-production.up.railway.app/admin/qrs/${id}/estado`, { activo });
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const eliminarQr = async (id) => {
+    if (!confirm("¿Eliminar este QR?")) return;
+    try {
+      await axios.delete(`https://kitchen-manager-back-production.up.railway.app/admin/qrs/${id}`);
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div style={{ padding: "24px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+        <h2 style={{ color: "var(--white)", fontSize: "1.5rem", fontWeight: "600" }}>Códigos QR</h2>
+        <button
+          onClick={() => setMostrarCrear(!mostrarCrear)}
+          style={{ padding: "8px 16px", background: "var(--gold)", border: "none", borderRadius: "6px", color: "var(--bg)", cursor: "pointer", fontWeight: "500" }}
+        >
+          + Crear QR
+        </button>
+      </div>
+
+      {mostrarCrear && (
+        <div style={{ background: "var(--card)", padding: "16px", borderRadius: "8px", marginBottom: "24px", border: "1px solid var(--border)" }}>
+          <h3 style={{ color: "var(--white)", marginBottom: "12px" }}>Nuevo Código QR</h3>
+          <input
+            type="text"
+            placeholder="Nombre (e.g., Mesa 1)"
+            value={nuevoQr.nombre}
+            onChange={(e) => setNuevoQr({ ...nuevoQr, nombre: e.target.value })}
+            style={{ width: "100%", padding: "8px", marginBottom: "8px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "4px", color: "var(--white)" }}
+          />
+          <input
+            type="text"
+            placeholder="Descripción (opcional)"
+            value={nuevoQr.descripcion}
+            onChange={(e) => setNuevoQr({ ...nuevoQr, descripcion: e.target.value })}
+            style={{ width: "100%", padding: "8px", marginBottom: "12px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "4px", color: "var(--white)" }}
+          />
+          <div>
+            <button
+              onClick={crearQr}
+              style={{ padding: "6px 12px", background: "var(--green)", border: "none", borderRadius: "4px", color: "white", cursor: "pointer", marginRight: "8px" }}
+            >
+              Crear
+            </button>
+            <button
+              onClick={() => setMostrarCrear(false)}
+              style={{ padding: "6px 12px", background: "transparent", border: "1px solid var(--border)", borderRadius: "4px", color: "var(--gray)", cursor: "pointer" }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {cargando ? (
+        <div style={{ textAlign: "center", padding: "40px", color: "var(--gray)" }}>Cargando...</div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+          {qrs.map((qr) => (
+            <div key={qr.id} style={{ background: "var(--card)", padding: "16px", borderRadius: "8px", border: "1px solid var(--border)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <div>
+                  <h4 style={{ color: "var(--white)", fontSize: "1.1rem", fontWeight: "600" }}>{qr.nombre}</h4>
+                  <p style={{ color: "var(--gray)", fontSize: "0.9rem" }}>{qr.descripcion || "Sin descripción"}</p>
+                  <p style={{ color: qr.activo ? "var(--green)" : "var(--red)", fontSize: "0.8rem" }}>
+                    {qr.activo ? "Activo" : "Inactivo"}
+                  </p>
+                </div>
+                <div>
+                  <button
+                    onClick={() => toggleActivo(qr.id, !qr.activo)}
+                    style={{ padding: "4px 8px", background: qr.activo ? "var(--red)" : "var(--green)", border: "none", borderRadius: "4px", color: "white", cursor: "pointer", fontSize: "0.8rem", marginRight: "4px" }}
+                  >
+                    {qr.activo ? "Desactivar" : "Activar"}
+                  </button>
+                  <button
+                    onClick={() => eliminarQr(qr.id)}
+                    style={{ padding: "4px 8px", background: "var(--red)", border: "none", borderRadius: "4px", color: "white", cursor: "pointer", fontSize: "0.8rem" }}
+                  >
+                    🗑
+                  </button>
+                </div>
+              </div>
+              {qr.activo && (
+                <div style={{ textAlign: "center" }}>
+                  <QRCode value={`https://kitchen-manager-front.vercel.app/clientes?token=${qr.token}`} size={128} />
+                  <p style={{ color: "var(--gray)", fontSize: "0.8rem", marginTop: "8px" }}>Escanea para acceder</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── NAV ──────────────────────────────────────────────────────────────────
 const NAV = [
   { key: "inicio",   label: "Inicio",           icon: "🏠", section: "GENERAL" },
   { key: "menu",     label: "Gestión del Menú",  icon: "🍽️", section: "OPERACIONES" },
   { key: "pedidos",  label: "Panel de Pedidos",  icon: "📦", section: "OPERACIONES" },
+  { key: "qrs",      label: "Códigos QR",       icon: "📱", section: "OPERACIONES" },
   { key: "ventas",   label: "Historial Ventas",  icon: "💰", section: "REPORTES" },
   { key: "financiero",  label: "Dashboard Financiero",   icon: "📈", section: "REPORTES" },
   { key: "usuarios", label: "Usuarios",           icon: "👤", section: "CONFIGURACIÓN" },
@@ -1485,6 +1628,7 @@ export default function Admin() {
     case "inicio":     return <PaginaInicio username={username} />;
     case "menu":       return <PaginaMenu />;
     case "pedidos":    return <PaginaPedidos />;
+    case "qrs":        return <PaginaQRs />;
     case "ventas":     return <PaginaVentas />;
     case "financiero": return <PaginaDashboardFinanciero />;
     case "usuarios":   return <PaginaUsuarios />;
