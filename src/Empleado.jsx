@@ -780,7 +780,7 @@ const NAV = [
   { key: "pedidos", label: "Panel de Pedidos", icon: "📦", section: "COCINA" },
   { key: "nuevo",   label: "Nuevo Pedido",      icon: "➕", section: "COCINA" },
   { key: "menu",    label: "Ver Menú",           icon: "🍽️", section: "COCINA" },
-  { key: "cocina",  label:  "Panel para cocinero", icon: "📺", serction: "COCINA"},
+  { key: "cocina",  label:  "Panel para cocinero", icon: "📺", section: "COCINA"},
   { key: "ventas",  label: "Mis Ventas",         icon: "💰", section: "REGISTRO" },
 ];
 
@@ -808,7 +808,7 @@ export default function Empleado() {
       <div className="emp-root">
         <aside className="sidebar">
           <div className="sidebar-logo">
-            <div className="...logo-icon" style={{ fontSize: "20px" }}>
+            <div className="sidebar-logo-icon" style={{ fontSize: "20px" }}>
                 🫕
             </div>
             <div className="sidebar-logo-name">Kitchen Manager</div>
@@ -819,7 +819,19 @@ export default function Empleado() {
               <div key={section}>
                 <div className="nav-section-label">{section}</div>
                 {NAV.filter(n => n.section === section).map(item => (
-                  <div key={item.key} className={`nav-item ${activePage === item.key ? "active" : ""}`} onClick={() => setActivePage(item.key)}>
+                  <div 
+                    key={item.key} 
+                    className={`nav-item ${activePage === item.key ? "active" : ""}`} 
+                    onClick={() => {
+                      if (item.key === "cocina") {
+                        // Abre el endpoint /cocina en una pestaña nueva
+                        window.open("/cocina", "_blank");
+                      } else {
+                        // Cambia la página normalmente dentro del panel
+                        setActivePage(item.key);
+                      }
+                    }}
+                  >
                     <span className="nav-icon">{item.icon}</span>
                     {item.label}
                   </div>
