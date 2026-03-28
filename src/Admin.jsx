@@ -1533,14 +1533,14 @@ function PaginaQRs() {
           <h3 style={{ color: "var(--white)", marginBottom: "12px" }}>Nuevo Código QR</h3>
           <input
             type="text"
-            placeholder="Nombre (e.g., Mesa 1)"
+            placeholder="Nombre (ej: #1, #2, #3...)"
             value={nuevoQr.nombre}
             onChange={(e) => setNuevoQr({ ...nuevoQr, nombre: e.target.value })}
             style={{ width: "100%", padding: "8px", marginBottom: "8px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "4px", color: "var(--white)" }}
           />
           <input
             type="text"
-            placeholder="Descripción (opcional)"
+            placeholder="Descripción (Mesa, canal whatsapp, etc.)"
             value={nuevoQr.descripcion}
             onChange={(e) => setNuevoQr({ ...nuevoQr, descripcion: e.target.value })}
             style={{ width: "100%", padding: "8px", marginBottom: "12px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "4px", color: "var(--white)" }}
