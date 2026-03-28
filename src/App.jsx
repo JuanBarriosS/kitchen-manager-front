@@ -15,7 +15,7 @@ function App() {
       <Routes>
         <Route path="/"       element={<LandinPage />} />  
         <Route path="/cocina" element={<CocinaTV />} />
-        <Route path="/clientes" element={<Clientes />} />
+        <Route path="/menu/:token" element={<Clientes />} />
         <Route path="/seguimiento/:id" element={<SeguimientoPedido />} />
         <Route path="/login"  element={<Login />} />         
         <Route path="/admin" element={
