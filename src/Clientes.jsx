@@ -353,8 +353,8 @@ export default function PortalClientes() {
 
   useEffect(() => {
     const url = token
-      ? `https://zealand-andrew-conservation-quick.trycloudflare.com/menu/${token}`
-      : "https://zealand-andrew-conservation-quick.trycloudflare.com/clientes/verMenu";
+      ? `https://kitchen-manager-back.onrender.com/menu/${token}`
+      : "https://kitchen-manager-back.onrender.com/clientes/verMenu";
 
     axios.get(url)
       .then(res => {
@@ -429,8 +429,8 @@ export default function PortalClientes() {
     setResultado(null);
     try {
       const url = token 
-        ? `https://zealand-andrew-conservation-quick.trycloudflare.com/menu/${token}/pedido`
-        : "https://zealand-andrew-conservation-quick.trycloudflare.com/clientes/registrarPedido";
+        ? `https://kitchen-manager-back.onrender.com/menu/${token}/pedido`
+        : "https://kitchen-manager-back.onrender.com/clientes/registrarPedido";
       const payload = token ? {
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas,
