@@ -350,7 +350,7 @@ export default function PortalClientes() {
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/verMenu")
+    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/verMenu")
       .then(res => setMenu(res.data))
       .catch(err => console.error(err))
       .finally(() => setCargando(false));
@@ -394,7 +394,7 @@ export default function PortalClientes() {
     setResultado(null);
     try {
       const res = await axios.post(
-        "https://kitchen-manager-back-production.up.railway.app/empleado/registrarPedido",
+        "https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/registrarPedido",
         {
           fuente: "Presencial",
           nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,

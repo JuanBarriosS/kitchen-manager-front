@@ -186,7 +186,7 @@ function PaginaPedidos() {
 
   const cargarPedidos = () => {
     setCargando(true);
-    axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/pedidos")
+    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/pedidos")
       .then(res => setPedidos(res.data))
       .catch(err => console.error(err))
       .finally(() => setCargando(false));
@@ -204,7 +204,7 @@ function PaginaPedidos() {
     if (nuevoIdx < 0 || nuevoIdx >= colKeys.length) return;
     setMoviendo(pedido.id);
     try {
-      await axios.patch(`https://kitchen-manager-back-production.up.railway.app/empleado/pedido/${pedido.id}/estado`, {
+      await axios.patch(`https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/pedido/${pedido.id}/estado`, {
         estado: colKeys[nuevoIdx],
       });
       setPedidos(prev => prev.map(p => p.id === pedido.id ? { ...p, estado: colKeys[nuevoIdx] } : p));
@@ -215,7 +215,7 @@ function PaginaPedidos() {
   const facturar = async (pedido) => {
     setFacturando(pedido.id);
     try {
-      await axios.post(`https://kitchen-manager-back-production.up.railway.app/empleado/facturar/${pedido.id}`);
+      await axios.post(`https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/facturar/${pedido.id}`);
       setFacturado(pedido.id);
       setTimeout(() => setFacturado(null), 4000);
     } catch (err) {
@@ -456,7 +456,7 @@ function PaginaNuevoPedido() {
   const [resultado, setResultado]         = useState(null);
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/verMenu")
+    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/verMenu")
       .then(res => setMenu(res.data))
       .catch(err => console.error("Error cargando menú:", err))
       .finally(() => setCargandoMenu(false));
@@ -489,7 +489,7 @@ function PaginaNuevoPedido() {
   const handleRegistrar = async () => {
     setEnviando(true); setResultado(null);
     try {
-      await axios.post("https://kitchen-manager-back-production.up.railway.app/empleado/registrarPedido", {
+      await axios.post("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/registrarPedido", {
         fuente, nombreCliente, notas, total,
         itemsSeleccionados: itemsCarrito.map(i => ({
           id: i.id, nombre: i.nombre, categoria: i.categoria, precio: i.precio, cantidad: i.cantidad,
@@ -618,7 +618,7 @@ function PaginaMenu() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/verMenu")
+    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/verMenu")
       .then(res => setMenu(res.data))
       .catch(err => console.error("Error cargando menú:", err))
       .finally(() => setCargando(false));
@@ -660,7 +660,7 @@ function PaginaVentas() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back-production.up.railway.app/empleado/ventas")
+    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/ventas")
       .then(res => setVentas(res.data))
       .catch(err => console.error(err))
       .finally(() => setCargando(false));
