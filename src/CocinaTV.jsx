@@ -199,7 +199,7 @@ export default function CocinaTV() {
 
   const cargarPedidos = async () => {
     try {
-      const res = await axios.get("https://kitchen-manager-back-production.up.railway.app/cocina/pedidos");
+      const res = await axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/cocina/pedidos");
       const enPrep = res.data.filter(
         p => p.estado === "preparacion" ||
              p.estado === "en preparación" ||

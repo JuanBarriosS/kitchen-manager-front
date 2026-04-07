@@ -1593,7 +1593,7 @@ function PaginaQRs() {
               </div>
               {qr.activo && (
                 <div style={{ textAlign: "center" }}>
-                  <QRCode value={`https://kitchen-manager-front.vercel.app/menu/${qr.token}`} size={128} />
+                  <QRCode value={`https://zealand-andrew-conservation-quick.trycloudflare.com/menu/${qr.token}`} size={128} />
                   <p style={{ color: "var(--gray)", fontSize: "0.8rem", marginTop: "8px" }}>Escanea para acceder</p>
                 </div>
               )}

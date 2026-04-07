@@ -353,8 +353,8 @@ export default function PortalClientes() {
 
   useEffect(() => {
     const url = token
-      ? `https://kitchen-manager-back-production.up.railway.app/menu/${token}`
-      : "https://kitchen-manager-back-production.up.railway.app/clientes/verMenu";
+      ? `https://zealand-andrew-conservation-quick.trycloudflare.com/menu/${token}`
+      : "https://zealand-andrew-conservation-quick.trycloudflare.com/clientes/verMenu";
 
     axios.get(url)
       .then(res => {
@@ -429,8 +429,8 @@ export default function PortalClientes() {
     setResultado(null);
     try {
       const url = token 
-        ? `https://kitchen-manager-back-production.up.railway.app/menu/${token}/pedido`
-        : "https://kitchen-manager-back-production.up.railway.app/clientes/registrarPedido";
+        ? `https://zealand-andrew-conservation-quick.trycloudflare.com/menu/${token}/pedido`
+        : "https://zealand-andrew-conservation-quick.trycloudflare.com/clientes/registrarPedido";
       const payload = token ? {
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas,

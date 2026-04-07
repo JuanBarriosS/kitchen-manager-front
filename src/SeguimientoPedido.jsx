@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-const BASE = "https://kitchen-manager-back-production.up.railway.app";
+const BASE = "https://zealand-andrew-conservation-quick.trycloudflare.com";
 
 const ESTADOS = [
   { key: "recibido",    label: "Pedido recibido",    icon: "✅" },
