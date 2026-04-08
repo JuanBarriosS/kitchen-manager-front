@@ -468,7 +468,7 @@ function PaginaInicio({ username }) {
     Promise.all([
       axios.get("https://kitchen-manager-back.onrender.com/admin/verPedidos"),
       axios.get("https://kitchen-manager-back.onrender.com/admin/ventas"),
-      axios.get("https://kitchen-manager-back.onrender.co/admin/verMenu"),
+      axios.get("https://kitchen-manager-back.onrender.com/admin/verMenu"),
       axios.get("https://kitchen-manager-back.onrender.com/admin/verEmpleados"),
     ]).then(([pedidos, ventas, menu, empleados]) => {
       const pedidosHoy = pedidos.data.filter(p => new Date(p.fecha).toDateString() === hoy).length;
