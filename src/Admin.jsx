@@ -1270,7 +1270,7 @@ function PaginaUsuarios() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`${BASE}/admin/usuario/${id}`);
+      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/usuario/${id}`);
       setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -1331,14 +1331,22 @@ function PaginaQRs() {
 
   const crearQr = async () => {
     try {
-      await axios.post(`${BASE}/admin/qrs`, nuevoQr);
-      setNuevoQr({ nombre: "", descripcion: "" }); setMostrarCrear(false); cargarQrs();
-    } catch (err) { console.error(err); }
+      await axios.post("https://kitchen-manager-back.onrender.com/admin/qrs", nuevoQr);
+      setNuevoQr({ nombre: "", descripcion: "" });
+      setMostrarCrear(false);
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const toggleActivo = async (id, activo) => {
-    try { await axios.patch(`${BASE}/admin/qrs/${id}/estado`, { activo }); cargarQrs(); }
-    catch (err) { console.error(err); }
+    try {
+      await axios.patch(`https://kitchen-manager-back.onrender.com/admin/qrs/${id}/estado`, { activo });
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const eliminarQr = async (id) => {
