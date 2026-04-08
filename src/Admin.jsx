@@ -316,7 +316,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
     }
 
     try {
-      await axios.post("https://kitchen-manager-back.onrender.com//admin/agregarUsuario", {
+      await axios.post("https://kitchen-manager-back.onrender.com/admin/agregarUsuario", {
         username,
         password,
         roles: [roles],
@@ -466,10 +466,10 @@ function PaginaInicio({ username }) {
   useEffect(() => {
     const hoy = new Date().toDateString();
     Promise.all([
-      axios.get("https://kitchen-manager-back.onrender.com//admin/verPedidos"),
-      axios.get("https://kitchen-manager-back.onrender.com//admin/ventas"),
-      axios.get("https://kitchen-manager-back.onrender.com//admin/verMenu"),
-      axios.get("https://kitchen-manager-back.onrender.com//admin/verEmpleados"),
+      axios.get("https://kitchen-manager-back.onrender.com/admin/verPedidos"),
+      axios.get("https://kitchen-manager-back.onrender.com/admin/ventas"),
+      axios.get("https://kitchen-manager-back.onrender.co/admin/verMenu"),
+      axios.get("https://kitchen-manager-back.onrender.com/admin/verEmpleados"),
     ]).then(([pedidos, ventas, menu, empleados]) => {
       const pedidosHoy = pedidos.data.filter(p => new Date(p.fecha).toDateString() === hoy).length;
       const ventasHoy  = ventas.data.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a, v) => a + v.total, 0);
@@ -638,7 +638,7 @@ function PaginaMenu() {
 
   const cargarProductos = async () => {
     setCargando(true);
-    try { const res = await axios.get("https://kitchen-manager-back.onrender.com//admin/verMenu"); setProductos(res.data); }
+    try { const res = await axios.get("https://kitchen-manager-back.onrender.com/admin/verMenu"); setProductos(res.data); }
     catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
@@ -649,7 +649,7 @@ function PaginaMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true); setMensaje("");
     try {
-      await axios.post("https://kitchen-manager-back.onrender.com//admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
+      await axios.post("https://kitchen-manager-back.onrender.com/admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
       setMensaje("✓ Producto agregado correctamente");
       setForm({ nombre: "", categoria: "", precio: "" });
       cargarProductos(); setMostrarFormulario(false);
@@ -662,7 +662,7 @@ function PaginaMenu() {
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-      await axios.put(`https://kitchen-manager-back.onrender.com//admin/menu/${id}`, { ...editForm, precio: parseFloat(editForm.precio) });
+      await axios.put(`https://kitchen-manager-back.onrender.com/admin/menu/${id}`, { ...editForm, precio: parseFloat(editForm.precio) });
       setProductos(prev => prev.map(p => p.id === id ? { ...p, ...editForm, precio: parseFloat(editForm.precio) } : p));
       setEditId(null);
     } catch (e) { console.error(e); } finally { setEditando(false); }
@@ -671,7 +671,7 @@ function PaginaMenu() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://kitchen-manager-back.onrender.com//admin/menu/${id}`);
+      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/menu/${id}`);
       setProductos(prev => prev.filter(p => p.id !== id)); setConfirmElimId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -775,7 +775,7 @@ function PaginaPedidos() {
 
   const cargarPedidos = () => {
     setCargando(true);
-    axios.get("https://kitchen-manager-back.onrender.com//admin/verPedidos")
+    axios.get("https://kitchen-manager-back.onrender.com/admin/verPedidos")
       .then(res => setPedidos(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   };
 
@@ -784,7 +784,7 @@ function PaginaPedidos() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://kitchen-manager-back.onrender.com//admin/pedido/${id}`);
+      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/pedido/${id}`);
       setPedidos(prev => prev.filter(p => p.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -887,7 +887,7 @@ function PaginaPlatos() {
   const [vista, setVista]       = useState("frecuencia");
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back.onrender.com//admin/ventas")
+    axios.get("https://kitchen-manager-back.onrender.com/admin/ventas")
       .then(res => setVentas(res.data))
       .catch(err => console.error(err))
       .finally(() => setCargando(false));
@@ -1074,7 +1074,7 @@ function PaginaDashboardFinanciero() {
   const [rango, setRango]       = useState(30);
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back.onrender.com//admin/ventas")
+    axios.get("https://kitchen-manager-back.onrender.com/admin/ventas")
       .then(res => setVentas(res.data))
       .catch(err => console.error(err))
       .finally(() => setCargando(false));
@@ -1281,7 +1281,7 @@ function PaginaVentas() {
   const [hasta, setHasta]       = useState("");
 
   useEffect(() => {
-    axios.get("https://kitchen-manager-back.onrender.com//admin/ventas")
+    axios.get("https://kitchen-manager-back.onrender.com/admin/ventas")
       .then(res => setVentas(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   }, []);
 
@@ -1404,7 +1404,7 @@ function PaginaUsuarios() {
 
   const cargarUsuarios = async () => {
     setCargando(true);
-    try { const res = await axios.get("https://kitchen-manager-back.onrender.com//admin/verEmpleados"); setUsuarios(res.data); }
+    try { const res = await axios.get("https://kitchen-manager-back.onrender.com/admin/verEmpleados"); setUsuarios(res.data); }
     catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
@@ -1413,7 +1413,7 @@ function PaginaUsuarios() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://kitchen-manager-back.onrender.com//admin/usuario/${id}`);
+      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/usuario/${id}`);
       setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -1477,7 +1477,7 @@ function PaginaQRs() {
 
   const cargarQrs = async () => {
     try {
-      const res = await axios.get("https://kitchen-manager-back.onrender.com//admin/qrs");
+      const res = await axios.get("https://kitchen-manager-back.onrender.com/admin/qrs");
       setQrs(res.data);
     } catch (err) {
       console.error(err);
@@ -1488,7 +1488,7 @@ function PaginaQRs() {
 
   const crearQr = async () => {
     try {
-      await axios.post("https://kitchen-manager-back.onrender.com//admin/qrs", nuevoQr);
+      await axios.post("https://kitchen-manager-back.onrender.com/admin/qrs", nuevoQr);
       setNuevoQr({ nombre: "", descripcion: "" });
       setMostrarCrear(false);
       cargarQrs();
@@ -1499,7 +1499,7 @@ function PaginaQRs() {
 
   const toggleActivo = async (id, activo) => {
     try {
-      await axios.patch(`https://kitchen-manager-back.onrender.com//admin/qrs/${id}/estado`, { activo });
+      await axios.patch(`https://kitchen-manager-back.onrender.com/admin/qrs/${id}/estado`, { activo });
       cargarQrs();
     } catch (err) {
       console.error(err);
@@ -1509,7 +1509,7 @@ function PaginaQRs() {
   const eliminarQr = async (id) => {
     if (!confirm("¿Eliminar este QR?")) return;
     try {
-      await axios.delete(`https://kitchen-manager-back.onrender.com//admin/qrs/${id}`);
+      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/qrs/${id}`);
       cargarQrs();
     } catch (err) {
       console.error(err);
