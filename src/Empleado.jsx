@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import CocinaTV from "./CocinaTV";
 
+const BASE = "https://kitchen-manager-back.onrender.com";
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -470,6 +472,7 @@ function PaginaNuevoPedido() {
   const [enviando, setEnviando]           = useState(false);
   const [resultado, setResultado]         = useState(null);
   const [linkSeguimiento, setLinkSeguimiento] = useState("");
+  
   useEffect(() => {
     axios.get("https://kitchen-manager-back.onrender.com/empleado/verMenu")
       .then(res => setMenu(res.data))
@@ -502,28 +505,28 @@ function PaginaNuevoPedido() {
   const puedeRegistrar = itemsCarrito.length > 0 && fuente && nombreCliente.trim();
 
   const handleRegistrar = async () => {
-  setEnviando(true); setResultado(null);
-  try {
-    const res = await axios.post("https://kitchen-manager-back.onrender.com/empleado/registrarPedido", {
-      fuente, nombreCliente, notas, total,
-      itemsSeleccionados: itemsCarrito.map(i => ({
-        id: i.id, nombre: i.nombre, categoria: i.categoria, precio: i.precio, cantidad: i.cantidad,
-      })),
-    });
-    const link = `https://kitchen-manager-front.vercel.app/seguimiento/${res.data.id}`;
-    setLinkSeguimiento(link);
-    setResultado({ ok: true, msg: "✓ Pedido registrado correctamente" });
+    setEnviando(true); setResultado(null);
+    try {
+      const res = await axios.post("https://kitchen-manager-back.onrender.com/empleado/registrarPedido", {
+        fuente, nombreCliente, notas, total,
+        itemsSeleccionados: itemsCarrito.map(i => ({
+          id: i.id, nombre: i.nombre, categoria: i.categoria, precio: i.precio, cantidad: i.cantidad,
+        })),
+      });
+      const link = `https://kitchen-manager-front.vercel.app/seguimiento/${res.data.id}`;
+      setLinkSeguimiento(link);
+      setResultado({ ok: true, msg: "✓ Pedido registrado correctamente" });
 
-    // limpia todo menos el link
-    setCarrito({}); setFuente(""); setNombreCliente(""); setNotas("");
+      // limpia todo menos el link
+      setCarrito({}); setFuente(""); setNombreCliente(""); setNotas("");
 
-  } catch (error) {
-    setResultado({ ok: false, msg: "✗ Error al registrar el pedido" });
-    console.error(error);
-  } finally {
-    setEnviando(false);
-  }
-};
+    } catch (error) {
+      setResultado({ ok: false, msg: "✗ Error al registrar el pedido" });
+      console.error(error);
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   return (
     <div>
@@ -563,7 +566,54 @@ function PaginaNuevoPedido() {
               ) : (
                 <div className="productos-grid">
                   {menu.map(prod => (
-                    <div key={prod.id} className={`producto-btn ${carrito[prod.id] ? "seleccionado" : ""} ${!prod.disponible ? "agotado" : ""}`} onClick={() => agregar(prod)}>
+                    <div 
+                      key={prod.id} 
+                      className={`producto-btn ${carrito[prod.id] ? "seleccionado" : ""} ${!prod.disponible ? "agotado" : ""}`} 
+                      onClick={() => agregar(prod)}
+                    >
+                      {/* IMAGEN DEL PRODUCTO */}
+                      {prod.imagenUrl && (
+                        <div style={{ 
+                          width: "100%", 
+                          height: "100px", 
+                          borderRadius: "6px", 
+                          overflow: "hidden", 
+                          marginBottom: "10px", 
+                          background: "#0C0E14",
+                          position: "relative"
+                        }}>
+                          <img 
+                            src={`${BASE}${prod.imagenUrl}`}
+                            alt={prod.nombre}
+                            style={{ 
+                              width: "100%", 
+                              height: "100%", 
+                              objectFit: "cover",
+                              transition: "transform 0.2s"
+                            }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = "none";
+                              e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;">🍽️</div>';
+                            }}
+                          />
+                        </div>
+                      )}
+                      {!prod.imagenUrl && (
+                        <div style={{ 
+                          width: "100%", 
+                          height: "100px", 
+ borderRadius: "6px", 
+                          marginBottom: "10px", 
+                          background: "#0C0E14",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "40px"
+                        }}>
+                          🍽️
+                        </div>
+                      )}
                       <div className="prod-cat">{prod.categoria}</div>
                       <div className="prod-nombre">{prod.nombre}</div>
                       <div className="prod-precio">{fmt(prod.precio)}</div>
@@ -585,7 +635,12 @@ function PaginaNuevoPedido() {
           <div className="section-card">
             <div className="section-card-header"><div className="section-card-title">NOTAS ESPECIALES</div></div>
             <div className="form-section">
-              <textarea className="form-textarea" placeholder="Sin cebolla, extra salsa..." value={notas} onChange={e => setNotas(e.target.value)} />
+              <textarea 
+                className="form-textarea" 
+                placeholder="Sin cebolla, extra salsa, etc." 
+                value={notas} 
+                onChange={e => setNotas(e.target.value)} 
+              />
             </div>
           </div>
         </div>
@@ -598,9 +653,44 @@ function PaginaNuevoPedido() {
             ) : (
               itemsCarrito.map(item => (
                 <div className="resumen-item" key={item.id}>
-                  <div className="resumen-item-info">
-                    <div className="resumen-item-name">{item.nombre}</div>
-                    <div className="resumen-item-qty">{item.cantidad} × {fmt(item.precio)}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1 }}>
+                    {/* Mini imagen en el resumen */}
+                    {item.imagenUrl && (
+                      <img 
+                        src={`${BASE}${item.imagenUrl}`}
+                        alt={item.nombre}
+                        style={{ 
+                          width: "35px", 
+                          height: "35px", 
+                          objectFit: "cover", 
+                          borderRadius: "5px",
+                          border: "1px solid rgba(200,137,42,0.2)"
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    )}
+                    {!item.imagenUrl && (
+                      <div style={{ 
+                        width: "35px", 
+                        height: "35px", 
+                        borderRadius: "5px", 
+                        background: "#0C0E14",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "18px",
+                        border: "1px solid rgba(200,137,42,0.2)"
+                      }}>
+                        🍽️
+                      </div>
+                    )}
+                    <div className="resumen-item-info">
+                      <div className="resumen-item-name">{item.nombre}</div>
+                      <div className="resumen-item-qty">{item.cantidad} × {fmt(item.precio)}</div>
+                    </div>
                   </div>
                   <div className="resumen-item-price">{fmt(item.subtotal)}</div>
                   <button className="resumen-item-del" onClick={() => cambiar(item.id, -item.cantidad)}>✕</button>
@@ -610,9 +700,17 @@ function PaginaNuevoPedido() {
           </div>
 
           {(fuente || nombreCliente) && (
-            <div style={{ padding:"10px 16px", borderTop:"1px solid rgba(255,255,255,0.07)", fontSize:"11px", color:"var(--gray)", display:"flex", flexDirection:"column", gap:"4px" }}>
-              {fuente        && <span>📍 Fuente: <strong style={{ color:"var(--white)" }}>{fuente}</strong></span>}
-              {nombreCliente && <span>👤 Cliente: <strong style={{ color:"var(--white)" }}>{nombreCliente}</strong></span>}
+            <div style={{ 
+              padding: "10px 16px", 
+              borderTop: "1px solid rgba(255,255,255,0.07)", 
+              fontSize: "11px", 
+              color: "var(--gray)", 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "4px" 
+            }}>
+              {fuente        && <span>📍 Fuente: <strong style={{ color: "var(--white)" }}>{fuente}</strong></span>}
+              {nombreCliente && <span>👤 Cliente: <strong style={{ color: "var(--white)" }}>{nombreCliente}</strong></span>}
             </div>
           )}
 
@@ -621,36 +719,62 @@ function PaginaNuevoPedido() {
             <div className="resumen-total-value">{fmt(total)}</div>
           </div>
           <div className="resumen-actions">
-          <button className="btn-primary" disabled={!puedeRegistrar || enviando} onClick={handleRegistrar} style={{ padding:"12px 16px", fontSize:"14px" }}>
-            {enviando ? "REGISTRANDO..." : "REGISTRAR PEDIDO"}
-          </button>
-          <button className="btn-secondary" onClick={limpiar}>LIMPIAR</button>
-          {resultado && <div className={`alerta ${resultado.ok ? "alerta-ok" : "alerta-err"}`}>{resultado.msg}</div>}
+            <button 
+              className="btn-primary" 
+              disabled={!puedeRegistrar || enviando} 
+              onClick={handleRegistrar} 
+              style={{ padding: "12px 16px", fontSize: "14px" }}
+            >
+              {enviando ? "REGISTRANDO..." : "REGISTRAR PEDIDO"}
+            </button>
+            <button className="btn-secondary" onClick={limpiar}>LIMPIAR</button>
+            {resultado && <div className={`alerta ${resultado.ok ? "alerta-ok" : "alerta-err"}`}>{resultado.msg}</div>}
 
-          {linkSeguimiento && (
-            <div style={{
-              padding:"14px", background:"rgba(76,175,80,0.08)",
-              border:"1px solid rgba(76,175,80,0.2)", borderRadius:"8px", marginTop:"8px"
-            }}>
-              <div style={{ fontSize:"10px", color:"#6fcf74", letterSpacing:"2px",
-                textTransform:"uppercase", marginBottom:"6px" }}>
-                Enlace para el cliente
-              </div>
-              <div style={{ fontSize:"11px", color:"rgba(232,230,223,0.6)",
-                wordBreak:"break-all", marginBottom:"10px" }}>
-                {linkSeguimiento}
-              </div>
-              <button onClick={() => navigator.clipboard.writeText(linkSeguimiento)} style={{
-                padding:"6px 14px", background:"rgba(76,175,80,0.15)",
-                border:"1px solid rgba(76,175,80,0.3)", borderRadius:"5px",
-                color:"#6fcf74", cursor:"pointer", fontSize:"11px",
-                fontFamily:"DM Sans,sans-serif", fontWeight:"600", width:"100%"
+            {linkSeguimiento && (
+              <div style={{
+                padding: "14px", 
+                background: "rgba(76,175,80,0.08)",
+                border: "1px solid rgba(76,175,80,0.2)", 
+                borderRadius: "8px", 
+                marginTop: "8px"
               }}>
-                📋 Copiar y enviar al cliente
-              </button>
-            </div>
-          )}
-        </div>
+                <div style={{ 
+                  fontSize: "10px", 
+                  color: "#6fcf74", 
+                  letterSpacing: "2px",
+                  textTransform: "uppercase", 
+                  marginBottom: "6px" 
+                }}>
+                  Enlace para el cliente
+                </div>
+                <div style={{ 
+                  fontSize: "11px", 
+                  color: "rgba(232,230,223,0.6)",
+                  wordBreak: "break-all", 
+                  marginBottom: "10px" 
+                }}>
+                  {linkSeguimiento}
+                </div>
+                <button 
+                  onClick={() => navigator.clipboard.writeText(linkSeguimiento)} 
+                  style={{
+                    padding: "6px 14px", 
+                    background: "rgba(76,175,80,0.15)",
+                    border: "1px solid rgba(76,175,80,0.3)", 
+                    borderRadius: "5px",
+                    color: "#6fcf74", 
+                    cursor: "pointer", 
+                    fontSize: "11px",
+                    fontFamily: "DM Sans,sans-serif", 
+                    fontWeight: "600", 
+                    width: "100%"
+                  }}
+                >
+                  📋 Copiar y enviar al cliente
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -665,7 +789,7 @@ function PaginaMenu() {
     axios.get("https://kitchen-manager-back.onrender.com/empleado/verMenu")
       .then(res => setMenu(res.data))
       .catch(err => console.error("Error cargando menú:", err))
-      .finally(() => setCargando(false));//
+      .finally(() => setCargando(false));
   }, []);
 
   return (
@@ -681,9 +805,24 @@ function PaginaMenu() {
         ) : menu.length === 0 ? (
           <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">No hay productos en el menú aún</div></div>
         ) : (
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(175px,1fr))", gap:"12px", padding:"16px" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"12px", padding:"16px" }}>
             {menu.map((item, i) => (
               <div key={i} style={{ background:"var(--card2)", borderRadius:"7px", border:`1px solid ${item.disponible ? "rgba(76,175,80,0.15)" : "rgba(230,57,70,0.15)"}`, padding:"14px", display:"flex", flexDirection:"column", gap:"6px" }}>
+                {/* Agregar imagen aquí */}
+                {item.imagenUrl && (
+                  <div style={{ width:"100%", height:"120px", borderRadius:"6px", overflow:"hidden", marginBottom:"8px", background:"#0C0E14" }}>
+                    <img 
+                      src={`${BASE}${item.imagenUrl}`}
+                      alt={item.nombre}
+                      style={{ width:"100%", height:"100%", objectFit:"cover" }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = "none";
+                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;">🍽️</div>';
+                      }}
+                    />
+                  </div>
+                )}
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                   <div style={{ fontWeight:600, fontSize:"13px", color:"var(--white)" }}>{item.nombre}</div>
                   <span className={`badge ${item.disponible ? "badge-green" : "badge-red"}`}>{item.disponible ? "Activo" : "Agotado"}</span>
