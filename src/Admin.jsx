@@ -717,7 +717,7 @@ function PaginaMenu() {
                               style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
                           )}
                           {!archivoEdit && p.imagenUrl && (
-                            <img src={`${BASE}${p.imagenUrl}`} alt={p.nombre}
+                            <img src={p.imagenUrl} alt={p.nombre}
                               style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
                           )}
                           <div style={{ display:"flex", gap:"6px" }}>
@@ -733,7 +733,7 @@ function PaginaMenu() {
                       <td>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           {p.imagenUrl
-                            ? <img src={`${BASE}${p.imagenUrl}`} alt={p.nombre}
+                            ? <img src={p.imagenUrl} alt={p.nombre}
                                 style={{ width:40, height:40, objectFit:"cover", borderRadius:6, border:"1px solid rgba(255,255,255,0.1)", flexShrink:0 }} />
                             : <span style={{ fontSize:22 }}>🍽️</span>
                           }
