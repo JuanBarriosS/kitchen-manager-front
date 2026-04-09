@@ -533,6 +533,7 @@ function PaginaInicio({ username }) {
 }
 
 // ── PAGINA MENU ───────────────────────────────────────────────────────────
+// ── PAGINA MENU ───────────────────────────────────────────────────────────
 function PaginaMenu() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([]);
@@ -546,9 +547,12 @@ function PaginaMenu() {
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
 
-  // ── NUEVO: estado para imágenes ──
   const [archivoNuevo, setArchivoNuevo] = useState(null);
   const [archivoEdit,  setArchivoEdit]  = useState(null);
+
+  const authHeader = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  });
 
   const inputStyle = {
     width:"100%", padding:"10px 14px", borderRadius:"6px",
@@ -574,15 +578,16 @@ function PaginaMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true); setMensaje("");
     try {
-      // 1. Crear el producto → el backend devuelve el objeto con id
       const res = await axios.post(`${BASE}/admin/agregarMenu`,
         { ...form, precio: parseFloat(form.precio), disponible: true });
 
-      // 2. Si hay imagen, subirla con el id recién creado
+      // ✅ CORREGIDO: agrega el token en la subida de imagen
       if (archivoNuevo) {
         const fd = new FormData();
         fd.append("imagen", archivoNuevo);
-        await axios.post(`${BASE}/admin/menu/${res.data.id}/imagen`, fd);
+        await axios.post(`${BASE}/admin/menu/${res.data.id}/imagen`, fd, {
+          headers: authHeader()
+        });
       }
 
       setMensaje("✓ Producto agregado correctamente");
@@ -605,11 +610,13 @@ function PaginaMenu() {
       await axios.put(`${BASE}/admin/menu/${id}`,
         { ...editForm, precio: parseFloat(editForm.precio) });
 
-      // Si hay imagen nueva, subirla
+      // ✅ CORREGIDO: agrega el token en la subida de imagen al editar
       if (archivoEdit) {
         const fd = new FormData();
         fd.append("imagen", archivoEdit);
-        await axios.post(`${BASE}/admin/menu/${id}/imagen`, fd);
+        await axios.post(`${BASE}/admin/menu/${id}/imagen`, fd, {
+          headers: authHeader()
+        });
       }
 
       cargarProductos();
@@ -660,7 +667,6 @@ function PaginaMenu() {
                 <label style={labelStyle}>Precio ($)</label>
                 <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
               </div>
-              {/* ── NUEVO: campo imagen ── */}
               <div>
                 <label style={labelStyle}>Imagen</label>
                 <input type="file" accept="image/*" style={{ ...inputStyle, cursor:"pointer", paddingTop:"8px" }}
@@ -707,7 +713,6 @@ function PaginaMenu() {
                           <option value="false">Agotado</option>
                         </select>
                       </td>
-                      {/* ── NUEVO: input imagen en edición ── */}
                       <td>
                         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                           <input type="file" accept="image/*" style={{ ...smallInput, cursor:"pointer", width:"160px" }}
@@ -729,7 +734,6 @@ function PaginaMenu() {
                     </>
                   ) : (
                     <>
-                      {/* ── NUEVO: mostrar imagen en tabla ── */}
                       <td>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           {p.imagenUrl
