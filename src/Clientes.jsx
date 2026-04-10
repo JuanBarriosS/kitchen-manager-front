@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -330,11 +330,13 @@ const fmt = (n) => `$${Number(n).toLocaleString("es-CO")}`;
 
 export default function PortalClientes() {
   const navigate = useNavigate();
+  const { token } = useParams();
 
   // Menú
   const [menu, setMenu]           = useState([]);
   const [cargando, setCargando]   = useState(true);
   const [catActiva, setCatActiva] = useState("Todas");
+  const [errorQr, setErrorQr]     = useState(null);
 
   // Carrito
   const [carrito, setCarrito] = useState({});
@@ -350,11 +352,44 @@ export default function PortalClientes() {
   const [pedidoEnviado, setPedidoEnviado] = useState(false);
 
   useEffect(() => {
-    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/verMenu")
-      .then(res => setMenu(res.data))
-      .catch(err => console.error(err))
+    const url = token
+      ? `https://kitchen-manager-back.onrender.com/menu/${token}`
+      : "https://kitchen-manager-back.onrender.com/clientes/verMenu";
+
+    axios.get(url)
+      .then(res => {
+        if (token) {
+          const data = res.data;
+          if (Array.isArray(data)) {
+            setMenu(data);
+            return;
+          }
+          if (data.menu && Array.isArray(data.menu)) {
+            setMenu(data.menu);
+            if (data.qr?.nombre) setMesa(data.qr.nombre);
+            return;
+          }
+          setErrorQr(typeof data === "string" ? data : "QR no válido o inactivo");
+        } else {
+          setMenu(res.data);
+        }
+      })
+      .catch(err => {
+        if (token) {
+          const message = err.response?.data || err.message;
+          if (err.response?.status === 403) {
+            setErrorQr(`Acceso denegado: ${message}`);
+          } else if (err.response?.status === 404) {
+            setErrorQr(`QR no encontrado: ${message}`);
+          } else {
+            setErrorQr(`Error al cargar QR: ${message}`);
+          }
+        } else {
+          console.error(err);
+        }
+      })
       .finally(() => setCargando(false));
-  }, []);
+  }, [token]);
 
   // Categorías únicas
   const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
@@ -393,22 +428,35 @@ export default function PortalClientes() {
     setEnviando(true);
     setResultado(null);
     try {
-      const res = await axios.post(
-        "https://zealand-andrew-conservation-quick.trycloudflare.com/empleado/registrarPedido",
-        {
-          fuente: "Presencial",
-          nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
-          notas,
-          total,
-          itemsSeleccionados: itemsCarrito.map(i => ({
-            id:        i.id,
-            nombre:    i.nombre,
-            categoria: i.categoria,
-            precio:    i.precio,
-            cantidad:  i.cantidad,
-          })),
-        }
-      );
+      const url = token 
+        ? `https://kitchen-manager-back.onrender.com/menu/${token}/pedido`
+        : "https://kitchen-manager-back.onrender.com/clientes/registrarPedido";
+      const payload = token ? {
+        nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
+        notas,
+        total,
+        itemsSeleccionados: itemsCarrito.map(i => ({
+          id:        i.id,
+          nombre:    i.nombre,
+          categoria: i.categoria,
+          precio:    i.precio,
+          cantidad:  i.cantidad,
+        })),
+      } : {
+        fuente: "Presencial",
+        nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
+        notas,
+        total,
+        itemsSeleccionados: itemsCarrito.map(i => ({
+          id:        i.id,
+          nombre:    i.nombre,
+          categoria: i.categoria,
+          precio:    i.precio,
+          cantidad:  i.cantidad,
+        })),
+      };
+      if (!token) payload.fuente = "Presencial";
+      const res = await axios.post(url, payload);
       const pedidoId = res.data?.id || res.data?.pedidoId || "";
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
@@ -470,6 +518,49 @@ export default function PortalClientes() {
             >
               ← Volver al inicio
             </button>
+          </div>
+
+          <footer className="cp-footer">
+            <span>© 2026 Kitchen Manager · Todos los derechos reservados</span>
+            <span className="cp-footer-logo">Kitchen<span>Manager</span></span>
+          </footer>
+        </div>
+      </>
+    );
+  }
+
+  // ── ERROR QR ──
+  if (errorQr) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="cp-root">
+          <nav className="cp-nav">
+            <div className="cp-logo" onClick={() => navigate("/")}>
+              <div className="cp-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M8.5 2a6.5 6.5 0 0 1 0 13h-1v7H5V15H3.5a6.5 6.5 0 0 1 0-13h5zm7 2a4 4 0 0 1 4 4v1h1v2h-1v8h-2V11h-1V9h1V8a2 2 0 0 0-2-2V4z"/></svg>
+              </div>
+              <span className="cp-logo-text">Kitchen<span>Manager</span></span>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+              <button
+                onClick={() => navigate("/")}
+                style={{ display:"flex", alignItems:"center", gap:"6px", padding:"6px 14px", background:"transparent", border:"1px solid rgba(255,255,255,0.1)", borderRadius:"20px", color:"rgba(232,230,223,0.5)", fontSize:"0.75rem", fontWeight:"500", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"all 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(200,137,42,0.35)"; e.currentTarget.style.color="#F2EDE4"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(255,255,255,0.1)"; e.currentTarget.style.color="rgba(232,230,223,0.5)"; }}
+              >← Volver al inicio</button>
+              <span className="cp-nav-pill">Portal Clientes</span>
+            </div>
+          </nav>
+
+          <div style={{ minHeight:"60vh", display:"flex", alignItems:"center", justifyContent:"center", textAlign:"center", padding:"24px" }}>
+            <div>
+              <div style={{ fontSize:"48px", marginBottom:"16px" }}>🚫</div>
+              <div style={{ fontFamily:"Cormorant Garamond,serif", fontSize:"1.5rem", color:"#F2EDE4" }}>Acceso denegado</div>
+              <div style={{ fontSize:"13px", color:"rgba(232,230,223,0.4)", marginTop:"8px" }}>
+                {errorQr}
+              </div>
+            </div>
           </div>
 
           <footer className="cp-footer">

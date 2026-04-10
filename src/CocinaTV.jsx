@@ -76,7 +76,7 @@ const styles = `
   .tv-leyenda-dot { width:10px; height:10px; border-radius:50%; }
 
   /* GRID */
-  .tv-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+  .tv-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
 
   /* CARD */
   .tv-pedido {
@@ -101,25 +101,25 @@ const styles = `
   @keyframes alerta { from{border-color:rgba(230,57,70,0.2)} to{border-color:rgba(230,57,70,0.5)} }
 
   .tv-pedido-header {
-    padding:14px 20px;
+    padding:10px 14px;
     display:flex; align-items:center; justify-content:space-between;
     border-bottom:1px solid var(--border);
   }
 
   .tv-pedido-num {
     font-family:'Cormorant Garamond',serif;
-    font-size:1.5rem; font-weight:700; color:var(--gold2); line-height:1;
+    font-size:1.1rem; font-weight:700; color:var(--gold2); line-height:1;
   }
 
   .tv-pedido-tiempo {
     font-family:'Cormorant Garamond',serif;
-    font-size:1.5rem; font-weight:700; line-height:1;
+    font-size:1.1rem; font-weight:700; line-height:1;
   }
   .tv-pedido.verde   .tv-pedido-tiempo { color:#4CAF50; }
   .tv-pedido.amarillo .tv-pedido-tiempo { color:var(--gold); }
   .tv-pedido.rojo    .tv-pedido-tiempo { color:var(--rojo); }
 
-  .tv-pedido-body { padding:16px 20px; }
+  .tv-pedido-body { padding:10px 14px; }
 
   .tv-pedido-cliente { font-size:15px; font-weight:600; color:var(--white); margin-bottom:3px; }
   .tv-pedido-fuente {
@@ -137,17 +137,17 @@ const styles = `
     font-family:'Cormorant Garamond',serif;
     font-size:1.2rem; font-weight:700; color:var(--gold2); min-width:24px; line-height:1;
   }
-  .tv-pedido-item-nombre { font-size:14px; color:var(--white); line-height:1.3; }
+  .tv-pedido-item-nombre { font-size:12px; color:var(--white); line-height:1.3; }
 
   .tv-pedido-footer {
-    padding:12px 20px 16px;
+    padding:8px 14px 12px;
     display:flex; align-items:center; justify-content:space-between;
     border-top:1px solid var(--border);
     margin-top:14px;
   }
   .tv-pedido-total {
     font-family:'Cormorant Garamond',serif;
-    font-size:1.4rem; font-weight:700; color:var(--gold2);
+    font-size:1.1rem; font-weight:700; color:var(--gold2);
   }
   .tv-pedido-badge {
     font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
@@ -199,7 +199,7 @@ export default function CocinaTV() {
 
   const cargarPedidos = async () => {
     try {
-      const res = await axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/cocina/pedidos");
+      const res = await axios.get("https://kitchen-manager-back.onrender.com/cocina/pedidos");
       const enPrep = res.data.filter(
         p => p.estado === "preparacion" ||
              p.estado === "en preparación" ||

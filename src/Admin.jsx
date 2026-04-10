@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import * as XLSX from "xlsx";
+import QRCode from 'react-qr-code';
+
+const BASE = "https://kitchen-manager-back.onrender.com";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -282,115 +285,54 @@ function RegistrarUsuario({ onUsuarioCreado }) {
   const [mensaje, setMensaje] = useState("");
 
   const inputStyle = {
-    width: "100%",
-    padding: "10px 14px",
-    borderRadius: "6px",
-    border: "1px solid rgba(200,137,42,0.25)",
-    background: "#0C0E14",
-    color: "#F2EDE4",
-    fontSize: "13px",
-    fontFamily: "DM Sans, sans-serif",
-    outline: "none",
+    width: "100%", padding: "10px 14px", borderRadius: "6px",
+    border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
+    color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
   };
-
   const labelStyle = {
-    fontSize: "10px",
-    fontWeight: "600",
-    color: "rgba(232,230,223,0.45)",
-    letterSpacing: "1.5px",
-    textTransform: "uppercase",
-    marginBottom: "6px",
-    display: "block",
+    fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
+    letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
   };
 
   const manejarRegistro = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMensaje("");
-
+    e.preventDefault(); setLoading(true); setMensaje("");
     if (password !== passwordConfirmate) {
-      setMensaje("✗ Las contraseñas no coinciden");
-      setLoading(false);
-      return;
+      setMensaje("✗ Las contraseñas no coinciden"); setLoading(false); return;
     }
-
     try {
-      await axios.post("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/agregarUsuario", {
-        username,
-        password,
-        roles: [roles],
-      });
+      await axios.post(`${BASE}/admin/agregarUsuario`, { username, password, roles: [roles] });
       setMensaje("✓ Usuario creado exitosamente");
-      setUsername("");
-      setPassword("");
-      setPasswordConfirmate("");
-      setRoles("EMPLEADO");
+      setUsername(""); setPassword(""); setPasswordConfirmate(""); setRoles("EMPLEADO");
       if (onUsuarioCreado) onUsuarioCreado();
-    } catch (error) {
-      setMensaje("✗ Error al crear el usuario");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    } catch { setMensaje("✗ Error al crear el usuario"); }
+    finally { setLoading(false); }
   };
 
   return (
-    <form
-      onSubmit={manejarRegistro}
-      style={{
-        padding: "24px",
-        borderTop: "1px solid rgba(255,255,255,0.07)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-        background: "#141720",
-      }}
-    >
-      <div style={{ fontSize: "13px", fontWeight: "600", color: "#F2EDE4", marginBottom: "4px" }}>
-        Nuevo empleado
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-        <div>
-          <label style={labelStyle}>Nombre de usuario</label>
-          <input style={inputStyle} type="text" placeholder="ej: juan123" value={username} onChange={(e) => setUsername(e.target.value)} required />
-        </div>
+    <form onSubmit={manejarRegistro} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
+      <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4", marginBottom:"4px" }}>Nuevo empleado</div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px" }}>
+        <div><label style={labelStyle}>Nombre de usuario</label><input style={inputStyle} type="text" placeholder="ej: juan123" value={username} onChange={(e) => setUsername(e.target.value)} required /></div>
         <div>
           <label style={labelStyle}>Rol</label>
-          <select style={{ ...inputStyle, cursor: "pointer" }} value={roles} onChange={(e) => setRoles(e.target.value)}>
+          <select style={{ ...inputStyle, cursor:"pointer" }} value={roles} onChange={(e) => setRoles(e.target.value)}>
             <option value="EMPLEADO">Empleado</option>
             <option value="ADMIN">Administrador</option>
           </select>
         </div>
-        <div>
-          <label style={labelStyle}>Contraseña</label>
-          <input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <div>
-          <label style={labelStyle}>Confirmar contraseña</label>
-          <input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required />
-        </div>
+        <div><label style={labelStyle}>Contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+        <div><label style={labelStyle}>Confirmar contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required /></div>
       </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        <button type="submit" className="btn-primary" disabled={loading} style={{ padding: "10px 24px" }}>
-          {loading ? "Registrando..." : "Registrar Usuario"}
-        </button>
-        {mensaje && (
-          <span style={{ fontSize: "13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>
-            {mensaje}
-          </span>
-        )}
+      <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
+        <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Registrando..." : "Registrar Usuario"}</button>
+        {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
       </div>
     </form>
   );
 }
 
 function generarFacturaHTML(venta) {
-  const fecha = new Date(venta.fecha).toLocaleString("es-CO", {
-    day:"2-digit", month:"2-digit", year:"numeric",
-    hour:"2-digit", minute:"2-digit"
-  });
+  const fecha = new Date(venta.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
   const filas = venta.itemsVendidos?.map(item => `
     <tr>
       <td>${item.nombre}</td>
@@ -465,26 +407,24 @@ function PaginaInicio({ username }) {
   useEffect(() => {
     const hoy = new Date().toDateString();
     Promise.all([
-      axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/verPedidos"),
-      axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/ventas"),
-      axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/verMenu"),
-      axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/verEmpleados"),
+      axios.get(`${BASE}/admin/verPedidos`),
+      axios.get(`${BASE}/admin/ventas`),
+      axios.get(`${BASE}/admin/verMenu`),
+      axios.get(`${BASE}/admin/verEmpleados`),
     ]).then(([pedidos, ventas, menu, empleados]) => {
       const pedidosHoy = pedidos.data.filter(p => new Date(p.fecha).toDateString() === hoy).length;
       const ventasHoy  = ventas.data.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a, v) => a + v.total, 0);
       setStats({ pedidosHoy, ventasHoy, productos: menu.data.length, empleados: empleados.data.length });
       setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
       setTodasVentas(ventas.data);
-    }).catch(err => console.error(err))
-      .finally(() => setCargando(false));
+    }).catch(err => console.error(err)).finally(() => setCargando(false));
   }, []);
 
   useEffect(() => {
     const dias = [];
     for (let i = rango - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const label = d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit" });
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
       const dateStr = d.toDateString();
       const total = todasVentas.filter(v => new Date(v.fecha).toDateString() === dateStr).reduce((a, v) => a + v.total, 0);
       dias.push({ dia: label, total });
@@ -497,11 +437,9 @@ function PaginaInicio({ username }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) {
       return (
-        <div style={{ background: "#10131C", border: "1px solid rgba(200,137,42,0.2)", borderRadius: "8px", padding: "10px 14px", fontSize: "12px" }}>
-          <div style={{ color: "rgba(232,230,223,0.45)", marginBottom: "4px" }}>{label}</div>
-          <div style={{ color: "#E8A830", fontFamily: "'Cormorant Garamond',serif", fontWeight: "700", fontSize: "18px" }}>
-            {fmt(payload[0].value)}
-          </div>
+        <div style={{ background:"#10131C", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
+          <div style={{ color:"rgba(232,230,223,0.45)", marginBottom:"4px" }}>{label}</div>
+          <div style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontWeight:"700", fontSize:"18px" }}>{fmt(payload[0].value)}</div>
         </div>
       );
     }
@@ -514,7 +452,6 @@ function PaginaInicio({ username }) {
         <div className="page-title">BIENVENIDO, {username?.toUpperCase()}</div>
         <div className="page-subtitle">Resumen general del sistema — hoy</div>
       </div>
-
       <div className="stats-grid">
         {[
           { label:"Pedidos hoy",  value: cargando ? "..." : stats.pedidosHoy,     sub:"Registrados hoy", icon:"📦" },
@@ -530,41 +467,35 @@ function PaginaInicio({ username }) {
           </div>
         ))}
       </div>
-
-      <div className="section-card" style={{ marginBottom: "20px" }}>
+      <div className="section-card" style={{ marginBottom:"20px" }}>
         <div className="section-card-header">
           <div className="section-card-title">VENTAS POR DÍA</div>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display:"flex", gap:"8px" }}>
             {[7, 30].map(r => (
               <button key={r} onClick={() => setRango(r)} style={{
-                padding: "5px 14px",
+                padding:"5px 14px",
                 background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
                 border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
-                borderRadius: "5px",
-                color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
-                cursor: "pointer", fontSize: "11px", fontWeight: "700",
-                fontFamily: "'DM Sans', sans-serif", letterSpacing: "1px",
-              }}>
-                {r} DÍAS
-              </button>
+                borderRadius:"5px", color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
+                cursor:"pointer", fontSize:"11px", fontWeight:"700", fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
+              }}>{r} DÍAS</button>
             ))}
           </div>
         </div>
-        <div style={{ padding: "20px 16px 8px" }}>
+        <div style={{ padding:"20px 16px 8px" }}>
           {cargando ? (
             <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={graficaData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+              <BarChart data={graficaData} margin={{ top:4, right:8, left:8, bottom:0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="dia" tick={{ fill: "rgba(232,230,223,0.4)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "rgba(232,230,223,0.4)", fontSize: 10 }} axisLine={false} tickLine={false}
-                  tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(200,137,42,0.06)" }} />
-                <Bar dataKey="total" fill="url(#barGradient)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <XAxis dataKey="dia" tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill:"rgba(200,137,42,0.06)" }} />
+                <Bar dataKey="total" fill="url(#barGradient)" radius={[4,4,0,0]} maxBarSize={40} />
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor="#C8892A" />
+                    <stop offset="0%" stopColor="#C8892A" />
                     <stop offset="100%" stopColor="#E8A830" stopOpacity={0.5} />
                   </linearGradient>
                 </defs>
@@ -573,29 +504,19 @@ function PaginaInicio({ username }) {
           )}
         </div>
       </div>
-
       <div className="section-card">
-        <div className="section-card-header">
-          <div className="section-card-title">VENTAS RECIENTES</div>
-        </div>
+        <div className="section-card-header"><div className="section-card-title">VENTAS RECIENTES</div></div>
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando actividad...</div></div>
         ) : ventasRecientes.length === 0 ? (
-          <div className="placeholder-content">
-            <div className="placeholder-icon">📋</div>
-            <div className="placeholder-text">Aquí aparecerán los últimos pedidos y ventas del día</div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-icon">📋</div><div className="placeholder-text">Aquí aparecerán los últimos pedidos y ventas del día</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr><th>Factura</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Hora</th></tr>
-            </thead>
+            <thead><tr><th>Factura</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Hora</th></tr></thead>
             <tbody>
               {ventasRecientes.map((v, i) => (
                 <tr key={i}>
-                  <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>
-                    #{v.id?.slice(-6).toUpperCase()}
-                  </td>
+                  <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>#{v.id?.slice(-6).toUpperCase()}</td>
                   <td>👤 {v.nombreCliente}</td>
                   <td><span className="badge badge-orange">{v.fuente}</span></td>
                   <td style={{ fontSize:"11px", opacity:.8 }}>{v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
@@ -611,6 +532,8 @@ function PaginaInicio({ username }) {
   );
 }
 
+// ── PAGINA MENU ───────────────────────────────────────────────────────────
+// ── PAGINA MENU ───────────────────────────────────────────────────────────
 function PaginaMenu() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([]);
@@ -624,20 +547,27 @@ function PaginaMenu() {
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
 
+  const [archivoNuevo, setArchivoNuevo] = useState(null);
+  const [archivoEdit,  setArchivoEdit]  = useState(null);
+
+  const authHeader = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  });
+
   const inputStyle = {
-    width: "100%", padding: "10px 14px", borderRadius: "6px",
-    border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
-    color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
+    width:"100%", padding:"10px 14px", borderRadius:"6px",
+    border:"1px solid rgba(200,137,42,0.25)", background:"#0C0E14",
+    color:"#F2EDE4", fontSize:"13px", fontFamily:"DM Sans, sans-serif", outline:"none",
   };
   const labelStyle = {
-    fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
-    letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
+    fontSize:"10px", fontWeight:"600", color:"rgba(232,230,223,0.45)",
+    letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"6px", display:"block",
   };
-  const smallInput = { ...inputStyle, padding: "7px 10px", fontSize: "12px" };
+  const smallInput = { ...inputStyle, padding:"7px 10px", fontSize:"12px" };
 
   const cargarProductos = async () => {
     setCargando(true);
-    try { const res = await axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/verMenu"); setProductos(res.data); }
+    try { const res = await axios.get(`${BASE}/admin/verMenu`); setProductos(res.data); }
     catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
@@ -651,26 +581,42 @@ function PaginaMenu() {
       await axios.post("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
       setMensaje("✓ Producto agregado correctamente");
       setForm({ nombre: "", categoria: "", precio: "" });
+      setArchivoNuevo(null);
       cargarProductos(); setMostrarFormulario(false);
     } catch { setMensaje("✗ Error al agregar el producto"); }
     finally { setLoading(false); }
   };
 
-  const abrirEdicion = (p) => { setEditId(p.id); setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible }); };
+  const abrirEdicion = (p) => {
+    setEditId(p.id);
+    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
+    setArchivoEdit(null);
+  };
 
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-      await axios.put(`https://zealand-andrew-conservation-quick.trycloudflare.com/admin/menu/${id}`, { ...editForm, precio: parseFloat(editForm.precio) });
-      setProductos(prev => prev.map(p => p.id === id ? { ...p, ...editForm, precio: parseFloat(editForm.precio) } : p));
-      setEditId(null);
+      await axios.put(`${BASE}/admin/menu/${id}`,
+        { ...editForm, precio: parseFloat(editForm.precio) });
+
+      // agrega el token en la subida de imagen al editar
+      if (archivoEdit) {
+        const fd = new FormData();
+        fd.append("imagen", archivoEdit);
+        await axios.post(`${BASE}/admin/menu/${id}/imagen`, fd, {
+          headers: authHeader()
+        });
+      }
+
+      cargarProductos();
+      setEditId(null); setArchivoEdit(null);
     } catch (e) { console.error(e); } finally { setEditando(false); }
   };
 
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://zealand-andrew-conservation-quick.trycloudflare.com/admin/menu/${id}`);
+      await axios.delete(`${BASE}/admin/menu/${id}`);
       setProductos(prev => prev.filter(p => p.id !== id)); setConfirmElimId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -694,8 +640,11 @@ function PaginaMenu() {
         {mostrarFormulario && (
           <form onSubmit={handleSubmit} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
             <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4" }}>Nuevo producto</div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"16px" }}>
-              <div><label style={labelStyle}>Nombre</label><input style={inputStyle} name="nombre" placeholder="ej: Bandeja Paisa" value={form.nombre} onChange={handleChange} required /></div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:"16px" }}>
+              <div>
+                <label style={labelStyle}>Nombre</label>
+                <input style={inputStyle} name="nombre" placeholder="ej: Bandeja Paisa" value={form.nombre} onChange={handleChange} required />
+              </div>
               <div>
                 <label style={labelStyle}>Categoría</label>
                 <select style={{ ...inputStyle, cursor:"pointer" }} name="categoria" value={form.categoria} onChange={handleChange} required>
@@ -703,7 +652,19 @@ function PaginaMenu() {
                   {categorias.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div><label style={labelStyle}>Precio ($)</label><input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required /></div>
+              <div>
+                <label style={labelStyle}>Precio ($)</label>
+                <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
+              </div>
+              <div>
+                <label style={labelStyle}>Imagen</label>
+                <input type="file" accept="image/*" style={{ ...inputStyle, cursor:"pointer", paddingTop:"8px" }}
+                  onChange={e => setArchivoNuevo(e.target.files[0])} />
+                {archivoNuevo && (
+                  <img src={URL.createObjectURL(archivoNuevo)} alt="preview"
+                    style={{ marginTop:8, width:50, height:50, objectFit:"cover", borderRadius:6, border:"1px solid rgba(255,255,255,0.1)" }} />
+                )}
+              </div>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
               <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Guardando..." : "Guardar Producto"}</button>
@@ -724,20 +685,54 @@ function PaginaMenu() {
                 <tr key={p.id}>
                   {editId === p.id ? (
                     <>
-                      <td><input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} /></td>
-                      <td><select style={{ ...smallInput, cursor:"pointer" }} value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>{categorias.map(c => <option key={c} value={c}>{c}</option>)}</select></td>
-                      <td><input style={{ ...smallInput, width:"110px" }} type="number" value={editForm.precio} onChange={e => setEditForm({ ...editForm, precio: e.target.value })} /></td>
-                      <td><select style={{ ...smallInput, cursor:"pointer", width:"120px" }} value={editForm.disponible ? "true" : "false"} onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}><option value="true">Disponible</option><option value="false">Agotado</option></select></td>
                       <td>
-                        <div style={{ display:"flex", gap:"6px" }}>
-                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
-                          <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+                        <input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} />
+                      </td>
+                      <td>
+                        <select style={{ ...smallInput, cursor:"pointer" }} value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>
+                          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </td>
+                      <td>
+                        <input style={{ ...smallInput, width:"110px" }} type="number" value={editForm.precio} onChange={e => setEditForm({ ...editForm, precio: e.target.value })} />
+                      </td>
+                      <td>
+                        <select style={{ ...smallInput, cursor:"pointer", width:"120px" }} value={editForm.disponible ? "true" : "false"} onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}>
+                          <option value="true">Disponible</option>
+                          <option value="false">Agotado</option>
+                        </select>
+                      </td>
+                      <td>
+                        <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                          <input type="file" accept="image/*" style={{ ...smallInput, cursor:"pointer", width:"160px" }}
+                            onChange={e => setArchivoEdit(e.target.files[0])} />
+                          {archivoEdit && (
+                            <img src={URL.createObjectURL(archivoEdit)} alt="preview"
+                              style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
+                          )}
+                          {!archivoEdit && p.imagenUrl && (
+                            <img src={p.imagenUrl} alt={p.nombre}
+                              style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
+                          )}
+                          <div style={{ display:"flex", gap:"6px" }}>
+                            <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
+                            <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+                          </div>
                         </div>
                       </td>
                     </>
                   ) : (
                     <>
-                      <td>🍽️ {p.nombre}</td>
+                      <td>
+                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                          {p.imagenUrl
+                            ? <img src={p.imagenUrl} alt={p.nombre}
+                                style={{ width:40, height:40, objectFit:"cover", borderRadius:6, border:"1px solid rgba(255,255,255,0.1)", flexShrink:0 }} />
+                            : <span style={{ fontSize:22 }}>🍽️</span>
+                          }
+                          {p.nombre}
+                        </div>
+                      </td>
                       <td><span className="badge badge-orange">{p.categoria}</span></td>
                       <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
                       <td><span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>{p.disponible ? "Disponible" : "Agotado"}</span></td>
@@ -774,7 +769,7 @@ function PaginaPedidos() {
 
   const cargarPedidos = () => {
     setCargando(true);
-    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/verPedidos")
+    axios.get(`${BASE}/admin/verPedidos`)
       .then(res => setPedidos(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   };
 
@@ -783,7 +778,7 @@ function PaginaPedidos() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://zealand-andrew-conservation-quick.trycloudflare.com/admin/pedido/${id}`);
+      await axios.delete(`${BASE}/admin/pedido/${id}`);
       setPedidos(prev => prev.filter(p => p.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -802,7 +797,6 @@ function PaginaPedidos() {
         </div>
         <button className="btn-primary" onClick={cargarPedidos}>⟳ ACTUALIZAR</button>
       </div>
-
       <div className="stats-grid">
         {[
           { label:"Recibidos",      key:"recibido",    color:"#4A90D9" },
@@ -816,11 +810,8 @@ function PaginaPedidos() {
           </div>
         ))}
       </div>
-
       <div className="section-card">
-        <div className="section-card-header">
-          <div className="section-card-title">PEDIDOS REGISTRADOS ({pedidos.length})</div>
-        </div>
+        <div className="section-card-header"><div className="section-card-title">PEDIDOS REGISTRADOS ({pedidos.length})</div></div>
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando pedidos...</div></div>
         ) : pedidos.length === 0 ? (
@@ -879,24 +870,151 @@ function exportarExcel(ventas) {
   XLSX.writeFile(libro, `ventas_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
+function PaginaPlatos() {
+  const [ventas, setVentas]     = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [rango, setRango]       = useState(30);
+  const [vista, setVista]       = useState("frecuencia");
+
+  useEffect(() => {
+    axios.get(`${BASE}/admin/ventas`).then(res => setVentas(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
+  }, []);
+
+  const ventasFiltradas = ventas.filter(v => new Date(v.fecha) >= new Date(Date.now() - rango * 86400000));
+
+  const porPlato = {};
+  ventasFiltradas.forEach(v => {
+    (v.itemsVendidos || []).forEach(item => {
+      if (!porPlato[item.nombre]) porPlato[item.nombre] = { nombre: item.nombre, veces: 0, ingresos: 0, cantidadTotal: 0 };
+      porPlato[item.nombre].veces        += 1;
+      porPlato[item.nombre].cantidadTotal += item.cantidad || 1;
+      porPlato[item.nombre].ingresos     += (item.precio || 0) * (item.cantidad || 1);
+    });
+  });
+
+  const platos   = Object.values(porPlato);
+  const total    = platos.length;
+  const ordenados = [...platos].sort((a, b) => vista === "frecuencia" ? b.veces - a.veces : b.ingresos - a.ingresos);
+  const maxVeces    = Math.max(...platos.map(p => p.veces), 1);
+  const maxIngresos = Math.max(...platos.map(p => p.ingresos), 1);
+
+  const getCategoria = (p, index) => {
+    if (index < Math.ceil(total * 0.3))   return { label:"Estrella", color:"#E8A830", bg:"rgba(232,168,48,0.12)", border:"rgba(232,168,48,0.3)" };
+    if (index >= Math.floor(total * 0.7)) return { label:"Muerto",   color:"#E63946", bg:"rgba(230,57,70,0.1)",  border:"rgba(230,57,70,0.25)" };
+    return                                       { label:"Normal",    color:"#4A90D9", bg:"rgba(74,144,217,0.1)", border:"rgba(74,144,217,0.25)" };
+  };
+
+  const fmt      = n => `$${Number(n).toLocaleString("es-CO")}`;
+  const estrellas = ordenados.filter((_, i) => i < Math.ceil(total * 0.3));
+  const muertos   = ordenados.filter((_, i) => i >= Math.floor(total * 0.7));
+
+  return (
+    <div>
+      <div className="page-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div><div className="page-title">ANÁLISIS DE PLATOS</div><div className="page-subtitle">Detecta tus platos estrella y los que no están funcionando</div></div>
+        <div style={{ display:"flex", gap:"8px" }}>
+          {[7, 30, 90].map(r => (
+            <button key={r} onClick={() => setRango(r)} style={{
+              padding:"6px 14px", background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+              border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)", borderRadius:"5px",
+              color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)", cursor:"pointer", fontSize:"11px", fontWeight:"700", fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
+            }}>{r} DÍAS</button>
+          ))}
+        </div>
+      </div>
+      <div className="stats-grid">
+        {[
+          { label:"Platos analizados", value: cargando ? "..." : total,            sub:"En el período",         color:"var(--gold2)" },
+          { label:"Platos estrella",   value: cargando ? "..." : estrellas.length, sub:"Top 30% en ventas",     color:"#E8A830" },
+          { label:"Platos muertos",    value: cargando ? "..." : muertos.length,   sub:"Bottom 30% — revisar",  color:"#E63946" },
+          { label:"Plato #1",          value: cargando ? "..." : (ordenados[0]?.nombre?.split(" ")[0] || "—"), sub: ordenados[0] ? `${ordenados[0].veces} pedidos` : "Sin datos", color:"var(--gold)" },
+        ].map((s, i) => (
+          <div className="stat-card" key={i} style={{ borderTop:`2px solid ${s.color}` }}>
+            <div className="stat-label">{s.label}</div>
+            <div className="stat-value" style={{ fontSize:"1.6rem", color: s.color }}>{s.value}</div>
+            <div className="stat-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+      {estrellas.length > 0 && (
+        <div style={{ padding:"14px 20px", background:"rgba(232,168,48,0.06)", border:"1px solid rgba(232,168,48,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
+          <span style={{ fontSize:"20px" }}>⭐</span>
+          <div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E8A830", letterSpacing:"1px", textTransform:"uppercase" }}>Platos estrella</div>
+            <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>{estrellas.map(p => p.nombre).join(" · ")}</div>
+          </div>
+        </div>
+      )}
+      {muertos.length > 0 && (
+        <div style={{ padding:"14px 20px", background:"rgba(230,57,70,0.06)", border:"1px solid rgba(230,57,70,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
+          <span style={{ fontSize:"20px" }}>⚠️</span>
+          <div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E63946", letterSpacing:"1px", textTransform:"uppercase" }}>Considera retirar del menú</div>
+            <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>{muertos.map(p => p.nombre).join(" · ")}</div>
+          </div>
+        </div>
+      )}
+      <div className="section-card">
+        <div className="section-card-header">
+          <div className="section-card-title">RANKING DE PLATOS</div>
+          <div style={{ display:"flex", gap:"8px" }}>
+            {[{ key:"frecuencia", label:"Por pedidos" }, { key:"ingresos", label:"Por ingresos" }].map(v => (
+              <button key={v.key} onClick={() => setVista(v.key)} style={{
+                padding:"5px 14px", background: vista === v.key ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+                border: vista === v.key ? "none" : "1px solid rgba(255,255,255,0.12)", borderRadius:"5px",
+                color: vista === v.key ? "#0C0E14" : "rgba(232,230,223,0.45)", cursor:"pointer", fontSize:"11px", fontWeight:"700", fontFamily:"'DM Sans',sans-serif",
+              }}>{v.label}</button>
+            ))}
+          </div>
+        </div>
+        {cargando ? (
+          <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
+        ) : ordenados.length === 0 ? (
+          <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">No hay ventas en este período para analizar</div></div>
+        ) : (
+          <table className="user-table">
+            <thead><tr><th>#</th><th>Plato</th><th>Categoría</th><th>Pedidos</th><th>Ingresos</th><th>Tendencia</th></tr></thead>
+            <tbody>
+              {ordenados.map((p, i) => {
+                const cat = getCategoria(p, i);
+                const pct = vista === "frecuencia" ? Math.round((p.veces / maxVeces) * 100) : Math.round((p.ingresos / maxIngresos) * 100);
+                return (
+                  <tr key={i}>
+                    <td style={{ color:"var(--gray)", fontSize:"12px", fontWeight:"600" }}>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`}</td>
+                    <td style={{ fontWeight:"500" }}>🍽️ {p.nombre}</td>
+                    <td><span style={{ fontSize:"10px", fontWeight:"600", letterSpacing:"1px", textTransform:"uppercase", padding:"3px 10px", borderRadius:"20px", background: cat.bg, color: cat.color, border:`1px solid ${cat.border}` }}>{cat.label}</span></td>
+                    <td style={{ color:"var(--gray)" }}>{p.veces} pedidos · {p.cantidadTotal} uds</td>
+                    <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(p.ingresos)}</td>
+                    <td style={{ minWidth:"120px" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+                        <div style={{ flex:1, height:"6px", background:"rgba(255,255,255,0.06)", borderRadius:"3px", overflow:"hidden" }}>
+                          <div style={{ height:"100%", width:`${pct}%`, background: cat.color, borderRadius:"3px", transition:"width .5s" }} />
+                        </div>
+                        <span style={{ fontSize:"11px", color:"var(--gray)", minWidth:"32px" }}>{pct}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PaginaDashboardFinanciero() {
   const [ventas, setVentas]     = useState([]);
   const [cargando, setCargando] = useState(true);
   const [rango, setRango]       = useState(30);
 
   useEffect(() => {
-    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/ventas")
-      .then(res => setVentas(res.data))
-      .catch(err => console.error(err))
-      .finally(() => setCargando(false));
+    axios.get(`${BASE}/admin/ventas`).then(res => setVentas(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   }, []);
 
   const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
-
-  const ventasFiltradas = ventas.filter(v => {
-    const fecha = new Date(v.fecha);
-    return fecha >= new Date(Date.now() - rango * 86400000);
-  });
+  const ventasFiltradas = ventas.filter(v => new Date(v.fecha) >= new Date(Date.now() - rango * 86400000));
 
   const porFuente = {};
   ventasFiltradas.forEach(v => {
@@ -906,49 +1024,32 @@ function PaginaDashboardFinanciero() {
     porFuente[fuente].count += 1;
   });
 
-  const canales = Object.values(porFuente).sort((a, b) => b.total - a.total);
+  const canales      = Object.values(porFuente).sort((a, b) => b.total - a.total);
   const totalGeneral = canales.reduce((a, c) => a + c.total, 0);
+  const COLORES      = { "Rappi":"#FF6314", "Uber Eats":"#06C167", "Presencial":"#C9A84C", "WhatsApp":"#01391e", "DiDi Food":"#FFC400" };
+  const getColor     = (fuente) => COLORES[fuente] || "#A0A0A0";
 
-  const COLORES = {
-    "Rappi":      "#FF6314",
-    "Uber Eats":  "#06C167",
-    "Presencial": "#C9A84C",
-    "WhatsApp":  "#01391e",
-    "DiDi Food":  "#FFC400",
-    
-  };
-  const getColor = (fuente) => COLORES[fuente] || "#A0A0A0";
-
-  const ventasPorDiaCanal = () => {
+  const graficaData = (() => {
     const dias = [];
     for (let i = rango - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const label   = d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit" });
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
       const dateStr = d.toDateString();
-      const entry   = { dia: label };
+      const entry = { dia: label };
       canales.forEach(c => {
-        entry[c.fuente] = ventasFiltradas
-          .filter(v => new Date(v.fecha).toDateString() === dateStr && (v.fuente || "Directo") === c.fuente)
-          .reduce((a, v) => a + v.total, 0);
+        entry[c.fuente] = ventasFiltradas.filter(v => new Date(v.fecha).toDateString() === dateStr && (v.fuente || "Directo") === c.fuente).reduce((a, v) => a + v.total, 0);
       });
       dias.push(entry);
     }
     return dias;
-  };
-
-  const graficaData = ventasPorDiaCanal();
+  })();
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) {
       return (
-        <div style={{ background:"#10131C", border:"1px solid rgb(238, 230, 230)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
+        <div style={{ background:"#10131C", border:"1px solid rgba(238,230,230,1)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
           <div style={{ color:"var(--gray)", marginBottom:"6px" }}>{label}</div>
-          {payload.map((p, i) => (
-            <div key={i} style={{ color: p.color, marginBottom:"2px" }}>
-              {p.name}: {fmt(p.value)}
-            </div>
-          ))}
+          {payload.map((p, i) => <div key={i} style={{ color: p.color, marginBottom:"2px" }}>{p.name}: {fmt(p.value)}</div>)}
         </div>
       );
     }
@@ -958,30 +1059,20 @@ function PaginaDashboardFinanciero() {
   return (
     <div>
       <div className="page-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div>
-          <div className="page-title">DASHBOARD FINANCIERO</div>
-          <div className="page-subtitle">Comparativo de ingresos por plataforma</div>
-        </div>
+        <div><div className="page-title">DASHBOARD FINANCIERO</div><div className="page-subtitle">Comparativo de ingresos por plataforma</div></div>
         <div style={{ display:"flex", gap:"8px" }}>
           {[7, 30, 90].map(r => (
             <button key={r} onClick={() => setRango(r)} style={{
-              padding:"6px 14px",
-              background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
-              border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
-              borderRadius:"5px",
-              color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
-              cursor:"pointer", fontSize:"11px", fontWeight:"700",
-              fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
-            }}>
-              {r} DÍAS
-            </button>
+              padding:"6px 14px", background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+              border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)", borderRadius:"5px",
+              color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)", cursor:"pointer", fontSize:"11px", fontWeight:"700", fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
+            }}>{r} DÍAS</button>
           ))}
         </div>
       </div>
-
       <div className="stats-grid">
         {canales.map((c, i) => {
-          const pct = totalGeneral > 0 ? Math.round((c.total / totalGeneral) * 100) : 0;
+          const pct    = totalGeneral > 0 ? Math.round((c.total / totalGeneral) * 100) : 0;
           const ticket = c.count > 0 ? Math.round(c.total / c.count) : 0;
           return (
             <div className="stat-card" key={i} style={{ borderTop:`2px solid ${getColor(c.fuente)}` }}>
@@ -995,18 +1086,10 @@ function PaginaDashboardFinanciero() {
             </div>
           );
         })}
-        {cargando && (
-          <div className="stat-card">
-            <div className="stat-label">Cargando...</div>
-            <div className="stat-value">—</div>
-          </div>
-        )}
+        {cargando && <div className="stat-card"><div className="stat-label">Cargando...</div><div className="stat-value">—</div></div>}
       </div>
-
       <div className="section-card" style={{ marginBottom:"20px" }}>
-        <div className="section-card-header">
-          <div className="section-card-title">VENTAS POR CANAL — EVOLUCIÓN</div>
-        </div>
+        <div className="section-card-header"><div className="section-card-title">VENTAS POR CANAL — EVOLUCIÓN</div></div>
         <div style={{ padding:"20px 16px 8px" }}>
           {cargando ? (
             <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
@@ -1017,43 +1100,30 @@ function PaginaDashboardFinanciero() {
               <BarChart data={graficaData} margin={{ top:4, right:8, left:8, bottom:0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                 <XAxis dataKey="dia" tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false}
-                  tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
+                <YAxis tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill:"rgba(255,255,255,0.03)" }} />
-                {canales.map(c => (
-                  <Bar key={c.fuente} dataKey={c.fuente} stackId="a" fill={getColor(c.fuente)} radius={[0,0,0,0]} maxBarSize={40} />
-                ))}
+                {canales.map(c => <Bar key={c.fuente} dataKey={c.fuente} stackId="a" fill={getColor(c.fuente)} radius={[0,0,0,0]} maxBarSize={40} />)}
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
       </div>
-
       <div className="section-card">
-        <div className="section-card-header">
-          <div className="section-card-title">RESUMEN POR CANAL</div>
-        </div>
+        <div className="section-card-header"><div className="section-card-title">RESUMEN POR CANAL</div></div>
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando...</div></div>
         ) : canales.length === 0 ? (
           <div className="placeholder-content"><div className="placeholder-icon">💰</div><div className="placeholder-text">No hay ventas registradas en este período</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr><th>Canal</th><th>Ventas</th><th>Ingresos</th><th>Ticket prom.</th><th>Participación</th></tr>
-            </thead>
+            <thead><tr><th>Canal</th><th>Ventas</th><th>Ingresos</th><th>Ticket prom.</th><th>Participación</th></tr></thead>
             <tbody>
               {canales.map((c, i) => {
                 const pct    = totalGeneral > 0 ? Math.round((c.total / totalGeneral) * 100) : 0;
                 const ticket = c.count > 0 ? Math.round(c.total / c.count) : 0;
                 return (
                   <tr key={i}>
-                    <td>
-                      <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-                        <div style={{ width:"10px", height:"10px", borderRadius:"50%", background: getColor(c.fuente), flexShrink:0 }} />
-                        {c.fuente}
-                      </div>
-                    </td>
+                    <td><div style={{ display:"flex", alignItems:"center", gap:"8px" }}><div style={{ width:"10px", height:"10px", borderRadius:"50%", background: getColor(c.fuente), flexShrink:0 }} />{c.fuente}</div></td>
                     <td style={{ color:"var(--gray)" }}>{c.count}</td>
                     <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(c.total)}</td>
                     <td style={{ color:"var(--white)" }}>{fmt(ticket)}</td>
@@ -1072,9 +1142,7 @@ function PaginaDashboardFinanciero() {
                 <td style={{ fontWeight:"600" }}>Total</td>
                 <td style={{ color:"var(--gray)" }}>{ventasFiltradas.length}</td>
                 <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(totalGeneral)}</td>
-                <td style={{ color:"var(--white)" }}>
-                  {fmt(ventasFiltradas.length > 0 ? Math.round(totalGeneral / ventasFiltradas.length) : 0)}
-                </td>
+                <td style={{ color:"var(--white)" }}>{fmt(ventasFiltradas.length > 0 ? Math.round(totalGeneral / ventasFiltradas.length) : 0)}</td>
                 <td style={{ color:"var(--gray)" }}>100%</td>
               </tr>
             </tbody>
@@ -1092,8 +1160,7 @@ function PaginaVentas() {
   const [hasta, setHasta]       = useState("");
 
   useEffect(() => {
-    axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/ventas")
-      .then(res => setVentas(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
+    axios.get(`${BASE}/admin/ventas`).then(res => setVentas(res.data)).catch(err => console.error(err)).finally(() => setCargando(false));
   }, []);
 
   const hoy    = new Date().toDateString();
@@ -1118,18 +1185,13 @@ function PaginaVentas() {
   const ticketProm   = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
 
   const inputFecha = {
-    padding: "7px 12px", background: "#0C0E14",
-    border: "1px solid rgba(200,137,42,0.2)", borderRadius: "5px",
-    color: "#F2EDE4", fontSize: "12px", fontFamily: "DM Sans, sans-serif",
-    outline: "none", cursor: "pointer",
+    padding:"7px 12px", background:"#0C0E14", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"5px",
+    color:"#F2EDE4", fontSize:"12px", fontFamily:"DM Sans, sans-serif", outline:"none", cursor:"pointer",
   };
 
   return (
     <div>
-      <div className="page-header">
-        <div className="page-title">HISTORIAL DE VENTAS</div>
-        <div className="page-subtitle">Registro de todas las ventas facturadas</div>
-      </div>
+      <div className="page-header"><div className="page-title">HISTORIAL DE VENTAS</div><div className="page-subtitle">Registro de todas las ventas facturadas</div></div>
       <div className="stats-grid">
         {[
           { label:"Ventas hoy",      value: cargando ? "..." : fmt(ventasHoy) },
@@ -1137,13 +1199,9 @@ function PaginaVentas() {
           { label:"Ventas mes",      value: cargando ? "..." : fmt(ventasMes) },
           { label:"Ticket promedio", value: cargando ? "..." : fmt(ticketProm) },
         ].map((s, i) => (
-          <div className="stat-card" key={i}>
-            <div className="stat-label">{s.label}</div>
-            <div className="stat-value" style={{ fontSize:"1.8rem" }}>{s.value}</div>
-          </div>
+          <div className="stat-card" key={i}><div className="stat-label">{s.label}</div><div className="stat-value" style={{ fontSize:"1.8rem" }}>{s.value}</div></div>
         ))}
       </div>
-
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">VENTAS REGISTRADAS ({hayFiltro ? `${ventasFiltradas.length} de ${ventas.length}` : ventas.length})</div>
@@ -1153,34 +1211,17 @@ function PaginaVentas() {
             </button>
           )}
         </div>
-
         <div style={{ padding:"14px 20px", borderBottom:"1px solid rgba(255,255,255,0.07)", display:"flex", alignItems:"center", gap:"12px", flexWrap:"wrap", background:"#141720" }}>
           <span style={{ fontSize:"10px", fontWeight:"600", color:"rgba(232,230,223,0.45)", letterSpacing:"1.5px", textTransform:"uppercase" }}>Filtrar por fecha</span>
-          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-            <span style={{ fontSize:"11px", color:"rgba(232,230,223,0.45)" }}>Desde</span>
-            <input type="date" value={desde} onChange={e => setDesde(e.target.value)} style={inputFecha} />
-          </div>
-          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-            <span style={{ fontSize:"11px", color:"rgba(232,230,223,0.45)" }}>Hasta</span>
-            <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} style={inputFecha} />
-          </div>
-          {hayFiltro && (
-            <button onClick={() => { setDesde(""); setHasta(""); }} style={{ padding:"6px 12px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"5px", color:"rgba(232,230,223,0.45)", cursor:"pointer", fontSize:"11px", fontFamily:"DM Sans, sans-serif" }}>✕ Limpiar</button>
-          )}
-          {hayFiltro && (
-            <span style={{ fontSize:"11px", color:"var(--gold)", marginLeft:"auto" }}>
-              Total filtrado: <strong>{fmt(ventasFiltradas.reduce((a,v) => a + v.total, 0))}</strong>
-            </span>
-          )}
+          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}><span style={{ fontSize:"11px", color:"rgba(232,230,223,0.45)" }}>Desde</span><input type="date" value={desde} onChange={e => setDesde(e.target.value)} style={inputFecha} /></div>
+          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}><span style={{ fontSize:"11px", color:"rgba(232,230,223,0.45)" }}>Hasta</span><input type="date" value={hasta} onChange={e => setHasta(e.target.value)} style={inputFecha} /></div>
+          {hayFiltro && <button onClick={() => { setDesde(""); setHasta(""); }} style={{ padding:"6px 12px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"5px", color:"rgba(232,230,223,0.45)", cursor:"pointer", fontSize:"11px", fontFamily:"DM Sans, sans-serif" }}>✕ Limpiar</button>}
+          {hayFiltro && <span style={{ fontSize:"11px", color:"var(--gold)", marginLeft:"auto" }}>Total filtrado: <strong>{fmt(ventasFiltradas.reduce((a,v) => a + v.total, 0))}</strong></span>}
         </div>
-
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando ventas...</div></div>
         ) : ventasFiltradas.length === 0 ? (
-          <div className="placeholder-content">
-            <div className="placeholder-icon">💰</div>
-            <div className="placeholder-text">{hayFiltro ? "No hay ventas en ese rango de fechas." : "Aquí aparecerá el historial de ventas cuando se facturen pedidos."}</div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-icon">💰</div><div className="placeholder-text">{hayFiltro ? "No hay ventas en ese rango de fechas." : "Aquí aparecerá el historial de ventas cuando se facturen pedidos."}</div></div>
         ) : (
           <table className="user-table">
             <thead><tr><th>Factura</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Fecha</th><th></th></tr></thead>
@@ -1193,9 +1234,7 @@ function PaginaVentas() {
                   <td style={{ fontSize:"11px", opacity:.8, maxWidth:"200px" }}>{v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
                   <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmt(v.total)}</td>
                   <td style={{ color:"var(--gray)", fontSize:"12px" }}>{new Date(v.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}</td>
-                  <td>
-                    <button onClick={() => generarFacturaHTML(v)} style={{ padding:"5px 12px", background:"rgba(200,137,42,0.08)", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"5px", color:"var(--gold)", cursor:"pointer", fontSize:"11px", fontWeight:"500", whiteSpace:"nowrap", fontFamily:"DM Sans, sans-serif" }}>🧾 Ver factura</button>
-                  </td>
+                  <td><button onClick={() => generarFacturaHTML(v)} style={{ padding:"5px 12px", background:"rgba(200,137,42,0.08)", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"5px", color:"var(--gold)", cursor:"pointer", fontSize:"11px", fontWeight:"500", whiteSpace:"nowrap", fontFamily:"DM Sans, sans-serif" }}>🧾 Ver factura</button></td>
                 </tr>
               ))}
             </tbody>
@@ -1215,7 +1254,7 @@ function PaginaUsuarios() {
 
   const cargarUsuarios = async () => {
     setCargando(true);
-    try { const res = await axios.get("https://zealand-andrew-conservation-quick.trycloudflare.com/admin/verEmpleados"); setUsuarios(res.data); }
+    try { const res = await axios.get(`${BASE}/admin/verEmpleados`); setUsuarios(res.data); }
     catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
@@ -1224,23 +1263,18 @@ function PaginaUsuarios() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://zealand-andrew-conservation-quick.trycloudflare.com/admin/usuario/${id}`);
+      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/usuario/${id}`);
       setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
 
   return (
     <div>
-      <div className="page-header">
-        <div className="page-title">GESTIÓN DE USUARIOS</div>
-        <div className="page-subtitle">Administra los empleados del sistema</div>
-      </div>
+      <div className="page-header"><div className="page-title">GESTIÓN DE USUARIOS</div><div className="page-subtitle">Administra los empleados del sistema</div></div>
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">EMPLEADOS ({usuarios.length})</div>
-          <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
-            {mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}
-          </button>
+          <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>{mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}</button>
         </div>
         {mostrarFormulario && <RegistrarUsuario onUsuarioCreado={() => { cargarUsuarios(); setMostrarFormulario(false); }} />}
         {cargando ? (
@@ -1275,14 +1309,103 @@ function PaginaUsuarios() {
   );
 }
 
+function PaginaQRs() {
+  const [qrs, setQrs]               = useState([]);
+  const [cargando, setCargando]     = useState(true);
+  const [mostrarCrear, setMostrarCrear] = useState(false);
+  const [nuevoQr, setNuevoQr]       = useState({ nombre: "", descripcion: "" });
+
+  useEffect(() => { cargarQrs(); }, []);
+
+  const cargarQrs = async () => {
+    try { const res = await axios.get(`${BASE}/admin/qrs`); setQrs(res.data); }
+    catch (err) { console.error(err); } finally { setCargando(false); }
+  };
+
+  const crearQr = async () => {
+    try {
+      await axios.post("https://kitchen-manager-back.onrender.com/admin/qrs", nuevoQr);
+      setNuevoQr({ nombre: "", descripcion: "" });
+      setMostrarCrear(false);
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleActivo = async (id, activo) => {
+    try {
+      await axios.patch(`https://kitchen-manager-back.onrender.com/admin/qrs/${id}/estado`, { activo });
+      cargarQrs();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const eliminarQr = async (id) => {
+    if (!confirm("¿Eliminar este QR?")) return;
+    try { await axios.delete(`${BASE}/admin/qrs/${id}`); cargarQrs(); }
+    catch (err) { console.error(err); }
+  };
+
+  return (
+    <div style={{ padding:"24px" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"24px" }}>
+        <h2 style={{ color:"var(--white)", fontSize:"1.5rem", fontWeight:"600" }}>Códigos QR</h2>
+        <button onClick={() => setMostrarCrear(!mostrarCrear)} style={{ padding:"8px 16px", background:"var(--gold)", border:"none", borderRadius:"6px", color:"var(--bg)", cursor:"pointer", fontWeight:"500" }}>+ Crear QR</button>
+      </div>
+      {mostrarCrear && (
+        <div style={{ background:"var(--card)", padding:"16px", borderRadius:"8px", marginBottom:"24px", border:"1px solid var(--border)" }}>
+          <h3 style={{ color:"var(--white)", marginBottom:"12px" }}>Nuevo Código QR</h3>
+          <input type="text" placeholder="Nombre (ej: #1, #2, #3...)" value={nuevoQr.nombre} onChange={(e) => setNuevoQr({ ...nuevoQr, nombre: e.target.value })} style={{ width:"100%", padding:"8px", marginBottom:"8px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--white)" }} />
+          <input type="text" placeholder="Descripción (Mesa, canal whatsapp, etc.)" value={nuevoQr.descripcion} onChange={(e) => setNuevoQr({ ...nuevoQr, descripcion: e.target.value })} style={{ width:"100%", padding:"8px", marginBottom:"12px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--white)" }} />
+          <div>
+            <button onClick={crearQr} style={{ padding:"6px 12px", background:"#6fcf74", border:"none", borderRadius:"4px", color:"#0C0E14", cursor:"pointer", marginRight:"8px", fontWeight:"600" }}>Crear</button>
+            <button onClick={() => setMostrarCrear(false)} style={{ padding:"6px 12px", background:"transparent", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer" }}>Cancelar</button>
+          </div>
+        </div>
+      )}
+      {cargando ? (
+        <div style={{ textAlign:"center", padding:"40px", color:"var(--gray)" }}>Cargando...</div>
+      ) : (
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(300px, 1fr))", gap:"16px" }}>
+          {qrs.map((qr) => (
+            <div key={qr.id} style={{ background:"var(--card)", padding:"16px", borderRadius:"8px", border:"1px solid var(--border)" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" }}>
+                <div>
+                  <h4 style={{ color:"var(--white)", fontSize:"1.1rem", fontWeight:"600" }}>{qr.nombre}</h4>
+                  <p style={{ color:"var(--gray)", fontSize:"0.9rem" }}>{qr.descripcion || "Sin descripción"}</p>
+                  <p style={{ color: qr.activo ? "#6fcf74" : "#E63946", fontSize:"0.8rem" }}>{qr.activo ? "Activo" : "Inactivo"}</p>
+                </div>
+                <div>
+                  <button onClick={() => toggleActivo(qr.id, !qr.activo)} style={{ padding:"4px 8px", background: qr.activo ? "rgba(230,57,70,0.1)" : "rgba(76,175,80,0.1)", border:`1px solid ${qr.activo ? "rgba(230,57,70,0.25)" : "rgba(76,175,80,0.25)"}`, borderRadius:"4px", color: qr.activo ? "#E63946" : "#6fcf74", cursor:"pointer", fontSize:"0.8rem", marginRight:"4px" }}>{qr.activo ? "Desactivar" : "Activar"}</button>
+                  <button onClick={() => eliminarQr(qr.id)} style={{ padding:"4px 8px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"0.8rem" }}>🗑</button>
+                </div>
+              </div>
+              {qr.activo && (
+                <div style={{ textAlign:"center" }}>
+                  <QRCode value={`${BASE}/menu/${qr.token}`} size={128} />
+                  <p style={{ color:"var(--gray)", fontSize:"0.8rem", marginTop:"8px" }}>Escanea para acceder</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── NAV ──────────────────────────────────────────────────────────────────
 const NAV = [
-  { key: "inicio",   label: "Inicio",           icon: "🏠", section: "GENERAL" },
-  { key: "menu",     label: "Gestión del Menú",  icon: "🍽️", section: "OPERACIONES" },
-  { key: "pedidos",  label: "Panel de Pedidos",  icon: "📦", section: "OPERACIONES" },
-  { key: "ventas",   label: "Historial Ventas",  icon: "💰", section: "REPORTES" },
-  { key: "financiero",  label: "Dashboard Financiero",   icon: "📈", section: "REPORTES" },
-  { key: "usuarios", label: "Usuarios",           icon: "👤", section: "CONFIGURACIÓN" },
+  { key:"inicio",     label:"Inicio",                icon:"🏠", section:"GENERAL" },
+  { key:"menu",       label:"Gestión del Menú",      icon:"🍽️", section:"OPERACIONES" },
+  { key:"pedidos",    label:"Panel de Pedidos",      icon:"📦", section:"OPERACIONES" },
+  { key:"qrs",        label:"Códigos QR",            icon:"📱", section:"OPERACIONES" },
+  { key:"ventas",     label:"Historial Ventas",      icon:"💰", section:"REPORTES" },
+  { key:"financiero", label:"Dashboard Financiero",  icon:"📈", section:"REPORTES" },
+  { key:"platos",     label:"Análisis de Platos",    icon:"⭐", section:"REPORTES" },
+  { key:"usuarios",   label:"Usuarios",              icon:"👤", section:"CONFIGURACIÓN" },
 ];
 
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────
@@ -1292,16 +1415,18 @@ export default function Admin() {
   const sections = [...new Set(NAV.map((n) => n.section))];
 
   const renderPage = () => {
-  switch (activePage) {
-    case "inicio":     return <PaginaInicio username={username} />;
-    case "menu":       return <PaginaMenu />;
-    case "pedidos":    return <PaginaPedidos />;
-    case "ventas":     return <PaginaVentas />;
-    case "financiero": return <PaginaDashboardFinanciero />;
-    case "usuarios":   return <PaginaUsuarios />;
-    default:           return <PaginaInicio username={username} />;
-  }
-};
+    switch (activePage) {
+      case "inicio":     return <PaginaInicio username={username} />;
+      case "menu":       return <PaginaMenu />;
+      case "pedidos":    return <PaginaPedidos />;
+      case "qrs":        return <PaginaQRs />;
+      case "ventas":     return <PaginaVentas />;
+      case "financiero": return <PaginaDashboardFinanciero />;
+      case "usuarios":   return <PaginaUsuarios />;
+      case "platos":     return <PaginaPlatos />;
+      default:           return <PaginaInicio username={username} />;
+    }
+  };
 
   const activeLabel = NAV.find((n) => n.key === activePage)?.label;
 
@@ -1311,38 +1436,28 @@ export default function Admin() {
       <div className="admin-root">
         <aside className="sidebar">
           <div className="sidebar-logo">
-            <div className="...logo-icon" style={{ fontSize: "20px" }}>
-                🫕
-            </div>
+            <div style={{ fontSize:"20px" }}>🫕</div>
             <div className="sidebar-logo-name">KITCHEN MANAGER</div>
             <div className="sidebar-logo-sub">Panel Admin</div>
           </div>
-
           <nav className="sidebar-nav">
             {sections.map((section) => (
               <div key={section}>
                 <div className="nav-section-label">{section}</div>
                 {NAV.filter((n) => n.section === section).map((item) => (
                   <div key={item.key} className={`nav-item ${activePage === item.key ? "active" : ""}`} onClick={() => setActivePage(item.key)}>
-                    <span className="nav-icon">{item.icon}</span>
-                    {item.label}
+                    <span className="nav-icon">{item.icon}</span>{item.label}
                   </div>
                 ))}
               </div>
             ))}
           </nav>
-
           <div className="sidebar-footer">
-            <button className="btn-logout" onClick={() => {
-              localStorage.removeItem("username");
-              localStorage.removeItem("role");
-              window.location.href = "/";
-            }}>
+            <button className="btn-logout" onClick={() => { localStorage.removeItem("username"); localStorage.removeItem("role"); window.location.href = "/"; }}>
               <span>🚪</span> Cerrar Sesión
             </button>
           </div>
         </aside>
-
         <main className="main">
           <div className="topbar">
             <div className="topbar-title">{activeLabel?.toUpperCase()}</div>
