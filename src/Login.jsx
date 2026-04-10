@@ -242,7 +242,7 @@ function Login() {
         setMensaje("");
 
         try {
-            const respuesta = await axios.post("https://kitchen-manager-back.onrender.com/login", {
+            const respuesta = await axios.post("https://archlinux.taildc096b.ts.net/login", {
                 username,
                 password
             });

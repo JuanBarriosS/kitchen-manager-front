@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-const BASE = "https://kitchen-manager-back.onrender.com";
+const BASE = "https://archlinux.taildc096b.ts.net";
 
 const ESTADOS = [
   { key: "recibido",    label: "Pedido recibido",    icon: "✅" },
