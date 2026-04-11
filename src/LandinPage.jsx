@@ -488,27 +488,27 @@ export default function LandingPage() {
           <div className="lp-mosaic">
             <div className="lp-mosaic-img lp-mosaic-main">
               <img
-                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=80&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1691651341109-e38eee0eab53?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Cocina profesional"
                 loading="lazy"
               />
-              <div className="lp-mosaic-caption">Brigada de cocina</div>
+              <div className="lp-mosaic-caption">Integrancion en restaurantes y Gosth Kitchen</div>
             </div>
             <div className="lp-mosaic-img">
               <img
-                src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1556745750-68295fefafc5?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Plating de alta cocina"
                 loading="lazy"
               />
-              <div className="lp-mosaic-caption">Emplatado</div>
+              <div className="lp-mosaic-caption">Gestion de los pedidos</div>
             </div>
             <div className="lp-mosaic-img">
               <img
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1548695607-9c73430ba065?q=80&w=1025&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Servicio de restaurante"
                 loading="lazy"
               />
-              <div className="lp-mosaic-caption">Servicio</div>
+              <div className="lp-mosaic-caption">Servicio delivery optimizado</div>
             </div>
             <div className="lp-mosaic-img">
               <img
@@ -524,7 +524,7 @@ export default function LandingPage() {
                 alt="Chef trabajando"
                 loading="lazy"
               />
-              <div className="lp-mosaic-caption">En acción</div>
+              <div className="lp-mosaic-caption">Eficiencia en la preparacion</div>
             </div>
           </div>
         </section>
