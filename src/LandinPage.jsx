@@ -65,7 +65,7 @@ const styles = `
   }
   .lp-hero-img {
     position: absolute; inset: 0; z-index: 0;
-    background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=85&auto=format&fit=crop');
+    background-image: url('https://plus.unsplash.com/premium_photo-1694557830999-3d1c20a634df?q=80&w=949&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
     background-size: cover; background-position: center 30%;
     filter: brightness(0.38);
   }
