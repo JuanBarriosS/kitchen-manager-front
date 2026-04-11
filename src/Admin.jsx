@@ -3,7 +3,7 @@ import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import * as XLSX from "xlsx";
 import QRCode from 'react-qr-code';
-import { InicioIcon, MenuIcon, PedidosIcon, QrsIcon, VentasIcon, FinancieroIcon, PlatosIcon, UsuariosIcon } from './components/icons';
+
 
 
 
@@ -1399,7 +1399,73 @@ function PaginaQRs() {
   );
 }
 
-// ── NAV ──────────────────────────────────────────────────────────────────
+// ── NAV e ICONOS──────────────────────────────────────────────────────────────────
+const InicioIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+  </svg>
+);
+
+const MenuIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
+    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="1.5"/>
+  </svg>
+);
+
+const PedidosIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M5 6h14l-2 10H7L5 6z"/>
+    <circle cx="8" cy="18" r="2"/>
+    <circle cx="16" cy="18" r="2"/>
+    <path d="M9 9h6" stroke="white" strokeWidth="1.5"/>
+  </svg>
+);
+
+const QrsIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <rect x="4" y="4" width="6" height="6" rx="1"/>
+    <rect x="14" y="4" width="6" height="6" rx="1"/>
+    <rect x="4" y="14" width="6" height="6" rx="1"/>
+    <rect x="16" y="16" width="2" height="2"/>
+    <rect x="20" y="16" width="2" height="2"/>
+    <rect x="16" y="20" width="6" height="2"/>
+  </svg>
+);
+
+const VentasIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2v20M17 7l-5-5-5 5M7 17l5 5 5-5"/>
+    <circle cx="12" cy="12" r="2"/>
+  </svg>
+);
+
+const FinancieroIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <rect x="4" y="14" width="3" height="8"/>
+    <rect x="9" y="10" width="3" height="12"/>
+    <rect x="14" y="6" width="3" height="16"/>
+    <rect x="19" y="2" width="3" height="20"/>
+  </svg>
+);
+
+const PlatosIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 4a8 8 0 100 16 8 8 0 000-16z"/>
+    <path d="M12 8v4l2.5 2.5" stroke="white" strokeWidth="1.5" fill="none"/>
+    <circle cx="12" cy="12" r="1.5" fill="white"/>
+  </svg>
+);
+
+const UsuariosIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="8" r="4"/>
+    <path d="M5 20v-2a7 7 0 0114 0v2"/>
+  </svg>
+);
+
+
 const NAV = [
   { key:"inicio",     label:"Inicio",                icon: InicioIcon,     section:"GENERAL" },
   { key:"menu",       label:"Gestión del Menú",      icon: MenuIcon,       section:"OPERACIONES" },
