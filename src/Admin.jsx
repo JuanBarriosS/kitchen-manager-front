@@ -1537,11 +1537,15 @@ export default function Admin() {
             {sections.map((section) => (
               <div key={section}>
                 <div className="nav-section-label">{section}</div>
-                {NAV.filter((n) => n.section === section).map((item) => (
+                {NAV.filter((n) => n.section === section).map((item) => {
+                const IconComponent = item.icon;
+                return (
                   <div key={item.key} className={`nav-item ${activePage === item.key ? "active" : ""}`} onClick={() => setActivePage(item.key)}>
-                    <span className="nav-icon">{item.icon}</span>{item.label}
+                    <IconComponent className="nav-icon" />
+                    <span>{item.label}</span>
                   </div>
-                ))}
+                );
+              })}
               </div>
             ))}
           </nav>
