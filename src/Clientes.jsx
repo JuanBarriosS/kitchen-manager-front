@@ -353,8 +353,8 @@ export default function PortalClientes() {
 
   useEffect(() => {
     const url = token
-      ? `https://archlinux.taildc096b.ts.net/menu/${token}`
-      : "https://archlinux.taildc096b.ts.net/clientes/verMenu";
+      ? `https://archlinux.taildc096b.ts.net:8443/menu/${token}`
+      : "https://archlinux.taildc096b.ts.net:8443/clientes/verMenu";
 
     axios.get(url)
       .then(res => {
@@ -429,8 +429,8 @@ export default function PortalClientes() {
     setResultado(null);
     try {
       const url = token 
-        ? `https://archlinux.taildc096b.ts.net/menu/${token}/pedido`
-        : "https://archlinux.taildc096b.ts.net/clientes/registrarPedido";
+        ? `https://archlinux.taildc096b.ts.net:8443/menu/${token}/pedido`
+        : "https://archlinux.taildc096b.ts.net:8443/clientes/registrarPedido";
       const payload = token ? {
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas,

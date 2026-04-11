@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import * as XLSX from "xlsx";
 import QRCode from 'react-qr-code';
 
-const BASE = "https://archlinux.taildc096b.ts.net";
+const BASE = "https://archlinux.taildc096b.ts.net:8443";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -578,7 +578,7 @@ function PaginaMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true); setMensaje("");
     try {
-      await axios.post("https://archlinux.taildc096b.ts.net/admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
+      await axios.post("https://archlinux.taildc096b.ts.net:8443/admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
       setMensaje("✓ Producto agregado correctamente");
       setForm({ nombre: "", categoria: "", precio: "" });
       setArchivoNuevo(null);
@@ -1263,7 +1263,7 @@ function PaginaUsuarios() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://archlinux.taildc096b.ts.net/admin/usuario/${id}`);
+      await axios.delete(`https://archlinux.taildc096b.ts.net:8443/admin/usuario/${id}`);
       setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -1324,7 +1324,7 @@ function PaginaQRs() {
 
   const crearQr = async () => {
     try {
-      await axios.post("https://archlinux.taildc096b.ts.net/admin/qrs", nuevoQr);
+      await axios.post("https://archlinux.taildc096b.ts.net:8443/admin/qrs", nuevoQr);
       setNuevoQr({ nombre: "", descripcion: "" });
       setMostrarCrear(false);
       cargarQrs();
@@ -1335,7 +1335,7 @@ function PaginaQRs() {
 
   const toggleActivo = async (id, activo) => {
     try {
-      await axios.patch(`https://archlinux.taildc096b.ts.net/admin/qrs/${id}/estado`, { activo });
+      await axios.patch(`https://archlinux.taildc096b.ts.net:8443/admin/qrs/${id}/estado`, { activo });
       cargarQrs();
     } catch (err) {
       console.error(err);
