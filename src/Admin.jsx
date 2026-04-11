@@ -275,7 +275,7 @@ const styles = `
   }
 `;
 
-// ── FORMULARIO REGISTRAR USUARIO ─────────────────────────────────────────
+// ────────────── FORMULARIO REGISTRAR USUARIO ─────────────────────────────────────────
 function RegistrarUsuario({ onUsuarioCreado }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -1384,7 +1384,7 @@ function PaginaQRs() {
               </div>
               {qr.activo && (
                 <div style={{ textAlign:"center" }}>
-                  <QRCode value={`${BASE}/menu/${qr.token}`} size={128} />
+                  <QRCode value={`https://kitchen-manager-front.vercel.app/menu/${qr.token}`} size={128} />
                   <p style={{ color:"var(--gray)", fontSize:"0.8rem", marginTop:"8px" }}>Escanea para acceder</p>
                 </div>
               )}

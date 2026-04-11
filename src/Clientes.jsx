@@ -435,8 +435,8 @@ export default function PortalClientes() {
 
   useEffect(() => {
     const url = token
-      ? `https://kitchen-manager-front.vercel.app/menu/${token}`
-      : "https://kitchen-manager-front.vercel.app/clientes/verMenu";
+      ? `https://archlinux.taildc096b.ts.net:8443/menu/${token}`
+      : "https://archlinux.taildc096b.ts.net:8443/clientes/verMenu";
 
     axios.get(url)
       .then(res => {
