@@ -947,9 +947,31 @@ export default function Empleado() {
       <div className="emp-root">
         <aside className="sidebar">
           <div className="sidebar-logo">
-            <div className="...logo-icon" style={{ fontSize: "20px" }}>
-                🫕
-            </div>
+            <a className="lp-logo" href="#">
+              <svg width="180" height="48" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(2,4) scale(0.55)">
+                  <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" strokeWidth="1.5"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#C9A84C" strokeWidth="0.4" opacity="0.4"/>
+                  <g transform="rotate(-20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="3">
+                    <line x1="44" y1="14" x2="44" y2="35"/>
+                    <line x1="50" y1="11" x2="50" y2="35"/>
+                    <line x1="56" y1="14" x2="56" y2="35"/>
+                    <path d="M44 35 Q47 41 50 42 Q53 41 56 35"/>
+                    <line x1="50" y1="42" x2="50" y2="86"/>
+                  </g>
+                  <g transform="rotate(20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="3">
+                    <path d="M50 11 Q58 30 54 44"/>
+                    <line x1="50" y1="11" x2="46" y2="44"/>
+                    <line x1="46" y1="44" x2="54" y2="44"/>
+                    <line x1="50" y1="46" x2="50" y2="86"/>
+                  </g>
+                </g>
+                <line x1="70" y1="12" x2="70" y2="68" stroke="#C9A84C" strokeWidth="0.6" opacity="0.35"/>
+                <text x="82" y="36" fontFamily="'Playfair Display','Georgia',serif" fontSize="24" fontWeight="300" letterSpacing="5" fill="#C9A84C">KITCHEN</text>
+                <line x1="82" y1="43" x2="282" y2="43" stroke="#C9A84C" strokeWidth="0.4" opacity="0.25"/>
+                <text x="83" y="58" fontFamily="'Playfair Display','Georgia',serif" fontSize="11" fontWeight="400" letterSpacing="8" fill="#F0EBE0" opacity="0.5">MANAGER</text>
+              </svg>
+            </a>
             <div className="sidebar-logo-name">Kitchen Manager</div>
             <div className="sidebar-logo-sub">Panel Empleado</div>
           </div>
