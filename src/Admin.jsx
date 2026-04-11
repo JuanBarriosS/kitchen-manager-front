@@ -3,6 +3,9 @@ import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import * as XLSX from "xlsx";
 import QRCode from 'react-qr-code';
+import { InicioIcon, MenuIcon, PedidosIcon, QrsIcon, VentasIcon, FinancieroIcon, PlatosIcon, UsuariosIcon } from './components/icons';
+
+
 
 const BASE = "https://archlinux.taildc096b.ts.net:8443";
 
@@ -1398,14 +1401,14 @@ function PaginaQRs() {
 
 // ── NAV ──────────────────────────────────────────────────────────────────
 const NAV = [
-  { key:"inicio",     label:"Inicio",                icon:"🏠", section:"GENERAL" },
-  { key:"menu",       label:"Gestión del Menú",      icon:"🍽️", section:"OPERACIONES" },
-  { key:"pedidos",    label:"Panel de Pedidos",      icon:"📦", section:"OPERACIONES" },
-  { key:"qrs",        label:"Códigos QR",            icon:"📱", section:"OPERACIONES" },
-  { key:"ventas",     label:"Historial Ventas",      icon:"💰", section:"REPORTES" },
-  { key:"financiero", label:"Dashboard Financiero",  icon:"📈", section:"REPORTES" },
-  { key:"platos",     label:"Análisis de Platos",    icon:"⭐", section:"REPORTES" },
-  { key:"usuarios",   label:"Usuarios",              icon:"👤", section:"CONFIGURACIÓN" },
+  { key:"inicio",     label:"Inicio",                icon: InicioIcon,     section:"GENERAL" },
+  { key:"menu",       label:"Gestión del Menú",      icon: MenuIcon,       section:"OPERACIONES" },
+  { key:"pedidos",    label:"Panel de Pedidos",      icon: PedidosIcon,    section:"OPERACIONES" },
+  { key:"qrs",        label:"Códigos QR",            icon: QrsIcon,        section:"OPERACIONES" },
+  { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
+  { key:"financiero", label:"Dashboard Financiero",  icon: FinancieroIcon, section:"REPORTES" },
+  { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
+  { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────

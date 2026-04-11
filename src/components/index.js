@@ -1,0 +1,1 @@
+export { InicioIcon, MenuIcon, PedidosIcon, QrsIcon, VentasIcon, FinancieroIcon, PlatosIcon, UsuariosIcon } from './NavIcons';
