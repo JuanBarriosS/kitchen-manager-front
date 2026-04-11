@@ -1444,8 +1444,8 @@ const QrsIcon = ({ className = "w-5 h-5" }) => (
 
 const VentasIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2v20M17 7l-5-5-5 5M7 17l5 5 5-5"/>
-    <circle cx="12" cy="12" r="2"/>
+    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+    <text x="12" y="17" textAnchor="middle" fill="currentColor" fontSize="14" fontWeight="bold" fontFamily="Arial">$</text>
   </svg>
 );
 
