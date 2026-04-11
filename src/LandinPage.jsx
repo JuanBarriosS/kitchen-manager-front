@@ -486,21 +486,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* STATS */}
-        <div className="lp-stats">
-          {[
-            { num: "98%",  label: "Precisión de pedidos" },
-            { num: "3×",   label: "Velocidad de despacho" },
-            { num: "24/7", label: "Monitoreo en vivo" },
-            { num: "∞",    label: "Escalabilidad" },
-          ].map((s, i) => (
-            <div className="lp-stat" key={i}>
-              <div className="lp-stat-num">{s.num}</div>
-              <div className="lp-stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
         {/* MOSAIC SECTION */}
         <section className="lp-section" style={{ paddingBottom: 0 }}>
           <span className="lp-tag">El corazón de tu operación</span>
