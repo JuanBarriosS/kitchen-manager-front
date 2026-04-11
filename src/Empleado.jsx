@@ -972,7 +972,6 @@ export default function Empleado() {
                 <text x="83" y="58" fontFamily="'Playfair Display','Georgia',serif" fontSize="11" fontWeight="400" letterSpacing="8" fill="#F0EBE0" opacity="0.5">MANAGER</text>
               </svg>
             </a>
-            <div className="sidebar-logo-name">Kitchen Manager</div>
             <div className="sidebar-logo-sub">Panel Empleado</div>
           </div>
           <nav className="sidebar-nav">

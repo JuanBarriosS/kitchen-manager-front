@@ -1461,7 +1461,7 @@ export default function Admin() {
                 <text x="83" y="58" fontFamily="'Playfair Display','Georgia',serif" fontSize="11" fontWeight="400" letterSpacing="8" fill="#F0EBE0" opacity="0.5">MANAGER</text>
               </svg>
             </a>
-            <div className="sidebar-logo-name">KITCHEN MANAGER</div>
+            
             <div className="sidebar-logo-sub">Panel Admin</div>
           </div>
           <nav className="sidebar-nav">
