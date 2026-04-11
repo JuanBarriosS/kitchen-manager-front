@@ -1424,10 +1424,19 @@ const MenuIcon = ({ className = "w-5 h-5" }) => (
 
 const PedidosIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M5 6h14l-2 10H7L5 6z"/>
-    <circle cx="8" cy="18" r="2"/>
-    <circle cx="16" cy="18" r="2"/>
-    <path d="M9 9h6" stroke="white" strokeWidth="1.5"/>
+    {/* Monitor */}
+    <rect x="3" y="3" width="18" height="13" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M8 19h8M12 16v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    
+    {/* Lista de pedidos (checkboxes o líneas) */}
+    <rect x="7" y="7" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
+    <path d="M13 8h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+    
+    <rect x="7" y="11" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
+    <path d="M13 12h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+    
+    <rect x="7" y="15" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
+    <path d="M13 16h2" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
   </svg>
 );
 
