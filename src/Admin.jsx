@@ -940,7 +940,7 @@ function PaginaPlatos() {
         <div style={{ padding:"14px 20px", background:"rgba(232,168,48,0.06)", border:"1px solid rgba(232,168,48,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
           <span style={{ fontSize:"20px" }}>⭐</span>
           <div>
-            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E8A830", letterSpacing:"1px", textTransform:"uppercase" }}>Platos estrella</div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E8A830", letterSpacing:"1px", textTransform:"uppercase" }}>Productos estrella</div>
             <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>{estrellas.map(p => p.nombre).join(" · ")}</div>
           </div>
         </div>
@@ -949,7 +949,7 @@ function PaginaPlatos() {
         <div style={{ padding:"14px 20px", background:"rgba(230,57,70,0.06)", border:"1px solid rgba(230,57,70,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
           <span style={{ fontSize:"20px" }}>⚠️</span>
           <div>
-            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E63946", letterSpacing:"1px", textTransform:"uppercase" }}>Considera retirar del menú</div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E63946", letterSpacing:"1px", textTransform:"uppercase" }}>PROductos menos vendidos</div>
             <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>{muertos.map(p => p.nombre).join(" · ")}</div>
           </div>
         </div>
