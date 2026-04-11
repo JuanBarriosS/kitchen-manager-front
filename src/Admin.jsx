@@ -1400,6 +1400,14 @@ function PaginaQRs() {
 }
 
 // ── NAV e ICONOS──────────────────────────────────────────────────────────────────
+const LogoutIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
 const InicioIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -1550,8 +1558,13 @@ export default function Admin() {
             ))}
           </nav>
           <div className="sidebar-footer">
-            <button className="btn-logout" onClick={() => { localStorage.removeItem("username"); localStorage.removeItem("role"); window.location.href = "/"; }}>
-              <span>🚪</span> Cerrar Sesión
+            <button className="btn-logout" onClick={() => { 
+              localStorage.removeItem("username"); 
+              localStorage.removeItem("role"); 
+              window.location.href = "/"; 
+            }}>
+              <LogoutIcon className="w-4 h-4" />
+              <span>Cerrar Sesión</span>
             </button>
           </div>
         </aside>
