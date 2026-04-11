@@ -1562,7 +1562,7 @@ export default function Admin() {
               localStorage.removeItem("role"); 
               window.location.href = "/"; 
             }}>
-              <LogoutIcon className="w-4 h-4" />
+              <LogoutIcon className="w-2 h-2" />
               <span>Cerrar Sesión</span>
             </button>
           </div>
