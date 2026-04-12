@@ -894,7 +894,10 @@ function PaginaVentas() {
               {ventas.slice().reverse().map((v, i) => (
                 <tr key={i}>
                   <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>#{v.id?.slice(-6).toUpperCase()}</td>
-                  <td>👤 {v.nombreCliente}</td>
+                  <td style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <UsuariosIcon className="w-4 h-4" />
+                    <span>{p.nombreCliente}</span>
+                  </td>
                   <td><span className="badge badge-orange">{v.fuente}</span></td>
                   <td style={{ fontSize:"11px", opacity:.8 }}>{v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
                   <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmtv(v.total)}</td>
