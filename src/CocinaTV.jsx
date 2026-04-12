@@ -364,27 +364,29 @@ export default function CocinaTV() {
             )}
           </div>
           <div className="tv-header-right">
-  <button 
-    onClick={toggleFullScreen}
-    style={{
-      background: "rgba(200,137,42,0.2)",
-      border: "1px solid var(--gold)",
-      borderRadius: "8px",
-      padding: "8px 16px",
-      color: "var(--gold)",
-      cursor: "pointer",
-      fontSize: "14px",
-      fontWeight: "600",
-      marginLeft: "16px"
-    }}
-  >
-    🖥️ PANTALLA COMPLETA
-  </button>
 </div>
         </div>
 
         <footer className="tv-footer">
           <span className="tv-footer-text">KITCHEN MANAGER — PANEL DE COCINA</span>
+          <div>
+            <button 
+              onClick={toggleFullScreen}
+              style={{
+                background: "rgba(200,137,42,0.2)",
+                border: "1px solid var(--gold)",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "var(--gold)",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "600",
+                marginLeft: "16px"
+              }}
+            >
+             PANTALLA COMPLETA
+            </button>
+          </div>
           <span className="tv-footer-text">Actualizando cada 5 segundos</span>
         </footer>
 
