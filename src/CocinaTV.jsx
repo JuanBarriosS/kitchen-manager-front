@@ -386,9 +386,8 @@ export default function CocinaTV() {
             >
              PANTALLA COMPLETA
             </button>
-            <br>
-            
-            </br>
+            <br></br>
+            <br></br>
             <button 
             onClick={() => window.open("https://kitchen-manager-front.vercel.app/cocina", "_blank")}
             style={{
