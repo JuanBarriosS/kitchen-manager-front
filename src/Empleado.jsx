@@ -914,14 +914,68 @@ function PaginaVentas() {
   );
 }
 
-// ── NAV ───────────────────────────────────────────────────────────────────
+// ── NAV e ICONOS ───────────────────────────────────────────────────────────────────
+const PedidosIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    {/* Monitor */}
+    <rect x="3" y="3" width="18" height="13" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M8 19h8M12 16v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    
+    {/* Lista de pedidos (checkboxes o líneas) */}
+    <rect x="7" y="7" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
+    <path d="M13 8h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+    
+    <rect x="7" y="11" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
+    <path d="M13 12h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+    
+    <rect x="7" y="15" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
+    <path d="M13 16h2" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+  </svg>
+);
+
+const VentasIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+    <text x="12" y="17" textAnchor="middle" fill="currentColor" fontSize="14" fontWeight="bold" fontFamily="Arial">$</text>
+  </svg>
+);
+
+const TvIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    {/* Pantalla grande */}
+    <rect x="2" y="3" width="20" height="13" rx="1.5" stroke="currentColor"/>
+    
+    {/* Patas / soporte */}
+    <path d="M8 20h8M12 16v4" stroke="currentColor" strokeLinecap="round"/>
+    
+    {/* Luz de encendido */}
+    <circle cx="19" cy="7" r="0.8" fill="#6fcf74" stroke="none"/>
+  </svg>
+);
+
+const NuevoPedidoIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M12 7v10M7 12h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+  </svg>
+);
+
+const VerMenuIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round"/>
+  </svg>
+);
+
+
 const NAV = [
-  { key: "pedidos", label: "Panel de Pedidos", icon: "📦", section: "COCINA" },
-  { key: "nuevo",   label: "Nuevo Pedido",      icon: "➕", section: "COCINA" },
-  { key: "menu",    label: "Ver Menú",           icon: "🍽️", section: "COCINA" },
-  { key: "cocina",  label:  "Panel para cocinero", icon: "📺", serction: "COCINA"},
-  { key: "ventas",  label: "Mis Ventas",         icon: "💰", section: "REGISTRO" },
+  { key: "pedidos", label: "Panel de Pedidos", icon: PedidosIcon, section: "COCINA" },
+  { key: "nuevo",   label: "Nuevo Pedido",      icon: NuevoPedidoIcon, section: "COCINA" },
+  { key: "menu",    label: "Ver Menú",           icon: VerMenuIcon, section: "COCINA" },
+  { key: "cocina",  label:  "Panel para cocinero", icon: TvIcon, serction: "COCINA"},
+  { key: "ventas",  label: "Mis Ventas",         icon: VentasIcon, section: "REGISTRO" },
 ];
+
+
 
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────
 export default function Empleado() {
