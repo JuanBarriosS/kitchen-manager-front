@@ -894,10 +894,7 @@ function PaginaVentas() {
               {ventas.slice().reverse().map((v, i) => (
                 <tr key={i}>
                   <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>#{v.id?.slice(-6).toUpperCase()}</td>
-                  <td style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <UsuariosIcon className="w-4 h-4" />
-                    <span>{p.nombreCliente}</span>
-                  </td>
+                  <td>👤 {v.nombreCliente}</td>
                   <td><span className="badge badge-orange">{v.fuente}</span></td>
                   <td style={{ fontSize:"11px", opacity:.8 }}>{v.itemsVendidos?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
                   <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"17px", fontWeight:"700" }}>{fmtv(v.total)}</td>
@@ -968,13 +965,6 @@ const NuevoPedidoIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
     <path d="M12 7v10M7 12h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-  </svg>
-);
-
-const UsuariosIcon = ({ className = "w-5 h-5" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="12" cy="8" r="4"/>
-    <path d="M5 20v-2a7 7 0 0114 0v2"/>
   </svg>
 );
 

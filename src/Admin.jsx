@@ -826,10 +826,7 @@ function PaginaPedidos() {
               {pedidos.slice().reverse().map((p, i) => (
                 <tr key={i}>
                   <td style={{ color:"var(--gold)", fontFamily:"'Cormorant Garamond',serif", fontSize:"15px", fontWeight:"600" }}>#{p.id?.slice(-5).toUpperCase()}</td>
-                  <td style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <UsuariosIcon className="w-4 h-4" />
-                    <span>{p.nombreCliente}</span>
-                  </td>
+                  <td>👤 {p.nombreCliente}</td>
                   <td><span className="badge badge-orange">{p.fuente}</span></td>
                   <td style={{ fontSize:"11px", opacity:.8, maxWidth:"180px" }}>{p.itemsSeleccionados?.map(it => `${it.cantidad}× ${it.nombre}`).join(", ")}</td>
                   <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontWeight:"700", fontSize:"17px" }}>${Number(p.total).toLocaleString("es-CO")}</td>
