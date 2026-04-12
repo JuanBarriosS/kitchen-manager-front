@@ -4,11 +4,40 @@ import axios from "axios";
 
 const BASE = "https://archlinux.taildc096b.ts.net:8443";
 
+// ICONOS SVG
+const RecibidoIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" strokeLinejoin="round"/>
+    <polyline points="22 4 12 14.01 9 11.01" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const PreparacionIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const ListoIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="12" r="10"/>
+  </svg>
+);
+
+const EntregadoIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 6v6l4 2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const ESTADOS = [
-  { key: "recibido",    label: "Pedido recibido",    icon: "✅" },
-  { key: "preparacion", label: "En preparación",      icon: "🔥" },
-  { key: "listo",       label: "Listo para entrega",  icon: "🎉" },
-  { key: "entregado",   label: "Entregado",           icon: "🛵" },
+  { key: "recibido",    label: "Pedido recibido", icon: <RecibidoIcon /> },
+  { key: "preparacion", label: "En preparación",  icon: <PreparacionIcon /> },
+  { key: "listo",       label: "Pedido listo",    icon: <ListoIcon /> },
+  { key: "entregado",   label: "En camino",       icon: <EntregadoIcon /> },
 ];
 
 export default function SeguimientoPedido() {
@@ -93,7 +122,15 @@ export default function SeguimientoPedido() {
                 border: actual ? "1px solid rgba(200,137,42,0.3)" : "1px solid rgba(255,255,255,0.06)",
                 transition:"all .4s",
               }}>
-                <div style={{ fontSize:"22px", opacity: pasado ? 1 : 0.2 }}>{estado.icon}</div>
+                <div style={{ 
+                  fontSize:"22px", 
+                  opacity: pasado ? 1 : 0.2,
+                  color: actual ? "#E8A830" : pasado ? "#4CAF50" : "rgba(232,230,223,0.25)",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  {estado.icon}
+                </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:"14px", fontWeight: actual ? "600" : "400",
                     color: actual ? "#E8A830" : pasado ? "#F2EDE4" : "rgba(232,230,223,0.25)" }}>
