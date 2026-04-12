@@ -1,178 +1,334 @@
+// CocinaTV.jsx - Versión Optimizada para Pantallas Grandes
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+const tvStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
   :root {
-    --bg:    #0C0E14;
-    --card:  #10131C;
-    --card2: #141720;
-    --gold:  #C8892A;
-    --gold2: #E8A830;
-    --white: #F2EDE4;
-    --gray:  rgba(232,230,223,0.45);
-    --border: rgba(255,255,255,0.07);
-    --verde:   #4CAF50;
-    --amarillo: #C8892A;
-    --rojo:    #E63946;
+    --bg: #0a0c10;
+    --card-bg: #141820;
+    --card-border: #2a2f3a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a8b8;
+    --urgente: #e74c3c;
+    --warning: #f39c12;
+    --normal: #27ae60;
+    --gold: #c8892a;
+    --gold-light: #e8a830;
   }
 
-  .tv-root { min-height:100vh; background:var(--bg); font-family:'DM Sans',sans-serif; color:var(--white); display:flex; flex-direction:column; }
+  .tv-container {
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    padding: 24px;
+  }
 
-  /* HEADER */
+  /* HEADER GRANDE PARA TV */
   .tv-header {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 0 36px;
-    height: 64px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 50;
+    background: linear-gradient(135deg, #0f1118 0%, #0a0c10 100%);
+    border-radius: 16px;
+    padding: 24px 32px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   }
 
-  .tv-logo { display:flex; align-items:center; gap:12px; }
-  .tv-logo-icon {
-    width:38px; height:38px;
-    background: linear-gradient(135deg, var(--gold), var(--gold2));
-    border-radius:8px;
-    display:flex; align-items:center; justify-content:center;
+  .tv-header-left h1 {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
   }
-  .tv-logo-icon svg { width:22px; height:22px; fill:#0C0E14; }
-  .tv-logo-name {
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.1rem; font-weight:600; letter-spacing:0.03em; color:var(--white); line-height:1;
-  }
-  .tv-logo-sub { font-size:9px; color:var(--gray); letter-spacing:2px; text-transform:uppercase; margin-top:3px; }
 
-  .tv-header-right { display:flex; align-items:center; gap:32px; }
-
-  .tv-stat { text-align:center; }
-  .tv-stat-value {
-    font-family:'Cormorant Garamond',serif;
-    font-size:2rem; font-weight:700; color:var(--gold2); line-height:1;
+  .tv-header-left p {
+    font-size: 18px;
+    color: var(--text-secondary);
   }
-  .tv-stat-label { font-size:9px; color:var(--gray); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+
+  .tv-header-right {
+    text-align: right;
+  }
 
   .tv-clock {
-    font-family:'Cormorant Garamond',serif;
-    font-size:2rem; font-weight:700; color:var(--white); line-height:1;
-  }
-  .tv-clock-label { font-size:9px; color:var(--gray); letter-spacing:2px; text-transform:uppercase; margin-top:2px; text-align:right; }
-
-  .tv-live { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--verde); letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
-  .tv-live-dot { width:8px; height:8px; border-radius:50%; background:var(--verde); animation:pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
-
-  /* CONTENT */
-  .tv-content { flex:1; padding:28px 36px; }
-
-  .tv-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-  .tv-page-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:600; letter-spacing:0.02em; color:var(--white); }
-  .tv-page-sub { font-size:13px; color:var(--gray); margin-top:4px; }
-
-  .tv-leyenda { display:flex; gap:20px; align-items:center; }
-  .tv-leyenda-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--gray); }
-  .tv-leyenda-dot { width:10px; height:10px; border-radius:50%; }
-
-  /* GRID */
-  .tv-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
-
-  /* CARD */
-  .tv-pedido {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius:8px;
-    overflow:hidden;
-    position:relative;
-    animation:entrar .3s ease;
-    transition: border-color 0.3s;
-  }
-  .tv-pedido::before {
-    content:'';
-    position:absolute; top:0; left:0; right:0; height:2px;
-    background: linear-gradient(90deg, var(--gold), var(--gold2));
-  }
-  .tv-pedido.amarillo::before { background: linear-gradient(90deg, #C8892A, #E8A830); }
-  .tv-pedido.rojo::before { background: linear-gradient(90deg, #E63946, #ff6b6b); }
-  .tv-pedido.rojo { border-color: rgba(230,57,70,0.3); animation:entrar .3s ease, alerta 1.5s ease-in-out infinite alternate; }
-
-  @keyframes entrar { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes alerta { from{border-color:rgba(230,57,70,0.2)} to{border-color:rgba(230,57,70,0.5)} }
-
-  .tv-pedido-header {
-    padding:10px 14px;
-    display:flex; align-items:center; justify-content:space-between;
-    border-bottom:1px solid var(--border);
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: monospace;
+    letter-spacing: 4px;
   }
 
-  .tv-pedido-num {
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.1rem; font-weight:700; color:var(--gold2); line-height:1;
+  .tv-date {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-top: 8px;
   }
 
-  .tv-pedido-tiempo {
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.1rem; font-weight:700; line-height:1;
-  }
-  .tv-pedido.verde   .tv-pedido-tiempo { color:#4CAF50; }
-  .tv-pedido.amarillo .tv-pedido-tiempo { color:var(--gold); }
-  .tv-pedido.rojo    .tv-pedido-tiempo { color:var(--rojo); }
-
-  .tv-pedido-body { padding:10px 14px; }
-
-  .tv-pedido-cliente { font-size:15px; font-weight:600; color:var(--white); margin-bottom:3px; }
-  .tv-pedido-fuente {
-    display:inline-block;
-    padding:2px 8px; border-radius:20px;
-    font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
-    background:rgba(200,137,42,0.12); color:var(--gold);
-    border:1px solid rgba(200,137,42,0.25);
-    margin-bottom:14px;
+  .tv-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
   }
 
-  .tv-pedido-items { display:flex; flex-direction:column; gap:8px; }
-  .tv-pedido-item { display:flex; align-items:center; gap:10px; }
-  .tv-pedido-item-qty {
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.2rem; font-weight:700; color:var(--gold2); min-width:24px; line-height:1;
+  .tv-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    flex: 1;
+    text-align: center;
   }
-  .tv-pedido-item-nombre { font-size:12px; color:var(--white); line-height:1.3; }
 
-  .tv-pedido-footer {
-    padding:8px 14px 12px;
-    display:flex; align-items:center; justify-content:space-between;
-    border-top:1px solid var(--border);
-    margin-top:14px;
+  .tv-stat-value {
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--gold-light);
+    line-height: 1;
   }
-  .tv-pedido-total {
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.1rem; font-weight:700; color:var(--gold2);
+
+  .tv-stat-label {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
-  .tv-pedido-badge {
-    font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
-    padding:3px 10px; border-radius:20px;
-    background:rgba(200,137,42,0.1); color:var(--gold);
-    border:1px solid rgba(200,137,42,0.2);
+
+  /* GRID DE PEDIDOS - GRANDE */
+  .tv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+  }
+
+  .tv-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Bordes de tiempo */
+  .tv-card.urgente {
+    border-left: 8px solid var(--urgente);
+    border-right: 2px solid var(--card-border);
+    animation: pulse 1s infinite;
+  }
+
+  .tv-card.warning {
+    border-left: 8px solid var(--warning);
+  }
+
+  .tv-card.normal {
+    border-left: 8px solid var(--normal);
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+    }
+  }
+
+  .tv-card-header {
+    padding: 20px 24px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tv-card-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--gold-light);
+  }
+
+  .tv-card-time {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: monospace;
+  }
+
+  .tv-card.urgente .tv-card-time {
+    color: var(--urgente);
+  }
+
+  .tv-card.warning .tv-card-time {
+    color: var(--warning);
+  }
+
+  .tv-card.normal .tv-card-time {
+    color: var(--normal);
+  }
+
+  .tv-card-body {
+    padding: 20px 24px;
+  }
+
+  .tv-card-cliente {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .tv-card-fuente {
+    display: inline-block;
+    background: rgba(200, 137, 42, 0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tv-card-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tv-card-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 18px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .tv-card-item-qty {
+    font-weight: 800;
+    color: var(--gold-light);
+    font-size: 22px;
+    min-width: 50px;
+  }
+
+  .tv-card-item-name {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .tv-card-footer {
+    padding: 16px 24px;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tv-card-total {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--gold-light);
+  }
+
+  .tv-card-badge {
+    background: rgba(39, 174, 96, 0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--normal);
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   /* VACÍO */
-  .tv-vacio { grid-column:1/-1; text-align:center; padding:80px 20px; }
-  .tv-vacio-icon { font-size:48px; opacity:.15; margin-bottom:16px; }
-  .tv-vacio-title {
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.8rem; font-weight:600; color:var(--gray); opacity:.5;
+  .tv-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 2px dashed var(--card-border);
   }
-  .tv-vacio-sub { font-size:12px; color:var(--gray); opacity:.4; margin-top:6px; letter-spacing:2px; text-transform:uppercase; }
+
+  .tv-empty-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    opacity: 0.3;
+  }
+
+  .tv-empty-title {
+    font-size: 32px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .tv-empty-sub {
+    font-size: 18px;
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
 
   /* FOOTER */
   .tv-footer {
-    background:var(--card);
-    border-top:1px solid var(--border);
-    padding:12px 36px;
-    display:flex; align-items:center; justify-content:space-between;
+    margin-top: 32px;
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    border-top: 1px solid var(--card-border);
   }
-  .tv-footer-text { font-size:11px; color:var(--gray); opacity:.4; letter-spacing:1px; }
+
+  /* RESPONSIVE PARA TABLETS */
+  @media (max-width: 768px) {
+    .tv-container {
+      padding: 12px;
+    }
+    
+    .tv-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    .tv-clock {
+      font-size: 32px;
+    }
+    
+    .tv-stat-value {
+      font-size: 48px;
+    }
+    
+    .tv-card-number,
+    .tv-card-time {
+      font-size: 20px;
+    }
+  }
 `;
 
 function calcularMinutos(fecha) {
@@ -182,185 +338,147 @@ function calcularMinutos(fecha) {
 
 function formatTiempo(mins) {
   if (mins < 1) return "< 1 min";
-  if (mins < 60) return mins + " min";
-  return Math.floor(mins / 60) + "h " + (mins % 60) + "m";
+  if (mins < 60) return `${mins} min`;
+  const horas = Math.floor(mins / 60);
+  const minutos = mins % 60;
+  return `${horas}h ${minutos}m`;
 }
 
-function getColorClass(mins) {
-  if (mins < 15) return "verde";
-  if (mins < 30) return "amarillo";
-  return "rojo";
+function getStatusClass(mins) {
+  if (mins >= 30) return "urgente";
+  if (mins >= 15) return "warning";
+  return "normal";
 }
 
 export default function CocinaTV() {
   const [pedidos, setPedidos] = useState([]);
-  const [hora, setHora]       = useState("");
-  const [, setTick]           = useState(0);
+  const [hora, setHora] = useState("");
+  const [fecha, setFecha] = useState("");
 
   const cargarPedidos = async () => {
     try {
       const res = await axios.get("https://archlinux.taildc096b.ts.net:8443/empleado/pedidos");
       const enPrep = res.data.filter(
-        p => p.estado === "preparacion" ||
-             p.estado === "en preparación" ||
-             p.estado === "en preparacion" ||
-             p.estado === "preparación"
+        p => p.estado === "preparacion" || p.estado === "en preparación"
       );
       setPedidos(enPrep);
-    } catch (e) {
-      console.error("Error:", e);
+    } catch (error) {
+      console.error("Error cargando pedidos:", error);
     }
   };
 
   useEffect(() => {
     cargarPedidos();
-    const iv = setInterval(() => { cargarPedidos(); setTick(t => t + 1); }, 5000);
-    return () => clearInterval(iv);
+    const interval = setInterval(cargarPedidos, 10000); // Cada 10 segundos
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const reloj = setInterval(() => {
-      setHora(new Date().toLocaleTimeString("es-CO", {
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+    const actualizarReloj = () => {
+      const now = new Date();
+      setHora(now.toLocaleTimeString("es-CO", { 
+        hour: "2-digit", 
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false 
       }));
-    }, 1000);
-    return () => clearInterval(reloj);
+      setFecha(now.toLocaleDateString("es-CO", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+      }));
+    };
+    
+    actualizarReloj();
+    const relojInterval = setInterval(actualizarReloj, 1000);
+    return () => clearInterval(relojInterval);
   }, []);
 
   const urgentes = pedidos.filter(p => calcularMinutos(p.fecha) >= 30).length;
+  const totalActivos = pedidos.length;
 
   return (
     <>
-      <style>{styles}</style>
-      <div className="tv-root">
-
-        <header className="tv-header">
-          <div className="tv-logo">
-            <a className="lp-logo" href="#">
-              <svg width="180" height="48" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
-                <g transform="translate(2,4) scale(0.55)">
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" strokeWidth="1.5"/>
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#C9A84C" strokeWidth="0.4" opacity="0.4"/>
-                  <g transform="rotate(-20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="3">
-                    <line x1="44" y1="14" x2="44" y2="35"/>
-                    <line x1="50" y1="11" x2="50" y2="35"/>
-                    <line x1="56" y1="14" x2="56" y2="35"/>
-                    <path d="M44 35 Q47 41 50 42 Q53 41 56 35"/>
-                    <line x1="50" y1="42" x2="50" y2="86"/>
-                  </g>
-                  <g transform="rotate(20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="3">
-                    <path d="M50 11 Q58 30 54 44"/>
-                    <line x1="50" y1="11" x2="46" y2="44"/>
-                    <line x1="46" y1="44" x2="54" y2="44"/>
-                    <line x1="50" y1="46" x2="50" y2="86"/>
-                  </g>
-                </g>
-                <line x1="70" y1="12" x2="70" y2="68" stroke="#C9A84C" strokeWidth="0.6" opacity="0.35"/>
-                <text x="82" y="36" fontFamily="'Playfair Display','Georgia',serif" fontSize="24" fontWeight="300" letterSpacing="5" fill="#C9A84C">KITCHEN</text>
-                <line x1="82" y1="43" x2="282" y2="43" stroke="#C9A84C" strokeWidth="0.4" opacity="0.25"/>
-                <text x="83" y="58" fontFamily="'Playfair Display','Georgia',serif" fontSize="11" fontWeight="400" letterSpacing="8" fill="#F0EBE0" opacity="0.5">MANAGER</text>
-              </svg>
-            </a>
-            <div>
-              <div className="tv-logo-name">Kitchen Manager</div>
-              <div className="tv-logo-sub">Panel de Cocina</div>
-            </div>
+      <style>{tvStyles}</style>
+      <div className="tv-container">
+        {/* HEADER GRANDE */}
+        <div className="tv-header">
+          <div className="tv-header-left">
+            <h1>🍳 COCINA EN VIVO</h1>
+            <p>Panel de seguimiento de pedidos en preparación</p>
           </div>
-
           <div className="tv-header-right">
-            <div className="tv-stat">
-              <div className="tv-stat-value">{pedidos.length}</div>
-              <div className="tv-stat-label">En preparación</div>
-            </div>
-            {urgentes > 0 && (
-              <div className="tv-stat">
-                <div className="tv-stat-value" style={{ color:"var(--rojo)" }}>{urgentes}</div>
-                <div className="tv-stat-label">Urgentes</div>
-              </div>
-            )}
-            <div>
-              <div className="tv-clock">{hora}</div>
-              <div className="tv-live">
-                <div className="tv-live-dot" />
-                En vivo
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="tv-content">
-          <div className="tv-topbar">
-            <div>
-              <div className="tv-page-title">PEDIDOS ACTIVOS</div>
-              <div className="tv-page-sub">Vista en tiempo real — actualiza cada 5 segundos</div>
-            </div>
-            <div className="tv-leyenda">
-              <div className="tv-leyenda-item">
-                <div className="tv-leyenda-dot" style={{ background:"#4CAF50" }} />
-                Menos de 15 min
-              </div>
-              <div className="tv-leyenda-item">
-                <div className="tv-leyenda-dot" style={{ background:"var(--gold)" }} />
-                15 – 30 min
-              </div>
-              <div className="tv-leyenda-item">
-                <div className="tv-leyenda-dot" style={{ background:"var(--rojo)" }} />
-                Más de 30 min
-              </div>
-            </div>
-          </div>
-
-          <div className="tv-grid">
-            {pedidos.length === 0 ? (
-              <div className="tv-vacio">
-                <div className="tv-vacio-icon">🍽️</div>
-                <div className="tv-vacio-title">Sin pedidos activos</div>
-                <div className="tv-vacio-sub">Actualizando cada 5 segundos</div>
-              </div>
-            ) : (
-              [...pedidos]
-                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-                .map((pedido, i) => {
-                  const mins  = calcularMinutos(pedido.fecha);
-                  const color = getColorClass(mins);
-                  return (
-                    <div key={pedido.id || i} className={"tv-pedido " + color}>
-                      <div className="tv-pedido-header">
-                        <div className="tv-pedido-num">
-                          #{String(i + 1).padStart(2, "0")} · {pedido.nombreCliente || "Cliente"}
-                        </div>
-                        <div className="tv-pedido-tiempo">{formatTiempo(mins)}</div>
-                      </div>
-
-                      <div className="tv-pedido-body">
-                        <div className="tv-pedido-fuente">{pedido.fuente || "Directo"}</div>
-                        <div className="tv-pedido-items">
-                          {(pedido.itemsSeleccionados || []).map((item, j) => (
-                            <div key={j} className="tv-pedido-item">
-                              <span className="tv-pedido-item-qty">{item.cantidad || 1}×</span>
-                              <span className="tv-pedido-item-nombre">{item.nombre}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="tv-pedido-footer">
-                          <div className="tv-pedido-total">
-                            ${Number(pedido.total || 0).toLocaleString("es-CO")}
-                          </div>
-                          <div className="tv-pedido-badge">En preparación</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-            )}
+            <div className="tv-clock">{hora}</div>
+            <div className="tv-date">{fecha}</div>
           </div>
         </div>
 
-        <footer className="tv-footer">
-          <span className="tv-footer-text">KITCHEN MANAGER — PANEL DE COCINA</span>
-          <span className="tv-footer-text">Actualizando cada 5 segundos</span>
-        </footer>
+        {/* ESTADÍSTICAS */}
+        <div className="tv-stats">
+          <div className="tv-stat-card">
+            <div className="tv-stat-value">{totalActivos}</div>
+            <div className="tv-stat-label">Pedidos activos</div>
+          </div>
+          <div className="tv-stat-card">
+            <div className="tv-stat-value" style={{ color: "#e74c3c" }}>{urgentes}</div>
+            <div className="tv-stat-label">Urgentes (+30 min)</div>
+          </div>
+          <div className="tv-stat-card">
+            <div className="tv-stat-value">⚡</div>
+            <div className="tv-stat-label">Actualización cada 10s</div>
+          </div>
+        </div>
 
+        {/* GRID DE PEDIDOS */}
+        <div className="tv-grid">
+          {pedidos.length === 0 ? (
+            <div className="tv-empty">
+              <div className="tv-empty-icon">🍽️</div>
+              <div className="tv-empty-title">No hay pedidos activos</div>
+              <div className="tv-empty-sub">Los pedidos en preparación aparecerán aquí</div>
+            </div>
+          ) : (
+            pedidos
+              .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+              .map((pedido, idx) => {
+                const mins = calcularMinutos(pedido.fecha);
+                const status = getStatusClass(mins);
+                return (
+                  <div key={pedido.id || idx} className={`tv-card ${status}`}>
+                    <div className="tv-card-header">
+                      <div className="tv-card-number">
+                        #{idx + 1} · {pedido.nombreCliente?.split(" ")[0] || "Cliente"}
+                      </div>
+                      <div className="tv-card-time">⏱️ {formatTiempo(mins)}</div>
+                    </div>
+                    <div className="tv-card-body">
+                      <div className="tv-card-fuente">
+                        📍 {pedido.fuente || "Directo"}
+                      </div>
+                      <div className="tv-card-items">
+                        {(pedido.itemsSeleccionados || []).map((item, j) => (
+                          <div key={j} className="tv-card-item">
+                            <span className="tv-card-item-qty">{item.cantidad}×</span>
+                            <span className="tv-card-item-name">{item.nombre}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="tv-card-footer">
+                      <div className="tv-card-total">
+                        ${Number(pedido.total || 0).toLocaleString("es-CO")}
+                      </div>
+                      <div className="tv-card-badge">En preparación</div>
+                    </div>
+                  </div>
+                );
+              })
+          )}
+        </div>
+
+        <div className="tv-footer">
+          KITCHEN MANAGER — PANEL DE COCINA | Actualización automática cada 10 segundos
+        </div>
       </div>
     </>
   );
