@@ -386,6 +386,19 @@ export default function CocinaTV() {
             >
              PANTALLA COMPLETA
             </button>
+            <button 
+            onClick={() => window.open("https://kitchen-manager-front.vercel.app/cocina", "_blank")}
+            style={{
+              background: "rgba(200,137,42,0.2)",
+              border: "1px solid var(--gold)",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "var(--gold)",
+              cursor: "pointer"
+            }}
+          >
+            ABRIR COCINA
+          </button>
           </div>
           <span className="tv-footer-text">Actualizando cada 5 segundos</span>
         </footer>
