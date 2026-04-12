@@ -971,6 +971,13 @@ const NuevoPedidoIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
+const UsuariosIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="8" r="4"/>
+    <path d="M5 20v-2a7 7 0 0114 0v2"/>
+  </svg>
+);
+
 const VerMenuIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round"/>
