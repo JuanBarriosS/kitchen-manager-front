@@ -374,14 +374,11 @@ export default function CocinaTV() {
               onClick={toggleFullScreen}
               style={{
                 background: "rgba(200,137,42,0.2)",
-                border: "1px solid var(--gold)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "var(--gold)",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "600",
-                marginLeft: "16px"
+              border: "1px solid var(--gold)",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "var(--gold)",
+              cursor: "pointer"
               }}
             >
              PANTALLA COMPLETA
