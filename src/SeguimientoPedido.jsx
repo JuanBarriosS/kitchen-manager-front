@@ -36,8 +36,8 @@ const EntregadoIcon = () => (
 const ESTADOS = [
   { key: "recibido",    label: "Pedido recibido", icon: <RecibidoIcon /> },
   { key: "preparacion", label: "En preparación",  icon: <PreparacionIcon /> },
-  { key: "listo",       label: "Pedido listo",    icon: <ListoIcon /> },
-  { key: "entregado",   label: "En camino",       icon: <EntregadoIcon /> },
+  { key: "listo",       label: "Pedido listo / En camino",    icon: <ListoIcon /> },
+  { key: "entregado",   label: "Entregado",       icon: <EntregadoIcon /> },
 ];
 
 export default function SeguimientoPedido() {
