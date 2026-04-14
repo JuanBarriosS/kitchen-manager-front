@@ -579,17 +579,44 @@ function PaginaMenu() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setLoading(true); setMensaje("");
+    e.preventDefault(); 
+    setLoading(true); 
+    setMensaje("");
+    
     try {
-      await axios.post("https://archlinux.taildc096b.ts.net:8443/admin/agregarMenu", { ...form, precio: parseFloat(form.precio), disponible: true });
-      setMensaje("✓ Producto agregado correctamente");
-      setForm({ nombre: "", categoria: "", precio: "" });
-      setArchivoNuevo(null);
-      cargarProductos(); setMostrarFormulario(false);
-    } catch { setMensaje("✗ Error al agregar el producto"); }
-    finally { setLoading(false); }
-  };
-
+        // Primero, crear el producto sin imagen
+        const productResponse = await axios.post(`${BASE}/admin/agregarMenu`, 
+            { ...form, precio: parseFloat(form.precio), disponible: true }
+        );
+        
+        const productId = productResponse.data.id;
+        
+        // Si hay una imagen seleccionada, subirla después
+        if (archivoNuevo) {
+            const formData = new FormData();
+            formData.append("imagen", archivoNuevo);
+            
+            await axios.post(`${BASE}/admin/menu/${productId}/imagen`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+        }
+        
+        setMensaje("✓ Producto agregado correctamente");
+        setForm({ nombre: "", categoria: "", precio: "" });
+        setArchivoNuevo(null);
+        cargarProductos(); 
+        setMostrarFormulario(false);
+        
+    } catch (error) {
+        console.error("Error:", error);
+        setMensaje("✗ Error al agregar el producto: " + (error.response?.data || error.message));
+    } finally { 
+        setLoading(false); 
+    }
+};
   const abrirEdicion = (p) => {
     setEditId(p.id);
     setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
@@ -599,22 +626,34 @@ function PaginaMenu() {
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-      await axios.put(`${BASE}/admin/menu/${id}`,
-        { ...editForm, precio: parseFloat(editForm.precio) });
+        // Actualizar datos del producto
+        await axios.put(`${BASE}/admin/menu/${id}`,
+            { ...editForm, precio: parseFloat(editForm.precio) },
+            { headers: authHeader() }
+        );
 
-      // agrega el token en la subida de imagen al editar
-      if (archivoEdit) {
-        const fd = new FormData();
-        fd.append("imagen", archivoEdit);
-        await axios.post(`${BASE}/admin/menu/${id}/imagen`, fd, {
-          headers: authHeader()
-        });
-      }
+        // Subir nueva imagen si se seleccionó
+        if (archivoEdit) {
+            const formData = new FormData();
+            formData.append("imagen", archivoEdit);
+            
+            await axios.post(`${BASE}/admin/menu/${id}/imagen`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    ...authHeader()
+                }
+            });
+        }
 
-      cargarProductos();
-      setEditId(null); setArchivoEdit(null);
-    } catch (e) { console.error(e); } finally { setEditando(false); }
-  };
+        cargarProductos();
+        setEditId(null); 
+        setArchivoEdit(null);
+    } catch (e) { 
+        console.error(e); 
+    } finally { 
+        setEditando(false); 
+    }
+};
 
   const eliminar = async (id) => {
     setEliminando(id);
