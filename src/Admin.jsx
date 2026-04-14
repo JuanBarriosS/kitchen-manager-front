@@ -713,9 +713,20 @@ function PaginaMenu() {
                             <img src={URL.createObjectURL(archivoEdit)} alt="preview"
                               style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
                           )}
-                          {!archivoEdit && p.imagenUrl && (
-                            <img src={p.imagenUrl} alt={p.nombre}
-                              style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
+                          {!archivoEdit && p.imagenUrl ? (
+                              <img 
+                                  src={`${BASE}${p.imagenUrl}`}  
+                                  alt={p.nombre}
+                                  style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}
+                                  onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = "fallback-image-url"; // URL de imagen por defecto
+                                      e.target.style.display = "none";
+                                      e.target.parentElement.innerHTML = '<span style="font-size:22px">🍽️</span>';
+                                  }}
+                              />
+                          ) : (
+                              <span style={{ fontSize: 22 }}>🍽️</span>
                           )}
                           <div style={{ display:"flex", gap:"6px" }}>
                             <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
