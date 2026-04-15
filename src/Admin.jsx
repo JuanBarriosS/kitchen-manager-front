@@ -782,7 +782,7 @@ function PaginaMenu() {
                             ? <img 
                                 src={p.imagenUrl.startsWith('http') ? p.imagenUrl : `${BASE}${p.imagenUrl}`} 
                                 alt={p.nombre}
-                                style={{ width:40, height:40, ... } 
+                                style={{ width:40, height:40, ... }}
                               />
                             : <span style={{ fontSize:22 }}>🍽️</span>
                           }
