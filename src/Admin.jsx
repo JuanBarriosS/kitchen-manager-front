@@ -779,8 +779,11 @@ function PaginaMenu() {
                       <td>
                         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                           {p.imagenUrl
-                            ? <img src={p.imagenUrl} alt={p.nombre}
-                                style={{ width:40, height:40, objectFit:"cover", borderRadius:6, border:"1px solid rgba(255,255,255,0.1)", flexShrink:0 }} />
+                            ? <img 
+                                src={p.imagenUrl.startsWith('http') ? p.imagenUrl : `${BASE}${p.imagenUrl}`} 
+                                alt={p.nombre}
+                                style={{ width:40, height:40, ... }} 
+                              />
                             : <span style={{ fontSize:22 }}>🍽️</span>
                           }
                           {p.nombre}
