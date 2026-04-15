@@ -536,7 +536,6 @@ function PaginaInicio({ username }) {
 }
 
 // ── PAGINA MENU ───────────────────────────────────────────────────────────
-// ── PAGINA MENU ───────────────────────────────────────────────────────────
 function PaginaMenu() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([]);
@@ -549,9 +548,6 @@ function PaginaMenu() {
   const [editando, setEditando]   = useState(false);
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
-
-  const [archivoNuevo, setArchivoNuevo] = useState(null);
-  const [archivoEdit,  setArchivoEdit]  = useState(null);
 
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -584,29 +580,12 @@ function PaginaMenu() {
     setMensaje("");
     
     try {
-        // Primero, crear el producto sin imagen
-        const productResponse = await axios.post(`${BASE}/admin/agregarMenu`, 
+        await axios.post(`${BASE}/admin/agregarMenu`, 
             { ...form, precio: parseFloat(form.precio), disponible: true }
         );
         
-        const productId = productResponse.data.id;
-        
-        // Si hay una imagen seleccionada, subirla después
-        if (archivoNuevo) {
-            const formData = new FormData();
-            formData.append("imagen", archivoNuevo);
-            
-            await axios.post(`${BASE}/admin/menu/${productId}/imagen`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-        }
-        
         setMensaje("✓ Producto agregado correctamente");
         setForm({ nombre: "", categoria: "", precio: "" });
-        setArchivoNuevo(null);
         cargarProductos(); 
         setMostrarFormulario(false);
         
@@ -616,44 +595,29 @@ function PaginaMenu() {
     } finally { 
         setLoading(false); 
     }
-};
+  };
+  
   const abrirEdicion = (p) => {
     setEditId(p.id);
     setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
-    setArchivoEdit(null);
   };
 
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-        // Actualizar datos del producto
         await axios.put(`${BASE}/admin/menu/${id}`,
             { ...editForm, precio: parseFloat(editForm.precio) },
             { headers: authHeader() }
         );
 
-        // Subir nueva imagen si se seleccionó
-        if (archivoEdit) {
-            const formData = new FormData();
-            formData.append("imagen", archivoEdit);
-            
-            await axios.post(`${BASE}/admin/menu/${id}/imagen`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    ...authHeader()
-                }
-            });
-        }
-
         cargarProductos();
         setEditId(null); 
-        setArchivoEdit(null);
     } catch (e) { 
         console.error(e); 
     } finally { 
         setEditando(false); 
     }
-};
+  };
 
   const eliminar = async (id) => {
     setEliminando(id);
@@ -682,7 +646,7 @@ function PaginaMenu() {
         {mostrarFormulario && (
           <form onSubmit={handleSubmit} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
             <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4" }}>Nuevo producto</div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:"16px" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"16px" }}>
               <div>
                 <label style={labelStyle}>Nombre</label>
                 <input style={inputStyle} name="nombre" placeholder="ej: Bandeja Paisa" value={form.nombre} onChange={handleChange} required />
@@ -697,15 +661,6 @@ function PaginaMenu() {
               <div>
                 <label style={labelStyle}>Precio ($)</label>
                 <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
-              </div>
-              <div>
-                <label style={labelStyle}>Imagen</label>
-                <input type="file" accept="image/*" style={{ ...inputStyle, cursor:"pointer", paddingTop:"8px" }}
-                  onChange={e => setArchivoNuevo(e.target.files[0])} />
-                {archivoNuevo && (
-                  <img src={URL.createObjectURL(archivoNuevo)} alt="preview"
-                    style={{ marginTop:8, width:50, height:50, objectFit:"cover", borderRadius:6, border:"1px solid rgba(255,255,255,0.1)" }} />
-                )}
               </div>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
@@ -745,63 +700,15 @@ function PaginaMenu() {
                         </select>
                       </td>
                       <td>
-                        <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                          <input type="file" accept="image/*" style={{ ...smallInput, cursor:"pointer", width:"160px" }}
-                            onChange={e => setArchivoEdit(e.target.files[0])} />
-                          {archivoEdit && (
-                            <img src={URL.createObjectURL(archivoEdit)} alt="preview"
-                              style={{ width:40, height:40, objectFit:"cover", borderRadius:4, border:"1px solid rgba(255,255,255,0.1)" }} />
-                          )}
-                          {!archivoEdit && p.imagenUrl ? (
-                              <img 
-                                  src={`${BASE}${p.imagenUrl}`}  
-                                  alt={p.nombre}
-                                  style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}
-                                  onError={(e) => {
-                                      e.target.onerror = null;
-                                      e.target.src = "fallback-image-url"; // URL de imagen por defecto
-                                      e.target.style.display = "none";
-                                      e.target.parentElement.innerHTML = '<span style="font-size:22px">🍽️</span>';
-                                  }}
-                              />
-                          ) : (
-                              <span style={{ fontSize: 22 }}>🍽️</span>
-                          )}
-                          <div style={{ display:"flex", gap:"6px" }}>
-                            <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
-                            <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
-                          </div>
+                        <div style={{ display:"flex", gap:"6px" }}>
+                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
+                          <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                         </div>
                       </td>
                     </>
                   ) : (
                     <>
-                     <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        {p.imagenUrl ? (
-                          <img
-                            src={p.imagenUrl.startsWith('http') ? p.imagenUrl : `${BASE}${p.imagenUrl}`}
-                            alt={p.nombre}
-                            style={{ 
-                              width: 40, 
-                              height: 40, 
-                              objectFit: "cover", 
-                              borderRadius: 6, 
-                              border: "1px solid rgba(255,255,255,0.1)", 
-                              flexShrink: 0 
-                            }}
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.style.display = 'none';
-                              e.target.parentElement.innerHTML = '<span style="font-size:22px">🍽️</span>';
-                            }}
-                          />
-                        ) : (
-                          <span style={{ fontSize: 22 }}>🍽️</span>
-                        )}
-                        {p.nombre}
-                      </div>
-                    </td>
+                     <td>{p.nombre}</td>
                       <td><span className="badge badge-orange">{p.categoria}</span></td>
                       <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
                       <td><span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>{p.disponible ? "Disponible" : "Agotado"}</span></td>
