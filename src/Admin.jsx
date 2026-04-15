@@ -776,19 +776,32 @@ function PaginaMenu() {
                     </>
                   ) : (
                     <>
-                      <td>
-                        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                          {p.imagenUrl
-                            ? <img 
-                                src={p.imagenUrl.startsWith('http') ? p.imagenUrl : `${BASE}${p.imagenUrl}`} 
-                                alt={p.nombre}
-                                style={{ width:40, height:40, ... }}
-                              />
-                            : <span style={{ fontSize:22 }}>🍽️</span>
-                          }
-                          {p.nombre}
-                        </div>
-                      </td>
+                     <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        {p.imagenUrl ? (
+                          <img
+                            src={p.imagenUrl.startsWith('http') ? p.imagenUrl : `${BASE}${p.imagenUrl}`}
+                            alt={p.nombre}
+                            style={{ 
+                              width: 40, 
+                              height: 40, 
+                              objectFit: "cover", 
+                              borderRadius: 6, 
+                              border: "1px solid rgba(255,255,255,0.1)", 
+                              flexShrink: 0 
+                            }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = '<span style="font-size:22px">🍽️</span>';
+                            }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: 22 }}>🍽️</span>
+                        )}
+                        {p.nombre}
+                      </div>
+                    </td>
                       <td><span className="badge badge-orange">{p.categoria}</span></td>
                       <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
                       <td><span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>{p.disponible ? "Disponible" : "Agotado"}</span></td>
