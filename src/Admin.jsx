@@ -542,12 +542,16 @@ function PaginaMenu() {
   const [cargando, setCargando]   = useState(true);
   const [mensaje, setMensaje]     = useState("");
   const [loading, setLoading]     = useState(false);
-  const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "" });
+  //  Se agrega imagen al estado del formulario
+  const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "", imagen: "" });
   const [editId, setEditId]       = useState(null);
   const [editForm, setEditForm]   = useState({});
   const [editando, setEditando]   = useState(false);
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
+  //  Estados para manejar la subida de imagen
+  const [subiendoImagen, setSubiendoImagen]       = useState(false);
+  const [subiendoImagenEdit, setSubiendoImagenEdit] = useState(false);
 
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -574,48 +578,87 @@ function PaginaMenu() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    setLoading(true); 
-    setMensaje("");
-    
+  //  Función para subir imagen al backend y obtener la URL
+  const subirImagen = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await axios.post(`${BASE}/admin/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data.url; // ej: "/imagenes/1234567890_foto.jpg"
+  };
+
+  // maneja la selección de imagen en el formulario de AGREGAR
+  const handleImagenChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setSubiendoImagen(true);
     try {
-        await axios.post(`${BASE}/admin/agregarMenu`, 
-            { ...form, precio: parseFloat(form.precio), disponible: true }
-        );
-        
-        setMensaje("✓ Producto agregado correctamente");
-        setForm({ nombre: "", categoria: "", precio: "" });
-        cargarProductos(); 
-        setMostrarFormulario(false);
-        
-    } catch (error) {
-        console.error("Error:", error);
-        setMensaje("✗ Error al agregar el producto: " + (error.response?.data || error.message));
-    } finally { 
-        setLoading(false); 
+      const url = await subirImagen(file);
+      setForm(prev => ({ ...prev, imagen: url }));
+    } catch (err) {
+      console.error("Error subiendo imagen:", err);
+    } finally {
+      setSubiendoImagen(false);
     }
   };
-  
+
+  //  Maneja la selección de imagen en el formulario de EDITAR
+  const handleImagenEditChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setSubiendoImagenEdit(true);
+    try {
+      const url = await subirImagen(file);
+      setEditForm(prev => ({ ...prev, imagen: url }));
+    } catch (err) {
+      console.error("Error subiendo imagen:", err);
+    } finally {
+      setSubiendoImagenEdit(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMensaje("");
+    try {
+      // se incluye "imagen" en el objeto enviado al backend
+      await axios.post(`${BASE}/admin/agregarMenu`,
+        { ...form, precio: parseFloat(form.precio), disponible: true }
+      );
+      setMensaje("✓ Producto agregado correctamente");
+      setForm({ nombre: "", categoria: "", precio: "", imagen: "" });
+      cargarProductos();
+      setMostrarFormulario(false);
+    } catch (error) {
+      console.error("Error:", error);
+      setMensaje("✗ Error al agregar el producto: " + (error.response?.data || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const abrirEdicion = (p) => {
     setEditId(p.id);
-    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
+    // Se incluye "imagen" en el estado de edición
+    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible, imagen: p.imagen || "" });
   };
 
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-        await axios.put(`${BASE}/admin/menu/${id}`,
-            { ...editForm, precio: parseFloat(editForm.precio) },
-            { headers: authHeader() }
-        );
-
-        cargarProductos();
-        setEditId(null); 
-    } catch (e) { 
-        console.error(e); 
-    } finally { 
-        setEditando(false); 
+      // Se incluye "imagen" en el PUT
+      await axios.put(`${BASE}/admin/menu/${id}`,
+        { ...editForm, precio: parseFloat(editForm.precio) },
+        { headers: authHeader() }
+      );
+      cargarProductos();
+      setEditId(null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setEditando(false);
     }
   };
 
@@ -663,8 +706,33 @@ function PaginaMenu() {
                 <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
               </div>
             </div>
+            {/* Campo de imagen en formulario de agregar */}
+            <div>
+              <label style={labelStyle}>Imagen del producto</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImagenChange}
+                style={{ ...inputStyle, padding:"8px", cursor:"pointer" }}
+              />
+              {subiendoImagen && (
+                <span style={{ fontSize:"11px", color:"var(--gold)", marginTop:"4px", display:"block" }}>⏳ Subiendo imagen...</span>
+              )}
+              {form.imagen && !subiendoImagen && (
+                <div style={{ marginTop:"8px", display:"flex", alignItems:"center", gap:"10px" }}>
+                  <img
+                    src={`${BASE}${form.imagen}`}
+                    alt="Preview"
+                    style={{ width:"60px", height:"60px", objectFit:"cover", borderRadius:"6px", border:"1px solid rgba(200,137,42,0.25)" }}
+                  />
+                  <span style={{ fontSize:"11px", color:"#6fcf74" }}>✓ Imagen lista</span>
+                </div>
+              )}
+            </div>
             <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-              <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Guardando..." : "Guardar Producto"}</button>
+              <button type="submit" className="btn-primary" disabled={loading || subiendoImagen} style={{ padding:"10px 24px" }}>
+                {loading ? "Guardando..." : "Guardar Producto"}
+              </button>
               {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
             </div>
           </form>
@@ -676,12 +744,34 @@ function PaginaMenu() {
           <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">Empieza agregando tu primer producto</div></div>
         ) : (
           <table className="user-table">
-            <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
+            {/*  Se agrega columna "Imagen" */}
+            <thead><tr><th>Imagen</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
             <tbody>
               {productos.map((p) => (
                 <tr key={p.id}>
                   {editId === p.id ? (
                     <>
+                      {/*  Celda de imagen en modo edición */}
+                      <td>
+                        <div>
+                          {editForm.imagen && (
+                            <img
+                              src={`${BASE}${editForm.imagen}`}
+                              alt="img"
+                              style={{ width:"44px", height:"44px", objectFit:"cover", borderRadius:"5px", border:"1px solid rgba(200,137,42,0.2)", marginBottom:"4px", display:"block" }}
+                            />
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImagenEditChange}
+                            style={{ fontSize:"10px", color:"var(--gray)", cursor:"pointer", width:"90px" }}
+                          />
+                          {subiendoImagenEdit && (
+                            <span style={{ fontSize:"10px", color:"var(--gold)" }}>Subiendo...</span>
+                          )}
+                        </div>
+                      </td>
                       <td>
                         <input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} />
                       </td>
@@ -701,14 +791,28 @@ function PaginaMenu() {
                       </td>
                       <td>
                         <div style={{ display:"flex", gap:"6px" }}>
-                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
+                          <button onClick={() => guardarEdicion(p.id)} disabled={editando || subiendoImagenEdit} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
                           <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                         </div>
                       </td>
                     </>
                   ) : (
                     <>
-                     <td>{p.nombre}</td>
+                      {/* Celda de imagen en modo visualización */}
+                      <td>
+                        {p.imagen ? (
+                          <img
+                            src={`${BASE}${p.imagen}`}
+                            alt={p.nombre}
+                            style={{ width:"44px", height:"44px", objectFit:"cover", borderRadius:"6px", border:"1px solid rgba(200,137,42,0.2)" }}
+                          />
+                        ) : (
+                          <div style={{ width:"44px", height:"44px", borderRadius:"6px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px" }}>
+                            🍽️
+                          </div>
+                        )}
+                      </td>
+                      <td>{p.nombre}</td>
                       <td><span className="badge badge-orange">{p.categoria}</span></td>
                       <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
                       <td><span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>{p.disponible ? "Disponible" : "Agotado"}</span></td>
