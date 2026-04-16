@@ -584,7 +584,7 @@ function PaginaMenu() {
     formData.append("file", file);
     const res = await axios.post(`${BASE}/admin/upload`, formData, {
       headers: { "Content-Type": "multipart/form-data",
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
+      "Authorization": `Bearer ${localStorage.getItem("token")}`}
     });
     return res.data.url; // ej: "/imagenes/1234567890_foto.jpg"
   };
