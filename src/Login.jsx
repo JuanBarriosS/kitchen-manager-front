@@ -245,7 +245,7 @@ function Login() {
         setMensaje("");
 
         try {
-            const respuesta = await axios.post("https://archlinux.taildc096b.ts.net/login", {
+            const respuesta = await axios.post("https://kitchen-manager-back-1-production.up.railway.app/login", {
                 username,
                 password
             });
