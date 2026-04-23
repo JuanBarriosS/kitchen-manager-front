@@ -245,7 +245,7 @@ function Login() {
         setMensaje("");
 
         try {
-            const respuesta = await axios.post("http://100.96.106.39:7200/login", {
+            const respuesta = await axios.post("https://kitchen-manager-back:8080/login", {
                 username,
                 password
             });
