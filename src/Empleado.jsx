@@ -304,8 +304,22 @@ function PaginaPedidos() {
                         {p.itemsSeleccionados?.map((item, j) => (
                           <div key={j}>{item.cantidad}× {item.nombre}</div>
                         ))}
+                        {p.notas && p.notas.trim() && (
+                          <div style={{
+                            marginTop: "8px",
+                            padding: "6px 9px",
+                            background: "rgba(200,137,42,0.07)",
+                            border: "1px solid rgba(200,137,42,0.2)",
+                            borderRadius: "5px",
+                            fontSize: "11px",
+                            color: "#E8A830",
+                            lineHeight: "1.5",
+                          }}>
+                            📝 {p.notas}
+                          </div>
+                        )}
                         <button
-                        onClick={() => {
+                          onClick={() => {
                           const link = `https://kitchen-manager-front.vercel.app/seguimiento/${p.id}`;
                           navigator.clipboard.writeText(link);
                         }}
