@@ -1771,6 +1771,17 @@ const UsuariosIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
+const EmpleadoIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="7" r="3.5"/>
+    <path d="M8 4.5h8v1H8z"/>
+    <path d="M9 3.5h6v1H9z"/>
+    <path d="M7 21v-5a5 5 0 0 1 10 0v5"/>
+    <rect x="9.5" y="10" width="5" height="1.5" rx="0.5"/>
+    <circle cx="12" cy="9.5" r="0.8"/>
+  </svg>
+);
+
 
 const NAV = [
   { key:"inicio",     label:"Inicio",                icon: InicioIcon,     section:"GENERAL" },
@@ -1780,7 +1791,7 @@ const NAV = [
   { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
   { key:"financiero", label:"Dashboard Financiero",  icon: FinancieroIcon, section:"REPORTES" },
   { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
-  { key:"empleados",   label:"Empleados",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
+  { key:"empleados",   label:"Empleados",              icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
   { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
