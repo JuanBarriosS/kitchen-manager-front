@@ -1562,10 +1562,10 @@ function PaginaUsuarios() {
 
   return (
     <div>
-      <div className="page-header"><div className="page-title">GESTIÓN DE USUARIOS</div><div className="page-subtitle">Administra los empleados del sistema</div></div>
+      <div className="page-header"><div className="page-title">GESTIÓN DE USUARIOS</div><div className="page-subtitle">Administra los usuarios del sistema</div></div>
       <div className="section-card">
         <div className="section-card-header">
-          <div className="section-card-title">EMPLEADOS ({usuarios.length})</div>
+          <div className="section-card-title">USUARIOS ({usuarios.length})</div>
           <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>{mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}</button>
         </div>
         {mostrarFormulario && <RegistrarUsuario onUsuarioCreado={() => { cargarUsuarios(); setMostrarFormulario(false); }} />}
