@@ -303,7 +303,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
       setMensaje("✗ Las contraseñas no coinciden"); setLoading(false); return;
     }
     try {
-      await axios.post(`${BASE}/admin/agregarUsuario`, { username, password, roles: [roles] });
+      await axios.post(`${BASE}/admin/Usuario`, { username, password, roles: [roles] });
       setMensaje("✓ Usuario creado exitosamente");
       setUsername(""); setPassword(""); setPasswordConfirmate(""); setRoles("EMPLEADO");
       if (onUsuarioCreado) onUsuarioCreado();
@@ -1335,7 +1335,7 @@ function PaginaEmpleados() {
 
   const cargarEmpleados = async () => {
     setCargando(true);
-    try { const res = await axios.get(`${BASE}/admin/verMeseros`); setUsuarios(res.data); }
+    try { const res = await axios.get(`${BASE}/admin/Meseros`); setUsuarios(res.data); }
     catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
@@ -1398,7 +1398,7 @@ function PaginaUsuarios() {
 
   const cargarUsuarios = async () => {
     setCargando(true);
-    try { const res = await axios.get(`${BASE}/admin/verEmpleados`); setUsuarios(res.data); }
+    try { const res = await axios.get(`${BASE}/admin/Usuarios`); setUsuarios(res.data); }
     catch (e) { console.error(e); } finally { setCargando(false); }
   };
 
