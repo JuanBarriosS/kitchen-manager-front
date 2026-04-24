@@ -278,6 +278,53 @@ const styles = `
   }
 `;
 
+
+function RegistrarEmpleado({ onEmpleadoCreado }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmate, setPasswordConfirmate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [mensaje, setMensaje] = useState("");
+
+  const inputStyle = {
+    width: "100%", padding: "10px 14px", borderRadius: "6px",
+    border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
+    color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
+  };
+  const labelStyle = {
+    fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
+    letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
+  };
+
+  const manejarRegistro = async (e) => {
+    e.preventDefault(); setLoading(true); setMensaje("");
+    if (password !== passwordConfirmate) {
+      setMensaje("✗ Las contraseñas no coinciden"); setLoading(false); return;
+    }
+    try {
+      await axios.post(`${BASE}/admin/Empleado`, { username, password });
+      setMensaje("✓ Empleado creado exitosamente");
+      setUsername(""); setPassword(""); setPasswordConfirmate("");
+      if (onEmpleadoCreado) onEmpleadoCreado();
+    } catch { setMensaje("✗ Error al crear el empleado"); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <form onSubmit={manejarRegistro} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
+      <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4", marginBottom:"4px" }}>Nuevo empleado</div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px" }}>
+        <div><label style={labelStyle}>Nombre del empleado</label><input style={inputStyle} type="text" placeholder="ej: Juan Rodriguez" value={username} onChange={(e) => setUsername(e.target.value)} required /></div>
+        <div><label style={labelStyle}>Contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+        <div><label style={labelStyle}>Confirmar contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required /></div>
+      </div>
+      <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
+        <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Registrando..." : "Registrar Empleado"}</button>
+        {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
+      </div>
+    </form>
+  );
+}
 // ────────────── FORMULARIO REGISTRAR USUARIO ─────────────────────────────────────────
 function RegistrarUsuario({ onUsuarioCreado }) {
   const [username, setUsername] = useState("");
