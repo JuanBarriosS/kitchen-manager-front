@@ -351,6 +351,21 @@ export default function CocinaTV() {
                             </div>
                           ))}
                         </div>
+                        {pedido.notas && pedido.notas.trim() && (
+                          <div style={{
+                            marginTop: "10px",
+                            padding: "7px 10px",
+                            background: "rgba(200,137,42,0.07)",
+                            border: "1px solid rgba(200,137,42,0.25)",
+                            borderRadius: "6px",
+                            fontSize: "12px",
+                            color: "#E8A830",
+                            lineHeight: "1.5",
+                            fontStyle: "italic",
+                          }}>
+                            📝 {pedido.notas}
+                          </div>
+                        )}
                         <div className="tv-pedido-footer">
                           <div className="tv-pedido-total">
                             ${Number(pedido.total || 0).toLocaleString("es-CO")}
