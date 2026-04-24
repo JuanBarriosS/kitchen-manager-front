@@ -386,26 +386,140 @@ const styles = `
   }
   .cp-cliente-mini strong { color: var(--cream); font-weight: 400; }
 
+  /* ── MODAL OVERLAY ── */
+  .cp-modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(12,15,26,0.88);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+    animation: cp-fade-in 0.18s ease;
+  }
+  @keyframes cp-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .cp-modal {
+    background: var(--card);
+    border: 0.5px solid rgba(201,168,76,0.3);
+    border-radius: 12px;
+    padding: 2rem 1.75rem 1.75rem;
+    max-width: 420px; width: 100%;
+    position: relative;
+    animation: cp-slide-up 0.2s ease;
+  }
+  @keyframes cp-slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .cp-modal-topline {
+    position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .cp-modal-eyebrow {
+    font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(201,168,76,0.5); text-align: center; margin-bottom: 10px;
+  }
+  .cp-modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 300; color: var(--cream);
+    letter-spacing: 1px; text-align: center; margin-bottom: 6px;
+  }
+  .cp-modal-sub {
+    font-size: 12px; color: var(--muted); font-weight: 300;
+    text-align: center; line-height: 1.7; margin-bottom: 1.25rem;
+  }
+  .cp-modal-items {
+    background: rgba(255,255,255,0.02);
+    border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 0.9rem; margin-bottom: 1rem;
+  }
+  .cp-modal-items-label {
+    font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(201,168,76,0.4); margin-bottom: 8px;
+  }
+  .cp-modal-item-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; padding: 5px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.03);
+  }
+  .cp-modal-item-row:last-of-type { border-bottom: none; }
+  .cp-modal-item-name { color: var(--text); }
+  .cp-modal-item-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; color: var(--gold);
+  }
+  .cp-modal-total-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 10px; padding-top: 8px;
+    border-top: 0.5px solid rgba(201,168,76,0.15);
+  }
+  .cp-modal-total-label {
+    font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+  }
+  .cp-modal-total-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 400; color: var(--gold2);
+  }
+  .cp-modal-cliente {
+    font-size: 11px; color: var(--muted);
+    text-align: center; line-height: 1.8; margin-bottom: 1.25rem;
+  }
+  .cp-modal-cliente strong { color: var(--cream); font-weight: 400; }
+  .cp-modal-notas {
+    font-size: 10px; color: var(--muted); margin-top: 3px;
+    font-style: italic;
+  }
+  .cp-modal-btns {
+    display: flex; gap: 8px;
+  }
+  .cp-modal-btns .cp-btn-sec  { flex: 1; }
+  .cp-modal-btns .cp-btn-primary { flex: 2; }
+
   @media (max-width: 768px) {
     .cp-nav, .cp-hero, .cp-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
     .cp-layout { grid-template-columns: 1fr; padding: 1.5rem 1.25rem 3rem; }
     .cp-resumen { position: static; }
     .cp-datos-grid { grid-template-columns: 1fr; }
+    .cp-modal { padding: 1.75rem 1.25rem 1.25rem; }
   }
 `;
 
+/* ── LOGO SVG Kitchen Manager ── */
 const Logo = () => (
-  <svg width="36" height="36" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" strokeWidth="1.2"/>
-    <circle cx="50" cy="50" r="38" fill="none" stroke="#C9A84C" strokeWidth="0.4" opacity="0.4"/>
-    <g transform="rotate(-20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="1.8">
-      <line x1="44" y1="14" x2="44" y2="35"/><line x1="50" y1="11" x2="50" y2="35"/><line x1="56" y1="14" x2="56" y2="35"/>
-      <path d="M44 35 Q47 41 50 42 Q53 41 56 35"/><line x1="50" y1="42" x2="50" y2="86"/>
+  <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none">
+    {/* Círculo exterior */}
+    <circle cx="100" cy="100" r="94" stroke="#C9A84C" strokeWidth="2.5"/>
+    {/* Círculo interior sutil */}
+    <circle cx="100" cy="100" r="78" stroke="#C9A84C" strokeWidth="0.8" opacity="0.35"/>
+
+    {/* Tenedor — izquierda */}
+    <g stroke="#C9A84C" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+      {/* Púas del tenedor */}
+      <line x1="82" y1="36" x2="82" y2="72"/>
+      <line x1="92" y1="36" x2="92" y2="72"/>
+      <line x1="102" y1="36" x2="102" y2="72"/>
+      {/* Curva base del tenedor */}
+      <path d="M82 72 Q87 84 92 86 Q97 84 102 72"/>
+      {/* Mango del tenedor */}
+      <line x1="92" y1="86" x2="92" y2="164"/>
     </g>
-    <g transform="rotate(20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="1.8">
-      <path d="M50 11 Q58 30 54 44"/><line x1="50" y1="11" x2="46" y2="44"/>
-      <line x1="46" y1="44" x2="54" y2="44"/><line x1="50" y1="46" x2="50" y2="86"/>
+
+    {/* Cuchillo — derecha */}
+    <g stroke="#C9A84C" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+      {/* Hoja del cuchillo */}
+      <path d="M118 36 Q134 60 130 88"/>
+      {/* Lomo recto */}
+      <line x1="118" y1="36" x2="118" y2="88"/>
+      {/* Base de la hoja */}
+      <line x1="118" y1="88" x2="130" y2="88"/>
+      {/* Mango del cuchillo */}
+      <line x1="124" y1="88" x2="124" y2="164"/>
     </g>
+
+    {/* Plato / arco decorativo central */}
+    <path d="M66 118 Q100 108 134 118" stroke="#C9A84C" strokeWidth="1.5" strokeLinecap="round" opacity="0.5"/>
+    <path d="M72 126 Q100 116 128 126" stroke="#C9A84C" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
   </svg>
 );
 
@@ -421,17 +535,18 @@ export default function PortalClientes() {
   const navigate = useNavigate();
   const { token } = useParams();
 
-  const [menu, setMenu]           = useState([]);
-  const [cargando, setCargando]   = useState(true);
-  const [catActiva, setCatActiva] = useState("Todas");
-  const [errorQr, setErrorQr]     = useState(null);
-  const [carrito, setCarrito]     = useState({});
-  const [nombre, setNombre]       = useState("");
-  const [mesa, setMesa]           = useState("");
-  const [notas, setNotas]         = useState("");
-  const [enviando, setEnviando]   = useState(false);
-  const [resultado, setResultado] = useState(null);
-  const [pedidoEnviado, setPedidoEnviado] = useState(false);
+  const [menu, setMenu]                         = useState([]);
+  const [cargando, setCargando]                 = useState(true);
+  const [catActiva, setCatActiva]               = useState("Todas");
+  const [errorQr, setErrorQr]                   = useState(null);
+  const [carrito, setCarrito]                   = useState({});
+  const [nombre, setNombre]                     = useState("");
+  const [mesa, setMesa]                         = useState("");
+  const [notas, setNotas]                       = useState("");
+  const [enviando, setEnviando]                 = useState(false);
+  const [resultado, setResultado]               = useState(null);
+  const [pedidoEnviado, setPedidoEnviado]       = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
   useEffect(() => {
     const url = token
@@ -466,7 +581,7 @@ export default function PortalClientes() {
       .finally(() => setCargando(false));
   }, [token]);
 
-  const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
+  const categorias   = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
   const menuFiltrado = catActiva === "Todas" ? menu : menu.filter(p => p.categoria === catActiva);
 
   const agregar = (prod) => {
@@ -484,17 +599,22 @@ export default function PortalClientes() {
 
   const limpiar = () => {
     setCarrito({}); setNombre(""); setMesa(""); setNotas("");
-    setResultado(null); setPedidoEnviado(false);
+    setResultado(null); setPedidoEnviado(false); setMostrarConfirmacion(false);
   };
 
   const itemsCarrito = menu
     .filter(p => carrito[p.id])
     .map(p => ({ ...p, cantidad: carrito[p.id], subtotal: p.precio * carrito[p.id] }));
 
-  const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
+  const total       = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
   const puedeEnviar = itemsCarrito.length > 0 && nombre.trim() && mesa.trim();
 
+  /* Abre el modal de confirmación */
+  const handleConfirmar = () => setMostrarConfirmacion(true);
+
+  /* Envío real — se llama desde el modal */
   const handleEnviar = async () => {
+    setMostrarConfirmacion(false);
     setEnviando(true); setResultado(null);
     try {
       const url = token
@@ -509,7 +629,7 @@ export default function PortalClientes() {
           precio: i.precio, cantidad: i.cantidad,
         })),
       };
-      const res = await axios.post(url, payload);
+      const res     = await axios.post(url, payload);
       const pedidoId = res.data?.id || res.data?.pedidoId || "";
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
@@ -549,7 +669,53 @@ export default function PortalClientes() {
     </footer>
   );
 
-  // ── ÉXITO ──
+  /* ── MODAL DE CONFIRMACIÓN ── */
+  const ModalConfirmacion = () => (
+    <div className="cp-modal-overlay" onClick={() => setMostrarConfirmacion(false)}>
+      <div className="cp-modal" onClick={e => e.stopPropagation()}>
+        <div className="cp-modal-topline" />
+
+        <p className="cp-modal-eyebrow">Confirmar pedido</p>
+        <h2 className="cp-modal-title">¿Enviamos tu pedido?</h2>
+        <p className="cp-modal-sub">Revisa el resumen antes de confirmar. Una vez enviado pasará directo a cocina.</p>
+
+        {/* Items */}
+        <div className="cp-modal-items">
+          <p className="cp-modal-items-label">Resumen</p>
+          {itemsCarrito.map(item => (
+            <div className="cp-modal-item-row" key={item.id}>
+              <span className="cp-modal-item-name">{item.nombre} <span style={{ color: "var(--muted)" }}>× {item.cantidad}</span></span>
+              <span className="cp-modal-item-price">{fmt(item.subtotal)}</span>
+            </div>
+          ))}
+          <div className="cp-modal-total-row">
+            <span className="cp-modal-total-label">Total</span>
+            <span className="cp-modal-total-value">{fmt(total)}</span>
+          </div>
+        </div>
+
+        {/* Cliente */}
+        <div className="cp-modal-cliente">
+          {nombre && <span><strong>{nombre}</strong></span>}
+          {nombre && mesa && <span style={{ color: "rgba(201,168,76,0.3)", margin: "0 6px" }}>·</span>}
+          {mesa   && <span>Mesa <strong>{mesa}</strong></span>}
+          {notas  && <div className="cp-modal-notas">"{notas}"</div>}
+        </div>
+
+        {/* Botones */}
+        <div className="cp-modal-btns">
+          <button className="cp-btn-sec" onClick={() => setMostrarConfirmacion(false)}>
+            Cancelar
+          </button>
+          <button className="cp-btn-primary" onClick={handleEnviar} disabled={enviando}>
+            {enviando ? "Enviando..." : "Confirmar envío"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ── ÉXITO ── */
   if (pedidoEnviado && resultado?.ok) {
     return (
       <>
@@ -581,7 +747,7 @@ export default function PortalClientes() {
     );
   }
 
-  // ── ERROR QR ──
+  /* ── ERROR QR ── */
   if (errorQr) {
     return (
       <>
@@ -601,7 +767,7 @@ export default function PortalClientes() {
     );
   }
 
-  // ── VISTA PRINCIPAL ──
+  /* ── VISTA PRINCIPAL ── */
   return (
     <>
       <style>{styles}</style>
@@ -688,7 +854,9 @@ export default function PortalClientes() {
             <div className="cp-resumen-top">
               <div className="cp-resumen-titulo">Tu pedido</div>
               <div className="cp-resumen-sub">
-                {itemsCarrito.length === 0 ? "Aún no has agregado nada" : `${itemsCarrito.length} producto${itemsCarrito.length > 1 ? "s" : ""} seleccionado${itemsCarrito.length > 1 ? "s" : ""}`}
+                {itemsCarrito.length === 0
+                  ? "Aún no has agregado nada"
+                  : `${itemsCarrito.length} producto${itemsCarrito.length > 1 ? "s" : ""} seleccionado${itemsCarrito.length > 1 ? "s" : ""}`}
               </div>
             </div>
 
@@ -722,7 +890,12 @@ export default function PortalClientes() {
             </div>
 
             <div className="cp-resumen-actions">
-              <button className="cp-btn-primary" disabled={!puedeEnviar || enviando} onClick={handleEnviar}>
+              {/* onClick ahora abre el modal en vez de enviar directo */}
+              <button
+                className="cp-btn-primary"
+                disabled={!puedeEnviar || enviando}
+                onClick={handleConfirmar}
+              >
                 {enviando ? "Enviando..." : "Enviar pedido"}
               </button>
 
@@ -746,6 +919,9 @@ export default function PortalClientes() {
         </div>
 
         <Footer />
+
+        {/* ── MODAL DE CONFIRMACIÓN (se renderiza encima de todo) ── */}
+        {mostrarConfirmacion && <ModalConfirmacion />}
       </div>
     </>
   );
