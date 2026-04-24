@@ -1326,6 +1326,69 @@ function PaginaVentas() {
   );
 }
 
+function PaginaEmpleados() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [empleados, setEmpleados]     = useState([]);
+  const [cargando, setCargando]     = useState(true);
+  const [confirmId, setConfirmId]   = useState(null);
+  const [eliminando, setEliminando] = useState(null);
+
+  const cargarEmpleados = async () => {
+    setCargando(true);
+    try { const res = await axios.get(`${BASE}/admin/verMeseros`); setUsuarios(res.data); }
+    catch (e) { console.error(e); } finally { setCargando(false); }
+  };
+
+  useEffect(() => { cargarEmpleados(); }, []);
+
+  const eliminar = async (id) => {
+    setEliminando(id);
+    try {
+      await axios.delete(`https://kitchen-manager-back-1-production.up.railway.app/admin/empleado/${id}`);
+      setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
+    } catch (e) { console.error(e); } finally { setEliminando(null); }
+  };
+
+  return (
+    <div>
+      <div className="page-header"><div className="page-title">GESTIÓN DE EMPLEADOS</div><div className="page-subtitle">Administra los empleados del sistema</div></div>
+      <div className="section-card">
+        <div className="section-card-header">
+          <div className="section-card-title">EMPLEADOS ({empleados.length})</div>
+          <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>{mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}</button>
+        </div>
+        {mostrarFormulario && <RegistrarEmpleado onEmpleadoCreado={() => { cargarEmpleados(); setMostrarFormulario(false); }} />}
+        {cargando ? (
+          <div className="placeholder-content"><div className="placeholder-text">Cargando empleados...</div></div>
+        ) : usuarios.length === 0 ? (
+          <div className="placeholder-content"><div className="placeholder-icon">👤</div><div className="placeholder-text">No hay empleados registrados aún</div></div>
+        ) : (
+          <table className="user-table">
+            <thead><tr><th>Usuario</th><th>Rol</th><th></th></tr></thead>
+            <tbody>
+              {empleados.map((u) => (
+                <tr key={u.id}>
+                  <td><span className="user-avatar">{u.username?.charAt(0).toUpperCase()}</span>{u.username}</td>
+                  <td>
+                    {confirmId === u.id ? (
+                      <div style={{ display:"flex", gap:"6px" }}>
+                        <button onClick={() => eliminar(u.id)} disabled={eliminando === u.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === u.id ? "..." : "Confirmar"}</button>
+                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmId(u.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PaginaUsuarios() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [usuarios, setUsuarios]     = useState([]);
@@ -1569,6 +1632,7 @@ const NAV = [
   { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
   { key:"financiero", label:"Dashboard Financiero",  icon: FinancieroIcon, section:"REPORTES" },
   { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
+  { key:"empleados",   label:"Empleados",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
   { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
@@ -1586,6 +1650,7 @@ export default function Admin() {
       case "qrs":        return <PaginaQRs />;
       case "ventas":     return <PaginaVentas />;
       case "financiero": return <PaginaDashboardFinanciero />;
+      case "empleados": return <PaginaEmpleados />;
       case "usuarios":   return <PaginaUsuarios />;
       case "platos":     return <PaginaPlatos />;
       default:           return <PaginaInicio username={username} />;
