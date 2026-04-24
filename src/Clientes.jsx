@@ -435,8 +435,8 @@ export default function PortalClientes() {
 
   useEffect(() => {
     const url = token
-      ? `https://archlinux.taildc096b.ts.net:8443/menu/${token}`
-      : "https://archlinux.taildc096b.ts.net:8443/clientes/verMenu";
+      ? `https://kitchen-manager-back-1-production.up.railway.app/menu/${token}`
+      : "https://kitchen-manager-back-1-production.up.railway.app/clientes/verMenu";
 
     axios.get(url)
       .then(res => {
@@ -498,8 +498,8 @@ export default function PortalClientes() {
     setEnviando(true); setResultado(null);
     try {
       const url = token
-        ? `https://archlinux.taildc096b.ts.net:8443/menu/${token}/pedido`
-        : "https://archlinux.taildc096b.ts.net:8443/clientes/registrarPedido";
+        ? `https://kitchen-manager-back-1-production.up.railway.app/menu/${token}/pedido`
+        : "https://kitchen-manager-back-1-production.up.railway.app/clientes/registrarPedido";
       const payload = {
         fuente: "Presencial",
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
