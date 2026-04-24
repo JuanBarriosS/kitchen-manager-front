@@ -7,7 +7,7 @@ import QRCode from 'react-qr-code';
 
 
 
-const BASE = "https://archlinux.taildc096b.ts.net:8443";
+const BASE = "https://kitchen-manager-back-1-production.up.railway.app";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -1344,7 +1344,7 @@ function PaginaUsuarios() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://archlinux.taildc096b.ts.net:8443/admin/usuario/${id}`);
+      await axios.delete(`https://kitchen-manager-back-1-production.up.railway.app/admin/usuario/${id}`);
       setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -1405,7 +1405,7 @@ function PaginaQRs() {
 
   const crearQr = async () => {
     try {
-      await axios.post("https://archlinux.taildc096b.ts.net:8443/admin/qrs", nuevoQr);
+      await axios.post("https://kitchen-manager-back-1-production.up.railway.app/admin/qrs", nuevoQr);
       setNuevoQr({ nombre: "", descripcion: "" });
       setMostrarCrear(false);
       cargarQrs();
@@ -1416,7 +1416,7 @@ function PaginaQRs() {
 
   const toggleActivo = async (id, activo) => {
     try {
-      await axios.patch(`https://archlinux.taildc096b.ts.net:8443/admin/qrs/${id}/estado`, { activo });
+      await axios.patch(`https://kitchen-manager-back-1-production.up.railway.app/admin/qrs/${id}/estado`, { activo });
       cargarQrs();
     } catch (err) {
       console.error(err);
