@@ -524,7 +524,7 @@ function PaginaInicio({ username }) {
       axios.get(`${BASE}/admin/verPedidos`),
       axios.get(`${BASE}/admin/ventas`),
       axios.get(`${BASE}/admin/verMenu`),
-      axios.get(`${BASE}/admin/verEmpleados`),
+      axios.get(`${BASE}/admin/Meseros`),
     ]).then(([pedidos, ventas, menu, empleados]) => {
       const pedidosHoy = pedidos.data.filter(p => new Date(p.fecha).toDateString() === hoy).length;
       const ventasHoy  = ventas.data.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a, v) => a + v.total, 0);
