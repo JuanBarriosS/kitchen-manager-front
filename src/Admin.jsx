@@ -286,28 +286,37 @@ function RegistrarEmpleado({ onEmpleadoCreado }) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  const inputStyle = {
-    width: "100%", padding: "10px 14px", borderRadius: "6px",
-    border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
-    color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
-  };
-  const labelStyle = {
-    fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
-    letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
-  };
+  const authHeader = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  });
 
   const manejarRegistro = async (e) => {
-    e.preventDefault(); setLoading(true); setMensaje("");
+    e.preventDefault();
+    setLoading(true);
+    setMensaje("");
+    
     if (password !== passwordConfirmate) {
-      setMensaje("✗ Las contraseñas no coinciden"); setLoading(false); return;
+      setMensaje("✗ Las contraseñas no coinciden");
+      setLoading(false);
+      return;
     }
+    
     try {
-      await axios.post(`${BASE}/admin/Empleado`, { username, password });
+      await axios.post(`${BASE}/admin/agregarEmpleado`,   
+        { username, password },
+        { headers: authHeader() }
+      );
       setMensaje("✓ Empleado creado exitosamente");
-      setUsername(""); setPassword(""); setPasswordConfirmate("");
+      setUsername("");
+      setPassword("");
+      setPasswordConfirmate("");
       if (onEmpleadoCreado) onEmpleadoCreado();
-    } catch { setMensaje("✗ Error al crear el empleado"); }
-    finally { setLoading(false); }
+    } catch (error) {
+      console.error(error);
+      setMensaje("✗ Error al crear el empleado");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -1375,15 +1384,28 @@ function PaginaVentas() {
 
 function PaginaEmpleados() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [empleados, setEmpleados]     = useState([]);
-  const [cargando, setCargando]     = useState(true);
-  const [confirmId, setConfirmId]   = useState(null);
+  const [empleados, setEmpleados] = useState([]);  // ← Cambiado de "usuarios" a "empleados"
+  const [cargando, setCargando] = useState(true);
+  const [confirmId, setConfirmId] = useState(null);
   const [eliminando, setEliminando] = useState(null);
+
+  // Header con token JWT
+  const authHeader = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  });
 
   const cargarEmpleados = async () => {
     setCargando(true);
-    try { const res = await axios.get(`${BASE}/admin/Meseros`); setUsuarios(res.data); }
-    catch (e) { console.error(e); } finally { setCargando(false); }
+    try {
+      const res = await axios.get(`${BASE}/admin/Meseros`, {
+        headers: authHeader()
+      });
+      setEmpleados(res.data);  // ← Cambiado de "setUsuarios" a "setEmpleados"
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCargando(false);
+    }
   };
 
   useEffect(() => { cargarEmpleados(); }, []);
@@ -1391,39 +1413,64 @@ function PaginaEmpleados() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://kitchen-manager-back-1-production.up.railway.app/admin/empleado/${id}`);
-      setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
-    } catch (e) { console.error(e); } finally { setEliminando(null); }
+      await axios.delete(`${BASE}/admin/empleado/${id}`, {  // ← Cambiado a "empleado"
+        headers: authHeader()
+      });
+      setEmpleados(prev => prev.filter(u => u.id !== id));
+      setConfirmId(null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setEliminando(null);
+    }
   };
 
   return (
     <div>
-      <div className="page-header"><div className="page-title">GESTIÓN DE EMPLEADOS</div><div className="page-subtitle">Administra los empleados del sistema</div></div>
+      <div className="page-header">
+        <div className="page-title">GESTIÓN DE EMPLEADOS</div>
+        <div className="page-subtitle">Administra los empleados del sistema</div>
+      </div>
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">EMPLEADOS ({empleados.length})</div>
-          <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>{mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}</button>
+          <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
+            {mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}
+          </button>
         </div>
         {mostrarFormulario && <RegistrarEmpleado onEmpleadoCreado={() => { cargarEmpleados(); setMostrarFormulario(false); }} />}
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando empleados...</div></div>
-        ) : usuarios.length === 0 ? (
+        ) : empleados.length === 0 ? (
           <div className="placeholder-content"><div className="placeholder-icon">👤</div><div className="placeholder-text">No hay empleados registrados aún</div></div>
         ) : (
           <table className="user-table">
-            <thead><tr><th>Usuario</th><th>Rol</th><th></th></tr></thead>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th></th>
+              </tr>
+            </thead>
             <tbody>
               {empleados.map((u) => (
                 <tr key={u.id}>
                   <td><span className="user-avatar">{u.username?.charAt(0).toUpperCase()}</span>{u.username}</td>
+                  <td><span className="badge badge-green">MESERO</span></td>  {/* Rol fijo por defecto */}
                   <td>
                     {confirmId === u.id ? (
                       <div style={{ display:"flex", gap:"6px" }}>
-                        <button onClick={() => eliminar(u.id)} disabled={eliminando === u.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === u.id ? "..." : "Confirmar"}</button>
-                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+                        <button onClick={() => eliminar(u.id)} disabled={eliminando === u.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
+                          {eliminando === u.id ? "..." : "Confirmar"}
+                        </button>
+                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>
+                          Cancelar
+                        </button>
                       </div>
                     ) : (
-                      <button onClick={() => setConfirmId(u.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
+                      <button onClick={() => setConfirmId(u.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
+                        🗑 Borrar
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -1435,7 +1482,6 @@ function PaginaEmpleados() {
     </div>
   );
 }
-
 function PaginaUsuarios() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [usuarios, setUsuarios]     = useState([]);
