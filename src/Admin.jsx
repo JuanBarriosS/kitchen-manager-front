@@ -286,6 +286,18 @@ function RegistrarEmpleado({ onEmpleadoCreado }) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
+  // ✅ DEFINIR LOS ESTILOS AQUÍ DENTRO
+  const inputStyle = {
+    width: "100%", padding: "10px 14px", borderRadius: "6px",
+    border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
+    color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
+  };
+  
+  const labelStyle = {
+    fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
+    letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
+  };
+
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
   });
@@ -313,7 +325,7 @@ function RegistrarEmpleado({ onEmpleadoCreado }) {
       if (onEmpleadoCreado) onEmpleadoCreado();
     } catch (error) {
       console.error(error);
-      setMensaje("✗ Error al crear el empleado");
+      setMensaje("✗ Error al crear el empleado: " + (error.response?.data || error.message));
     } finally {
       setLoading(false);
     }
@@ -323,12 +335,23 @@ function RegistrarEmpleado({ onEmpleadoCreado }) {
     <form onSubmit={manejarRegistro} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
       <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4", marginBottom:"4px" }}>Nuevo empleado</div>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px" }}>
-        <div><label style={labelStyle}>Nombre del empleado</label><input style={inputStyle} type="text" placeholder="ej: Juan Rodriguez" value={username} onChange={(e) => setUsername(e.target.value)} required /></div>
-        <div><label style={labelStyle}>Contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-        <div><label style={labelStyle}>Confirmar contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required /></div>
+        <div>
+          <label style={labelStyle}>Nombre del empleado</label>
+          <input style={inputStyle} type="text" placeholder="ej: Juan Rodriguez" value={username} onChange={(e) => setUsername(e.target.value)} required />
+        </div>
+        <div>
+          <label style={labelStyle}>Contraseña</label>
+          <input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        <div>
+          <label style={labelStyle}>Confirmar contraseña</label>
+          <input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required />
+        </div>
       </div>
       <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-        <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Registrando..." : "Registrar Empleado"}</button>
+        <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>
+          {loading ? "Registrando..." : "Registrar Empleado"}
+        </button>
         {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
       </div>
     </form>
@@ -343,35 +366,60 @@ function RegistrarUsuario({ onUsuarioCreado }) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
+  // ✅ DEFINIR LOS ESTILOS AQUÍ DENTRO
   const inputStyle = {
     width: "100%", padding: "10px 14px", borderRadius: "6px",
     border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
     color: "#F2EDE4", fontSize: "13px", fontFamily: "DM Sans, sans-serif", outline: "none",
   };
+  
   const labelStyle = {
     fontSize: "10px", fontWeight: "600", color: "rgba(232,230,223,0.45)",
     letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "6px", display: "block",
   };
 
+  const authHeader = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  });
+
   const manejarRegistro = async (e) => {
-    e.preventDefault(); setLoading(true); setMensaje("");
+    e.preventDefault();
+    setLoading(true);
+    setMensaje("");
+    
     if (password !== passwordConfirmate) {
-      setMensaje("✗ Las contraseñas no coinciden"); setLoading(false); return;
+      setMensaje("✗ Las contraseñas no coinciden");
+      setLoading(false);
+      return;
     }
+    
     try {
-      await axios.post(`${BASE}/admin/Usuario`, { username, password, roles: [roles] });
+      await axios.post(`${BASE}/admin/agregarUsuario`,  // ← Nota: es agregarUsuario, no Usuario
+        { username, password, roles: [roles] },
+        { headers: authHeader() }
+      );
       setMensaje("✓ Usuario creado exitosamente");
-      setUsername(""); setPassword(""); setPasswordConfirmate(""); setRoles("EMPLEADO");
+      setUsername("");
+      setPassword("");
+      setPasswordConfirmate("");
+      setRoles("EMPLEADO");
       if (onUsuarioCreado) onUsuarioCreado();
-    } catch { setMensaje("✗ Error al crear el usuario"); }
-    finally { setLoading(false); }
+    } catch (error) {
+      console.error(error);
+      setMensaje("✗ Error al crear el usuario: " + (error.response?.data || error.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={manejarRegistro} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
-      <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4", marginBottom:"4px" }}>Nuevo empleado</div>
+      <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4", marginBottom:"4px" }}>Nuevo usuario</div>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px" }}>
-        <div><label style={labelStyle}>Nombre de usuario</label><input style={inputStyle} type="text" placeholder="ej: juan123" value={username} onChange={(e) => setUsername(e.target.value)} required /></div>
+        <div>
+          <label style={labelStyle}>Nombre de usuario</label>
+          <input style={inputStyle} type="text" placeholder="ej: juan123" value={username} onChange={(e) => setUsername(e.target.value)} required />
+        </div>
         <div>
           <label style={labelStyle}>Rol</label>
           <select style={{ ...inputStyle, cursor:"pointer" }} value={roles} onChange={(e) => setRoles(e.target.value)}>
@@ -379,17 +427,24 @@ function RegistrarUsuario({ onUsuarioCreado }) {
             <option value="ADMIN">Administrador</option>
           </select>
         </div>
-        <div><label style={labelStyle}>Contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-        <div><label style={labelStyle}>Confirmar contraseña</label><input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required /></div>
+        <div>
+          <label style={labelStyle}>Contraseña</label>
+          <input style={inputStyle} type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        <div>
+          <label style={labelStyle}>Confirmar contraseña</label>
+          <input style={inputStyle} type="password" placeholder="••••••••" value={passwordConfirmate} onChange={(e) => setPasswordConfirmate(e.target.value)} required />
+        </div>
       </div>
       <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-        <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>{loading ? "Registrando..." : "Registrar Usuario"}</button>
+        <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>
+          {loading ? "Registrando..." : "Registrar Usuario"}
+        </button>
         {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
       </div>
     </form>
   );
 }
-
 function generarFacturaHTML(venta) {
   const fecha = new Date(venta.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
   const filas = venta.itemsVendidos?.map(item => `
