@@ -1767,7 +1767,7 @@ Responde siempre en español, de forma concisa y práctica. Usa los datos reales
     ];
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyALk9uOumBUYkkHE6sHXcS1vgSe72CXBZo`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyALk9uOumBUYkkHE6sHXcS1vgSe72CXBZo`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
