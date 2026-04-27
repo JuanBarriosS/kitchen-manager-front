@@ -12,7 +12,7 @@ const BASE = "https://kitchen-manager-back-1-production.up.railway.app";
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizingc: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg:      #0C0E14;
@@ -1740,45 +1740,65 @@ Responde siempre en español, de forma concisa y práctica. Usa los datos reales
   };
 
   const enviar = async () => {
-    if (!input.trim() || cargando) return;
-    const pregunta = input.trim();
-    setInput("");
-    setMensajes(prev => [...prev, { rol: "user", texto: pregunta }]);
-    setCargando(true);
+  if (!input.trim() || cargando) return;
+  const pregunta = input.trim();
+  setInput("");
+  setMensajes(prev => [...prev, { rol: "user", texto: pregunta }]);
+  setCargando(true);
 
-    try {
-      const historial = mensajes.slice(-6).map(m => ({
+  try {
+    const historialParaAPI = [
+      {
+        role: "user",
+        parts: [{ text: `INSTRUCCIONES DE SISTEMA: ${contexto()}` }]
+      },
+      {
+        role: "model",
+        parts: [{ text: "Entendido. Actuaré como el asistente de Kitchen Manager basado en esos datos." }]
+      },
+      ...mensajes.slice(-6).map(m => ({
         role: m.rol === "user" ? "user" : "model",
         parts: [{ text: m.texto }]
-      }));
+      })),
+      {
+        role: "user",
+        parts: [{ text: pregunta }]
+      }
+    ];
 
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyALk9uOumBUYkkHE6sHXcS1vgSe72CXBZo`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: contexto() }] },
-            contents: [
-              ...historial,
-              { role: "user", parts: [{ text: pregunta }] }
-            ],
-            generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
-          })
-        }
-      );
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyALk9uOumBUYkkHE6sHXcS1vgSe72CXBZo`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: historialParaAPI, // Usamos solo contents para máxima compatibilidad
+          generationConfig: {
+            maxOutputTokens: 500,
+            temperature: 0.7
+          }
+        })
+      }
+    );
 
-      const data = await res.json();
-      const respuesta = data.candidates?.[0]?.content?.parts?.[0]?.text
-        || "No pude procesar esa solicitud.";
-      setMensajes(prev => [...prev, { rol: "bot", texto: respuesta }]);
+    const data = await res.json();
 
-    } catch (e) {
-      setMensajes(prev => [...prev, { rol: "bot", texto: "Error al conectar con el asistente. Verifica tu API key." }]);
-    } finally {
-      setCargando(false);
+    // Si todavía hay un error, el log te dirá exactamente qué palabra del JSON no le gustó
+    if (data.error) {
+      console.error("Detalle del error 400:", data.error);
+      throw new Error(data.error.message);
     }
-  };
+
+    const respuesta = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta.";
+    setMensajes(prev => [...prev, { rol: "bot", texto: respuesta }]);
+
+  } catch (e) {
+    console.error("Fallo la comunicación:", e);
+    setMensajes(prev => [...prev, { rol: "bot", texto: "Hubo un problema con la petición. Revisa la consola." }]);
+  } finally {
+    setCargando(false);
+  }
+};
 
   return (
     <>
