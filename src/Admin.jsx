@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import * as XLSX from "xlsx";
@@ -366,7 +366,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  // ✅ DEFINIR LOS ESTILOS AQUÍ DENTRO
+  // DEFINIR LOS ESTILOS
   const inputStyle = {
     width: "100%", padding: "10px 14px", borderRadius: "6px",
     border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
@@ -715,7 +715,7 @@ function PaginaMenu() {
     }
   };
 
-  //  Maneja la selección de imagen en el formulario de EDITAR
+  //  Manejar la selección de imagen en el formulario de editar
   const handleImagenEditChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1688,6 +1688,261 @@ function PaginaQRs() {
   );
 }
 
+function ChatIA({ ventas, pedidos, menu }) {
+  const [abierto, setAbierto] = useState(false);
+  const [mensajes, setMensajes] = useState([
+    { rol: "bot", texto: "Hola, soy el asistente de Kitchen Manager. Puedo ayudarte con análisis de ventas, sugerencias del menú, tiempos de preparación y más. ¿En qué te ayudo?" }
+  ]);
+  const [input, setInput] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes]);
+
+  const contexto = () => {
+    const hoy = new Date().toDateString();
+    const ventasHoy = ventas.filter(v => new Date(v.fecha).toDateString() === hoy);
+    const totalHoy = ventasHoy.reduce((a, v) => a + v.total, 0);
+    const pedidosActivos = pedidos.filter(p => p.estado !== "entregado").length;
+
+    const platosFrecuentes = {};
+    ventas.slice(-100).forEach(v =>
+      (v.itemsVendidos || []).forEach(i => {
+        platosFrecuentes[i.nombre] = (platosFrecuentes[i.nombre] || 0) + 1;
+      })
+    );
+    const topPlatos = Object.entries(platosFrecuentes)
+      .sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([n, c]) => `${n} (${c} veces)`).join(", ");
+
+    return `Eres el asistente inteligente de Kitchen Manager, un sistema de gestión para ghost kitchens.
+
+DATOS ACTUALES DEL NEGOCIO:
+- Ventas de hoy: $${totalHoy.toLocaleString("es-CO")} (${ventasHoy.length} pedidos facturados)
+- Pedidos activos ahora: ${pedidosActivos}
+- Total ventas históricas registradas: ${ventas.length}
+- Productos en el menú: ${menu.length}
+- Platos más vendidos: ${topPlatos || "Sin datos suficientes"}
+
+MENÚ ACTUAL:
+${menu.map(p => `- ${p.nombre} (${p.categoria}): $${p.precio?.toLocaleString("es-CO")} — ${p.disponible ? "disponible" : "agotado"}`).join("\n")}
+
+Tu rol es ayudar al administrador con:
+- Análisis de ventas y recomendaciones
+- Sugerencias sobre el menú (qué retirar, qué promover)
+- Consejos operativos para mejorar la cocina
+- Responder preguntas sobre el negocio con los datos reales
+- Sugerencias de precios o promociones
+
+Responde siempre en español, de forma concisa y práctica. Usa los datos reales cuando sean relevantes.`;
+  };
+
+  const enviar = async () => {
+    if (!input.trim() || cargando) return;
+    const pregunta = input.trim();
+    setInput("");
+    setMensajes(prev => [...prev, { rol: "user", texto: pregunta }]);
+    setCargando(true);
+
+    try {
+      const historial = mensajes.slice(-6).map(m => ({
+        role: m.rol === "user" ? "user" : "model",
+        parts: [{ text: m.texto }]
+      }));
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyALk9uOumBUYkkHE6sHXcS1vgSe72CXBZo`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: contexto() }] },
+            contents: [
+              ...historial,
+              { role: "user", parts: [{ text: pregunta }] }
+            ],
+            generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
+          })
+        }
+      );
+
+      const data = await res.json();
+      const respuesta = data.candidates?.[0]?.content?.parts?.[0]?.text
+        || "No pude procesar esa solicitud.";
+      setMensajes(prev => [...prev, { rol: "bot", texto: respuesta }]);
+
+    } catch (e) {
+      setMensajes(prev => [...prev, { rol: "bot", texto: "Error al conectar con el asistente. Verifica tu API key." }]);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Botón flotante */}
+      <button onClick={() => setAbierto(!abierto)} style={{
+        position: "fixed", bottom: "28px", right: "28px", zIndex: 999,
+        width: "54px", height: "54px", borderRadius: "50%",
+        background: abierto ? "rgba(200,137,42,0.2)" : "linear-gradient(135deg,#C8892A,#E8A830)",
+        border: abierto ? "1px solid rgba(200,137,42,0.4)" : "none",
+        cursor: "pointer", fontSize: "22px",
+        boxShadow: "0 4px 20px rgba(200,137,42,0.4)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "all .2s"
+      }}>
+        {abierto ? "✕" : "✨"}
+      </button>
+
+      {/* Panel del chat */}
+      {abierto && (
+        <div style={{
+          position: "fixed", bottom: "96px", right: "28px", zIndex: 998,
+          width: "360px", height: "500px",
+          background: "#10131C", border: "1px solid rgba(200,137,42,0.2)",
+          borderRadius: "12px", display: "flex", flexDirection: "column",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
+          fontFamily: "'DM Sans',sans-serif",
+          animation: "fadeIn .2s ease"
+        }}>
+
+          {/* Header */}
+          <div style={{
+            padding: "14px 18px", borderBottom: "1px solid rgba(255,255,255,0.07)",
+            display: "flex", alignItems: "center", gap: "10px",
+            background: "rgba(200,137,42,0.06)", borderRadius: "12px 12px 0 0"
+          }}>
+            <div style={{
+              width: "32px", height: "32px", borderRadius: "50%",
+              background: "linear-gradient(135deg,#C8892A,#E8A830)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "16px"
+            }}>✨</div>
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: "600", color: "#F2EDE4" }}>
+                Asistente IA
+              </div>
+              <div style={{ fontSize: "10px", color: "rgba(232,230,223,0.4)", letterSpacing: "1px" }}>
+                POWERED BY GEMINI
+              </div>
+            </div>
+            <div style={{
+              marginLeft: "auto", display: "flex", alignItems: "center",
+              gap: "5px", fontSize: "10px", color: "#6fcf74"
+            }}>
+              <div style={{
+                width: "6px", height: "6px", borderRadius: "50%",
+                background: "#6fcf74", animation: "pulse 1.5s infinite"
+              }} />
+              En línea
+            </div>
+          </div>
+
+          {/* Mensajes */}
+          <div style={{
+            flex: 1, overflowY: "auto", padding: "14px",
+            display: "flex", flexDirection: "column", gap: "10px"
+          }}>
+            {mensajes.map((m, i) => (
+              <div key={i} style={{
+                display: "flex",
+                justifyContent: m.rol === "user" ? "flex-end" : "flex-start"
+              }}>
+                <div style={{
+                  maxWidth: "85%", padding: "10px 14px", borderRadius:
+                    m.rol === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+                  background: m.rol === "user"
+                    ? "linear-gradient(135deg,#C8892A,#E8A830)"
+                    : "rgba(255,255,255,0.06)",
+                  border: m.rol === "user"
+                    ? "none"
+                    : "1px solid rgba(255,255,255,0.08)",
+                  fontSize: "13px", lineHeight: "1.5",
+                  color: m.rol === "user" ? "#0C0E14" : "#F2EDE4",
+                  whiteSpace: "pre-wrap"
+                }}>
+                  {m.texto}
+                </div>
+              </div>
+            ))}
+            {cargando && (
+              <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                <div style={{
+                  padding: "10px 16px", borderRadius: "12px 12px 12px 2px",
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  fontSize: "18px", letterSpacing: "3px", color: "#C8892A"
+                }}>
+                  •••
+                </div>
+              </div>
+            )}
+            <div ref={endRef} />
+          </div>
+
+          {/* Sugerencias rápidas */}
+          <div style={{
+            padding: "6px 14px", display: "flex", gap: "6px",
+            overflowX: "auto", borderTop: "1px solid rgba(255,255,255,0.05)"
+          }}>
+            {[
+              "¿Cómo van las ventas?",
+              "¿Qué plato retirar?",
+              "Consejos para hoy",
+              "¿Cuál es mi mejor canal?"
+            ].map(s => (
+              <button key={s} onClick={() => { setInput(s); }}
+                style={{
+                  padding: "4px 10px", whiteSpace: "nowrap",
+                  background: "rgba(200,137,42,0.08)",
+                  border: "1px solid rgba(200,137,42,0.2)",
+                  borderRadius: "20px", color: "#C8892A",
+                  fontSize: "10px", cursor: "pointer",
+                  fontFamily: "'DM Sans',sans-serif"
+                }}>
+                {s}
+              </button>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div style={{
+            padding: "12px 14px", borderTop: "1px solid rgba(255,255,255,0.07)",
+            display: "flex", gap: "8px"
+          }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && enviar()}
+              placeholder="Pregúntame algo..."
+              style={{
+                flex: 1, padding: "9px 12px",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "8px", color: "#F2EDE4",
+                fontSize: "13px", fontFamily: "'DM Sans',sans-serif",
+                outline: "none"
+              }}
+            />
+            <button onClick={enviar} disabled={cargando || !input.trim()} style={{
+              padding: "9px 14px",
+              background: "linear-gradient(135deg,#C8892A,#E8A830)",
+              border: "none", borderRadius: "8px",
+              color: "#0C0E14", cursor: "pointer",
+              fontSize: "14px", fontWeight: "600",
+              opacity: cargando || !input.trim() ? 0.4 : 1
+            }}>
+              ↑
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 // ── NAV e ICONOS──────────────────────────────────────────────────────────────────
 const LogoutIcon = () => (
   <svg style={{ width: "14px", height: "14px" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1800,6 +2055,15 @@ export default function Admin() {
   const [activePage, setActivePage] = useState("inicio");
   const username = localStorage.getItem("username") || "admin";
   const sections = [...new Set(NAV.map((n) => n.section))];
+  const [ventasGlobal, setVentasGlobal] = useState([]);
+  const [pedidosGlobal, setPedidosGlobal] = useState([]);
+  const [menuGlobal, setMenuGlobal] = useState([]);
+  
+  useEffect(() => {
+    axios.get(`${BASE}/admin/ventas`).then(r => setVentasGlobal(r.data)).catch(() => {});
+    axios.get(`${BASE}/admin/verPedidos`).then(r => setPedidosGlobal(r.data)).catch(() => {});
+    axios.get(`${BASE}/admin/verMenu`).then(r => setMenuGlobal(r.data)).catch(() => {});
+  }, []);
 
   const renderPage = () => {
     switch (activePage) {
@@ -1894,7 +2158,13 @@ export default function Admin() {
           </div>
           <div className="content" key={activePage}>{renderPage()}</div>
         </main>
-      </div>
+        <ChatIA
+          ventas={ventasGlobal}
+          pedidos={pedidosGlobal}
+          menu={menuGlobal}
+        />
+
+      </div>  {/* cierre admin-root */}
     </>
   );
 }
