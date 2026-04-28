@@ -581,11 +581,12 @@ export default function PortalClientes() {
         }
       })
       .finally(() => setCargando(false));
-  }, [token]);
 
-  axios.get("https://kitchen-manager-back-1-production.up.railway.app/meseros/disponibles")
-  .then(res => setMeseros(res.data))
-  .catch(() => {});
+    axios.get("https://kitchen-manager-back-1-production.up.railway.app/meseros/disponibles")
+      .then(res => setMeseros(res.data))
+      .catch(() => {});
+    
+  }, [token]);
 
   const categorias   = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
   const menuFiltrado = catActiva === "Todas" ? menu : menu.filter(p => p.categoria === catActiva);
@@ -933,6 +934,7 @@ export default function PortalClientes() {
                   {!nombre.trim() && !mesa.trim() ? "Ingresa tu nombre y número de mesa"
                     : !nombre.trim() ? "Ingresa tu nombre para continuar"
                     : "Ingresa el número de mesa"}
+                    !meseroSeleccionado ? "Selecciona un mesero" : ""}
                 </p>
               )}
             </div>
