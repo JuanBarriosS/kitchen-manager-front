@@ -547,6 +547,8 @@ export default function PortalClientes() {
   const [resultado, setResultado]               = useState(null);
   const [pedidoEnviado, setPedidoEnviado]       = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [meseros, setMeseros]           = useState([]);
+  const [meseroSeleccionado, setMeseroSeleccionado] = useState("");
 
   useEffect(() => {
     const url = token
@@ -581,6 +583,10 @@ export default function PortalClientes() {
       .finally(() => setCargando(false));
   }, [token]);
 
+  axios.get("https://kitchen-manager-back-1-production.up.railway.app/meseros/disponibles")
+  .then(res => setMeseros(res.data))
+  .catch(() => {});
+
   const categorias   = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
   const menuFiltrado = catActiva === "Todas" ? menu : menu.filter(p => p.categoria === catActiva);
 
@@ -607,7 +613,7 @@ export default function PortalClientes() {
     .map(p => ({ ...p, cantidad: carrito[p.id], subtotal: p.precio * carrito[p.id] }));
 
   const total       = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
-  const puedeEnviar = itemsCarrito.length > 0 && nombre.trim() && mesa.trim();
+  const puedeEnviar = itemsCarrito.length > 0 && nombre.trim() && mesa.trim() && meseroSeleccionado;
 
   /* Abre el modal de confirmación */
   const handleConfirmar = () => setMostrarConfirmacion(true);
@@ -624,6 +630,7 @@ export default function PortalClientes() {
         fuente: "Presencial",
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas, total,
+        meseroAsignado: meseroSeleccionado,
         itemsSeleccionados: itemsCarrito.map(i => ({
           id: i.id, nombre: i.nombre, categoria: i.categoria,
           precio: i.precio, cantidad: i.cantidad,
@@ -800,6 +807,20 @@ export default function PortalClientes() {
                   <label className="cp-label">Mesa</label>
                   <input className="cp-input" type="text" placeholder="ej: Mesa 5" value={mesa} onChange={e => setMesa(e.target.value)} />
                 </div>
+              </div>
+              <div className="cp-field" style={{ gridColumn: "span 2" }}>
+                <label className="cp-label">Tu mesero</label>
+                <select
+                  className="cp-input"
+                  value={meseroSeleccionado}
+                  onChange={e => setMeseroSeleccionado(e.target.value)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <option value="">Seleccionar mesero...</option>
+                  {meseros.map(m => (
+                    <option key={m.id} value={m.nombre}>{m.nombre}</option>
+                  ))}
+                </select>
               </div>
               <div className="cp-field">
                 <label className="cp-label">Notas especiales</label>
