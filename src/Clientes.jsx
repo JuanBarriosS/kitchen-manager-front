@@ -552,8 +552,8 @@ export default function PortalClientes() {
 
   useEffect(() => {
     const url = token
-      ? `https://kitchen-manager-back-1-production.up.railway.app/menu/${token}`
-      : "https://kitchen-manager-back-1-production.up.railway.app/clientes/verMenu";
+      ? `https://kitchen-manager-back.onrender.com/menu/${token}`
+      : "https://kitchen-manager-back.onrender.com/clientes/verMenu";
 
     axios.get(url)
       .then(res => {
@@ -582,7 +582,7 @@ export default function PortalClientes() {
       })
       .finally(() => setCargando(false));
 
-    axios.get("https://kitchen-manager-back-1-production.up.railway.app/meseros/disponibles")
+    axios.get("https://kitchen-manager-back.onrender.com/meseros/disponibles")
       .then(res => setMeseros(res.data))
       .catch(() => {});
     
@@ -625,8 +625,8 @@ export default function PortalClientes() {
     setEnviando(true); setResultado(null);
     try {
       const url = token
-        ? `https://kitchen-manager-back-1-production.up.railway.app/menu/${token}/pedido`
-        : "https://kitchen-manager-back-1-production.up.railway.app/clientes/registrarPedido";
+        ? `https://kitchen-manager-back.onrender.com/menu/${token}/pedido`
+        : "https://kitchen-manager-back.onrender.com/clientes/registrarPedido";
       const payload = {
         fuente: "Presencial",
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
