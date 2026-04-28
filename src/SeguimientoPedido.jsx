@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-const BASE = "https://kitchen-manager-back-1-production.up.railway.app";
+const BASE = "https://kitchen-manager-back.onrender.com";
 
 // ICONOS SVG
 const RecibidoIcon = () => (
