@@ -929,12 +929,11 @@ export default function PortalClientes() {
                 <div className="cp-alerta cp-alerta-err">{resultado.msg}</div>
               )}
 
-              {!puedeEnviar && itemsCarrito.length > 0 && (
+             {!puedeEnviar && itemsCarrito.length > 0 && (
                 <p className="cp-resumen-hint">
-                  {!nombre.trim() && !mesa.trim() ? "Ingresa tu nombre y número de mesa"
-                    : !nombre.trim() ? "Ingresa tu nombre para continuar"
-                    : "Ingresa el número de mesa"}
-                    !meseroSeleccionado ? "Selecciona un mesero" : ""}
+                  {!nombre.trim() ? "Ingresa tu nombre" :
+                   !mesa.trim() ? "Ingresa el número de mesa" :
+                   !meseroSeleccionado ? "Selecciona un mesero" : ""}
                 </p>
               )}
             </div>
