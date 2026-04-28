@@ -318,6 +318,15 @@ function PaginaPedidos() {
                             📝 {p.notas}
                           </div>
                         )}
+                        {p.meseroAsignado && (
+                          <div style={{
+                            fontSize: "10px", color: "#4A90D9",
+                            marginBottom: "4px", display: "flex",
+                            alignItems: "center", gap: "4px"
+                          }}>
+                            🧑‍🍳 Mesero: <strong>{p.meseroAsignado}</strong>
+                          </div>
+                        )}
                         <button
                           onClick={() => {
                           const link = `https://kitchen-manager-front.vercel.app/seguimiento/${p.id}`;
