@@ -580,6 +580,11 @@ function PaginaNuevoPedido() {
     }
   };
 
+  const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
+  const menuFiltrado = categoriaFiltro === "Todas" 
+    ? menu 
+    : menu.filter(p => p.categoria === categoriaFiltro);
+
   return (
     <div>
       <div className="page-header">
@@ -617,7 +622,7 @@ function PaginaNuevoPedido() {
                 <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">No hay productos en el menú aún</div></div>
               ) : (
                 <div className="productos-grid">
-                  {menu.map(prod => {
+                  {menuFiltrado.map(prod => {
                     const imgPorCategoria = {
                       Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
                       Bebidas: "https://plus.unsplash.com/premium_photo-1684952849219-5a0d76012ed2?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -823,6 +828,7 @@ function PaginaNuevoPedido() {
 function PaginaMenu() {
   const [menu, setMenu]         = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
       
   const catImages = {
     Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
@@ -838,6 +844,13 @@ function PaginaMenu() {
       .finally(() => setCargando(false));
   }, []);
 
+  // Obtener categorías
+  const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];  
+  // filtrar productos por categoría
+  const menuFiltrado = categoriaFiltro === "Todas" 
+    ? menu 
+    : menu.filter(p => p.categoria === categoriaFiltro);
+
   return (
     <div>
       <div className="page-header">
@@ -845,14 +858,77 @@ function PaginaMenu() {
         <div className="page-subtitle">Consulta los productos activos</div>
       </div>
       <div className="section-card">
-        <div className="section-card-header"><div className="section-card-title">PRODUCTOS ({menu.length})</div></div>
+        <div className="section-card-header">
+          <div className="section-card-title">PRODUCTOS ({menuFiltrado.length})</div>
+        </div>
+
+        {/* FILTRO POR CATEGORÍA */}
+        <div style={{ 
+          padding: "12px 20px", 
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          background: "#141720",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          flexWrap: "wrap"
+        }}>
+          <span style={{ 
+            fontSize: "10px", 
+            fontWeight: "600", 
+            color: "rgba(232,230,223,0.45)", 
+            letterSpacing: "1.5px", 
+            textTransform: "uppercase" 
+          }}>
+            Filtrar por:
+          </span>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {categorias.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategoriaFiltro(cat)}
+                style={{
+                  padding: "5px 14px",
+                  borderRadius: "20px",
+                  fontSize: "11px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  border: "0.5px solid",
+                  borderColor: categoriaFiltro === cat ? "rgba(201,168,76,0.4)" : "rgba(240,235,224,0.1)",
+                  background: categoriaFiltro === cat ? "rgba(201,168,76,0.08)" : "transparent",
+                  color: categoriaFiltro === cat ? "var(--gold)" : "rgba(240,235,224,0.45)",
+                  transition: "all 0.15s",
+                  fontFamily: "'DM Sans', sans-serif"
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          {categoriaFiltro !== "Todas" && (
+            <span style={{ 
+              fontSize: "11px", 
+              color: "var(--gold)", 
+              marginLeft: "auto" 
+            }}>
+              Mostrando {menuFiltrado.length} de {menu.length} productos
+            </span>
+          )}
+        </div>
+
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando productos...</div></div>
-        ) : menu.length === 0 ? (
-          <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">No hay productos en el menú aún</div></div>
+        ) : menuFiltrado.length === 0 ? (
+          <div className="placeholder-content">
+            <div className="placeholder-icon">🍽️</div>
+            <div className="placeholder-text">
+              {categoriaFiltro !== "Todas" 
+                ? `No hay productos en la categoría "${categoriaFiltro}"` 
+                : "No hay productos en el menú aún"}
+            </div>
+          </div>
         ) : (
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"12px", padding:"16px" }}>
-            {menu.map((item, i) => {
+            {menuFiltrado.map((item, i) => {
               const imgUrl = catImages[item.categoria] || "https://images.unsplash.com/photo-1495195129352-aec325b55b65?q=80&w=200&auto=format&fit=crop";
               return (
                 <div key={i} style={{ background:"var(--card2)", borderRadius:"7px", border:`1px solid ${item.disponible ? "rgba(76,175,80,0.15)" : "rgba(230,57,70,0.15)"}`, padding:"14px", display:"flex", flexDirection:"column", gap:"6px" }}>
