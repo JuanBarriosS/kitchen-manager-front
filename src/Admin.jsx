@@ -658,7 +658,7 @@ function PaginaMenu() {
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
 
-  // Mapeo de imágenes públicas relacionadas (puedes cambiar los links si lo deseas)
+  // Mapeo de imágenes 
   const catImages = {
     Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
     Bebidas: "https://plus.unsplash.com/premium_photo-1684952849219-5a0d76012ed2?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
