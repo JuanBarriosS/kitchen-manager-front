@@ -660,10 +660,10 @@ function PaginaMenu() {
 
   // Mapeo de imágenes públicas relacionadas (puedes cambiar los links si lo deseas)
   const catImages = {
-    Platos: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop",
-    Bebidas: "https://images.unsplash.com/photo-1544145945-f904253d0c7b?q=80&w=200&auto=format&fit=crop",
-    Entradas: "https://images.unsplash.com/photo-1541014741259-df5290ce50ac?q=80&w=200&auto=format&fit=crop",
-    Postres: "https://images.unsplash.com/photo-1551024506-0bccd828d307?q=80&w=200&auto=format&fit=crop"
+    Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
+    Bebidas: "https://plus.unsplash.com/premium_photo-1684952849219-5a0d76012ed2?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    Entradas: "https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    Postres: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=750&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   };
 
   const authHeader = () => ({
