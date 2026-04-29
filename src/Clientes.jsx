@@ -724,36 +724,109 @@ export default function PortalClientes() {
   );
 
   /* ── ÉXITO ── */
-  if (pedidoEnviado && resultado?.ok) {
-    return (
-      <>
-        <style>{styles}</style>
-        <div className="cp-root">
-          <NavBar />
-          <div className="cp-success">
-            <div className="cp-success-icon"><CheckIcon /></div>
-            <h2 className="cp-success-title">Pedido recibido</h2>
-            <p className="cp-success-sub">
-              Tu pedido fue enviado a cocina. En breve estará listo.<br />
-              Gracias, <strong style={{ color: "var(--cream)" }}>{nombre}</strong>.
+if (pedidoEnviado && resultado?.ok) {
+  const trackingLink = `https://kitchen-manager-front.vercel.app/seguimiento/${resultado.pedidoId}`;
+  
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="cp-root">
+        <NavBar />
+        <div className="cp-success">
+          <div className="cp-success-icon"><CheckIcon /></div>
+          <h2 className="cp-success-title">¡Pedido recibido!</h2>
+          <p className="cp-success-sub">
+            Tu pedido fue enviado a cocina. En breve estará listo.<br />
+            Gracias, <strong style={{ color: "var(--cream)" }}>{nombre}</strong>.
+          </p>
+          
+          {/* Mostrar número de pedido */}
+          {resultado.pedidoId && (
+            <span className="cp-success-num">
+              #{resultado.pedidoId.slice(-6).toUpperCase()}
+            </span>
+          )}
+
+          {/* Mostrar enlace de seguimiento */}
+          <div style={{
+            marginTop: "24px",
+            padding: "16px 20px",
+            background: "rgba(201,168,76,0.08)",
+            border: "1px solid rgba(201,168,76,0.2)",
+            borderRadius: "8px",
+            width: "100%",
+            maxWidth: "340px"
+          }}>
+            <div style={{
+              fontSize: "10px",
+              color: "var(--gold)",
+              letterSpacing: "2px",
+              textTransform: "uppercase",
+              marginBottom: "8px"
+            }}>
+              🔗 Sigue tu pedido aquí
+            </div>
+            <div style={{
+              fontSize: "11px",
+              color: "var(--muted)",
+              wordBreak: "break-all",
+              marginBottom: "12px",
+              background: "rgba(0,0,0,0.3)",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              fontFamily: "monospace"
+            }}>
+              {trackingLink}
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(trackingLink);
+                alert("¡Enlace copiado! Puedes compartirlo con tus acompañantes.");
+              }}
+              style={{
+                width: "100%",
+                padding: "10px",
+                background: "rgba(201,168,76,0.15)",
+                border: "1px solid rgba(201,168,76,0.3)",
+                borderRadius: "6px",
+                color: "var(--gold)",
+                cursor: "pointer",
+                fontSize: "12px",
+                fontWeight: "600",
+                fontFamily: "'DM Sans', sans-serif",
+                transition: "all 0.2s"
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(201,168,76,0.25)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(201,168,76,0.15)";
+              }}
+            >
+              📋 Copiar enlace de seguimiento
+            </button>
+            <p style={{
+              fontSize: "10px",
+              color: "var(--muted)",
+              marginTop: "10px",
+              textAlign: "center"
+            }}>
+              Comparte este enlace con quien quieras para que vea el estado del pedido
             </p>
-            {resultado.pedidoId && (
-              <span className="cp-success-num">
-                #{resultado.pedidoId.slice(-6).toUpperCase()}
-              </span>
-            )}
-            <button className="cp-btn-primary" style={{ maxWidth: "220px", marginTop: "8px" }} onClick={limpiar}>
-              Hacer otro pedido
-            </button>
-            <button className="cp-btn-sec" style={{ maxWidth: "220px" }} onClick={() => navigate("/")}>
-              ← Volver al inicio
-            </button>
           </div>
-          <Footer />
+
+          <button className="cp-btn-primary" style={{ maxWidth: "220px", marginTop: "8px" }} onClick={limpiar}>
+            Hacer otro pedido
+          </button>
+          <button className="cp-btn-sec" style={{ maxWidth: "220px" }} onClick={() => navigate("/")}>
+            ← Volver al inicio
+          </button>
         </div>
-      </>
-    );
-  }
+        <Footer />
+      </div>
+    </>
+  );
+}
 
   /* ── ERROR QR ── */
   if (errorQr) {
