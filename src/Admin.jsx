@@ -782,62 +782,102 @@ function PaginaMenu() {
         ) : productos.length === 0 ? (
           <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">Empieza agregando tu primer producto</div></div>
         ) : (
-          <table className="user-table">
-            <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
-            <tbody>
-              {productos.map((p) => (
-                <tr key={p.id}>
-                  {editId === p.id ? (
-                    <>
-                      <td>
-                        <input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} />
-                      </td>
-                      <td>
-                        <select style={{ ...smallInput, cursor:"pointer" }} value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>
-                          {categorias.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </td>
-                      <td>
-                        <input style={{ ...smallInput, width:"110px" }} type="number" value={editForm.precio} onChange={e => setEditForm({ ...editForm, precio: e.target.value })} />
-                      </td>
-                      <td>
-                        <select style={{ ...smallInput, cursor:"pointer", width:"120px" }} value={editForm.disponible ? "true" : "false"} onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}>
-                          <option value="true">Disponible</option>
-                          <option value="false">Agotado</option>
-                        </select>
-                      </td>
-                      <td>
-                        <div style={{ display:"flex", gap:"6px" }}>
-                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
-                          <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px", padding:"20px" }}>
+            {productos.map((p) => {
+              const catEmoji = { Platos:"🍽️", Bebidas:"🥤", Entradas:"🥗", Postres:"🍮" }[p.categoria] || "🍽️";
+              const catColor = { Platos:"#C8892A", Bebidas:"#4A90D9", Entradas:"#6fcf74", Postres:"#E8A830" }[p.categoria] || "#C8892A";
+              const isEditing = editId === p.id;
+              return (
+                <div key={p.id} style={{
+                  background: isEditing ? "#1a1d28" : "#141720",
+                  border: isEditing ? "1px solid rgba(200,137,42,0.4)" : "1px solid rgba(255,255,255,0.07)",
+                  borderRadius:"10px",
+                  overflow:"hidden",
+                  transition:"border-color 0.2s, transform 0.2s, box-shadow 0.2s",
+                  boxShadow: isEditing ? "0 0 0 2px rgba(200,137,42,0.15)" : "none",
+                  position:"relative",
+                }}>
+                  {/* Franja de color superior por categoría */}
+                  <div style={{ height:"3px", background: catColor, width:"100%" }} />
+
+                  {/* Zona visual del emoji */}
+                  <div style={{
+                    height:"80px",
+                    background: `linear-gradient(135deg, ${catColor}18, ${catColor}06)`,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:"36px",
+                    borderBottom:"1px solid rgba(255,255,255,0.05)",
+                  }}>
+                    {catEmoji}
+                  </div>
+
+                  <div style={{ padding:"14px 16px 16px" }}>
+                    {isEditing ? (
+                      /* ── MODO EDICIÓN ── */
+                      <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
+                        <div>
+                          <label style={{ fontSize:"9px", fontWeight:"600", color:"rgba(232,230,223,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", display:"block", marginBottom:"4px" }}>Nombre</label>
+                          <input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} />
                         </div>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td>{p.nombre}</td>
-                      <td><span className="badge badge-orange">{p.categoria}</span></td>
-                      <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
-                      <td><span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`}>{p.disponible ? "Disponible" : "Agotado"}</span></td>
-                      <td>
+                        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px" }}>
+                          <div>
+                            <label style={{ fontSize:"9px", fontWeight:"600", color:"rgba(232,230,223,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", display:"block", marginBottom:"4px" }}>Categoría</label>
+                            <select style={{ ...smallInput, cursor:"pointer" }} value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>
+                              {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ fontSize:"9px", fontWeight:"600", color:"rgba(232,230,223,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", display:"block", marginBottom:"4px" }}>Precio</label>
+                            <input style={smallInput} type="number" value={editForm.precio} onChange={e => setEditForm({ ...editForm, precio: e.target.value })} />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ fontSize:"9px", fontWeight:"600", color:"rgba(232,230,223,0.4)", letterSpacing:"1.5px", textTransform:"uppercase", display:"block", marginBottom:"4px" }}>Estado</label>
+                          <select style={{ ...smallInput, cursor:"pointer" }} value={editForm.disponible ? "true" : "false"} onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}>
+                            <option value="true">Disponible</option>
+                            <option value="false">Agotado</option>
+                          </select>
+                        </div>
+                        <div style={{ display:"flex", gap:"6px", marginTop:"2px" }}>
+                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ flex:1, padding:"7px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"5px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
+                          <button onClick={() => setEditId(null)} style={{ flex:1, padding:"7px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"5px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ── MODO VISTA ── */
+                      <>
+                        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"8px" }}>
+                          <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"1.05rem", fontWeight:"600", color:"var(--white)", lineHeight:"1.2", flex:1 }}>{p.nombre}</div>
+                          <span className={`badge ${p.disponible ? "badge-green" : "badge-red"}`} style={{ marginLeft:"8px", flexShrink:0 }}>{p.disponible ? "✓" : "✗"}</span>
+                        </div>
+
+                        <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"14px" }}>
+                          <span style={{ fontSize:"10px", fontWeight:"600", color: catColor, background: `${catColor}18`, border:`1px solid ${catColor}30`, borderRadius:"20px", padding:"2px 8px", letterSpacing:"0.5px" }}>{p.categoria}</span>
+                          {!p.disponible && <span style={{ fontSize:"10px", color:"#E63946" }}>Agotado</span>}
+                        </div>
+
+                        <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"1.6rem", fontWeight:"700", color:"#E8A830", marginBottom:"14px", lineHeight:1 }}>
+                          ${p.precio?.toLocaleString("es-CO")}
+                        </div>
+
                         {confirmElimId === p.id ? (
                           <div style={{ display:"flex", gap:"6px" }}>
-                            <button onClick={() => eliminar(p.id)} disabled={eliminando === p.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === p.id ? "..." : "Confirmar"}</button>
-                            <button onClick={() => setConfirmElimId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
+                            <button onClick={() => eliminar(p.id)} disabled={eliminando === p.id} style={{ flex:1, padding:"7px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"5px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{eliminando === p.id ? "..." : "Confirmar"}</button>
+                            <button onClick={() => setConfirmElimId(null)} style={{ flex:1, padding:"7px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"5px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                           </div>
                         ) : (
                           <div style={{ display:"flex", gap:"6px" }}>
-                            <button onClick={() => abrirEdicion(p)} style={{ padding:"4px 10px", background:"rgba(91,155,213,0.1)", border:"1px solid rgba(91,155,213,0.25)", borderRadius:"4px", color:"#5B9BD5", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>✏️ Editar</button>
-                            <button onClick={() => setConfirmElimId(p.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
+                            <button onClick={() => abrirEdicion(p)} style={{ flex:1, padding:"7px", background:"rgba(91,155,213,0.08)", border:"1px solid rgba(91,155,213,0.2)", borderRadius:"5px", color:"#5B9BD5", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>✏️ Editar</button>
+                            <button onClick={() => setConfirmElimId(p.id)} style={{ flex:1, padding:"7px", background:"rgba(230,57,70,0.06)", border:"1px solid rgba(230,57,70,0.15)", borderRadius:"5px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
                           </div>
                         )}
-                      </td>
-                    </>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
