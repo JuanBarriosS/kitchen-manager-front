@@ -1501,7 +1501,7 @@ function PaginaQRs() {
 
   const cargarQrs = async () => {
     try { const res = await axios.get(`${BASE}/admin/qrs`); setQrs(res.data); }
-    catch (err) { console.error(err); } finally { setCargando(false)); }
+    catch (err) { console.error(err); } finally { setCargando(false); }
   };
 
   const crearQr = async () => {
