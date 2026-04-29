@@ -524,6 +524,7 @@ function PaginaNuevoPedido() {
   const [enviando, setEnviando]           = useState(false);
   const [resultado, setResultado]         = useState(null);
   const [linkSeguimiento, setLinkSeguimiento] = useState("");
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
   
   useEffect(() => {
     axios.get("https://kitchen-manager-back.onrender.com/empleado/verMenu")
