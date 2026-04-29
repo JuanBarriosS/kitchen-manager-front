@@ -159,6 +159,35 @@ const styles = `
   .alerta-ok  { background:rgba(76,175,80,0.1);  color:var(--green); border:1px solid rgba(76,175,80,0.25); }
   .alerta-err { background:rgba(230,57,70,0.1);  color:var(--red);   border:1px solid rgba(230,57,70,0.25); }
 
+  /* IMAGENS POR CATEGORIA */
+.producto-item {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.producto-item:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.producto-img-bg {
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 60px;
+  opacity: 0.15;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+
   /* TABLA */
   .user-table { width:100%; border-collapse:collapse; }
   .user-table th { text-align:left; padding:10px 18px; font-size:10px; font-weight:600; color:var(--gray); letter-spacing:2px; text-transform:uppercase; border-bottom:1px solid var(--border); }
