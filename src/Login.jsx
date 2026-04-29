@@ -349,6 +349,8 @@ function Login() {
                             {loading ? "VERIFICANDO..." : "INGRESAR"}
                         </button>
 
+                      <button type="button" onClick={() => navigate('/mesero')}> Portal Meseros</button>
+
                         {mensaje && (
                             <div className="error-msg">
                                 <span>⚠</span> {mensaje}
