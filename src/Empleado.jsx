@@ -617,68 +617,55 @@ function PaginaNuevoPedido() {
                 <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">No hay productos en el menú aún</div></div>
               ) : (
                 <div className="productos-grid">
-                  {menu.map(prod => (
-                    <div 
-                      key={prod.id} 
-                      className={`producto-btn ${carrito[prod.id] ? "seleccionado" : ""} ${!prod.disponible ? "agotado" : ""}`} 
-                      onClick={() => agregar(prod)}
-                    >
-                      {/* IMAGEN DEL PRODUCTO */}
-                      {prod.imagenUrl && (
+                  {menu.map(prod => {
+                    const imgPorCategoria = {
+                      Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
+                      Bebidas: "https://plus.unsplash.com/premium_photo-1684952849219-5a0d76012ed2?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      Entradas: "https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      Postres: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=750&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    };
+                    const imgUrl = imgPorCategoria[prod.categoria] || "https://images.unsplash.com/photo-1495195129352-aec325b55b65?q=80&w=200&auto=format&fit=crop";
+                    
+                    return (
+                      <div 
+                        key={prod.id} 
+                        className={`producto-btn ${carrito[prod.id] ? "seleccionado" : ""} ${!prod.disponible ? "agotado" : ""}`} 
+                        onClick={() => agregar(prod)}
+                      >
+                        {/* IMAGEN POR CATEGORÍA */}
                         <div style={{ 
                           width: "100%", 
                           height: "100px", 
                           borderRadius: "6px", 
                           overflow: "hidden", 
                           marginBottom: "10px", 
-                          background: "#0C0E14",
-                          position: "relative"
+                          background: "#0C0E14"
                         }}>
                           <img 
-                            src={`${BASE}${prod.imagenUrl}`}
-                            alt={prod.nombre}
+                            src={imgUrl}
+                            alt={prod.categoria}
                             style={{ 
                               width: "100%", 
                               height: "100%", 
-                              objectFit: "cover",
-                              transition: "transform 0.2s"
-                            }}
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.style.display = "none";
-                              e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;">🍽️</div>';
+                              objectFit: "cover"
                             }}
                           />
                         </div>
-                      )}
-                      {!prod.imagenUrl && (
-                        <div style={{ 
-                          width: "100%", 
-                          height: "100px", 
- borderRadius: "6px", 
-                          marginBottom: "10px", 
-                          background: "#0C0E14",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "40px"
-                        }}>
-                          🍽️
-                        </div>
-                      )}
-                      <div className="prod-cat">{prod.categoria}</div>
-                      <div className="prod-nombre">{prod.nombre}</div>
-                      <div className="prod-precio">{fmt(prod.precio)}</div>
-                      {!prod.disponible && <span className="badge badge-red" style={{ marginTop: 6 }}>Agotado</span>}
-                      {carrito[prod.id] && (
-                        <div className="qty-control" onClick={e => e.stopPropagation()}>
-                          <button className="qty-btn" onClick={() => cambiar(prod.id, -1)}>−</button>
-                          <div className="qty-num">{carrito[prod.id]}</div>
-                          <button className="qty-btn" onClick={() => cambiar(prod.id, +1)}>+</button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        
+                        <div className="prod-cat">{prod.categoria}</div>
+                        <div className="prod-nombre">{prod.nombre}</div>
+                        <div className="prod-precio">{fmt(prod.precio)}</div>
+                        {!prod.disponible && <span className="badge badge-red" style={{ marginTop: 6 }}>Agotado</span>}
+                        {carrito[prod.id] && (
+                          <div className="qty-control" onClick={e => e.stopPropagation()}>
+                            <button className="qty-btn" onClick={() => cambiar(prod.id, -1)}>−</button>
+                            <div className="qty-num">{carrito[prod.id]}</div>
+                            <button className="qty-btn" onClick={() => cambiar(prod.id, +1)}>+</button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -836,6 +823,13 @@ function PaginaNuevoPedido() {
 function PaginaMenu() {
   const [menu, setMenu]         = useState([]);
   const [cargando, setCargando] = useState(true);
+      
+  const catImages = {
+    Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
+    Bebidas: "https://plus.unsplash.com/premium_photo-1684952849219-5a0d76012ed2?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    Entradas: "https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    Postres: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=750&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  };
 
   useEffect(() => {
     axios.get("https://kitchen-manager-back.onrender.com/empleado/verMenu")
@@ -858,38 +852,35 @@ function PaginaMenu() {
           <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">No hay productos en el menú aún</div></div>
         ) : (
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"12px", padding:"16px" }}>
-            {menu.map((item, i) => (
-              <div key={i} style={{ background:"var(--card2)", borderRadius:"7px", border:`1px solid ${item.disponible ? "rgba(76,175,80,0.15)" : "rgba(230,57,70,0.15)"}`, padding:"14px", display:"flex", flexDirection:"column", gap:"6px" }}>
-                {/* Agregar imagen aquí */}
-                {item.imagenUrl && (
+            {menu.map((item, i) => {
+              const imgUrl = catImages[item.categoria] || "https://images.unsplash.com/photo-1495195129352-aec325b55b65?q=80&w=200&auto=format&fit=crop";
+              return (
+                <div key={i} style={{ background:"var(--card2)", borderRadius:"7px", border:`1px solid ${item.disponible ? "rgba(76,175,80,0.15)" : "rgba(230,57,70,0.15)"}`, padding:"14px", display:"flex", flexDirection:"column", gap:"6px" }}>
+                  {/* IMAGEN POR CATEGORÍA */}
                   <div style={{ width:"100%", height:"120px", borderRadius:"6px", overflow:"hidden", marginBottom:"8px", background:"#0C0E14" }}>
                     <img 
-                      src={`${BASE}${item.imagenUrl}`}
-                      alt={item.nombre}
+                      src={imgUrl}
+                      alt={item.categoria}
                       style={{ width:"100%", height:"100%", objectFit:"cover" }}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.style.display = "none";
-                        e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;">🍽️</div>';
-                      }}
                     />
                   </div>
-                )}
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                  <div style={{ fontWeight:600, fontSize:"13px", color:"var(--white)" }}>{item.nombre}</div>
-                  <span className={`badge ${item.disponible ? "badge-green" : "badge-red"}`}>{item.disponible ? "Activo" : "Agotado"}</span>
+                  
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                    <div style={{ fontWeight:600, fontSize:"13px", color:"var(--white)" }}>{item.nombre}</div>
+                    <span className={`badge ${item.disponible ? "badge-green" : "badge-red"}`}>{item.disponible ? "Activo" : "Agotado"}</span>
+                  </div>
+                  <div style={{ fontSize:"10px", color:"var(--gray)", textTransform:"uppercase", letterSpacing:"1px" }}>{item.categoria}</div>
+                  <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"1.2rem", fontWeight:"700", color:"var(--gold)", marginTop:"4px" }}>{fmt(item.precio)}</div>
                 </div>
-                <div style={{ fontSize:"10px", color:"var(--gray)", textTransform:"uppercase", letterSpacing:"1px" }}>{item.categoria}</div>
-                <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"1.2rem", fontWeight:"700", color:"var(--gold)", marginTop:"4px" }}>{fmt(item.precio)}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
     </div>
   );
 }
-
+      
 function PaginaVentas() {
   const [ventas, setVentas]     = useState([]);
   const [cargando, setCargando] = useState(true);
