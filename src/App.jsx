@@ -18,7 +18,7 @@ function App() {
         <Route path="/cocina" element={<CocinaTV />} />
         <Route path="/menu/:token" element={<Clientes />} />
         <Route path="/seguimiento/:id" element={<SeguimientoPedido />} />
-        <Route path="/mesero" element={<MeseroView />} />
+        <Route path="/mesero" element={<Mesero />} />
         <Route path="/login"  element={<Login />} />         
         <Route path="/admin" element={
           <ProtectedRoute rolesPermitidos={["ADMIN"]}>
