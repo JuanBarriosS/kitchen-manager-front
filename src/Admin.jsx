@@ -657,6 +657,9 @@ function PaginaMenu() {
   const [editando, setEditando]   = useState(false);
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
+  
+  // NUEVO: Estado para filtro por categoría
+  const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
 
   // Mapeo de imágenes 
   const catImages = {
@@ -665,6 +668,14 @@ function PaginaMenu() {
     Entradas: "https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     Postres: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=750&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   };
+
+  // Obtener categorías únicas para el filtro
+  const categorias = ["Todas", ...new Set(productos.map(p => p.categoria).filter(Boolean))];
+  
+  // Filtrar productos por categoría
+  const productosFiltrados = categoriaFiltro === "Todas" 
+    ? productos 
+    : productos.filter(p => p.categoria === categoriaFiltro);
 
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -751,7 +762,7 @@ function PaginaMenu() {
     }
   };
 
-  const categorias = ["Platos", "Bebidas", "Entradas", "Postres"];
+  const categoriasLista = ["Platos", "Bebidas", "Entradas", "Postres"];
 
   return (
     <div>
@@ -761,10 +772,63 @@ function PaginaMenu() {
       </div>
       <div className="section-card">
         <div className="section-card-header">
-          <div className="section-card-title">PRODUCTOS ({productos.length})</div>
+          <div className="section-card-title">PRODUCTOS ({productosFiltrados.length})</div>
           <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
             {mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR PRODUCTO"}
           </button>
+        </div>
+
+        {/* NUEVO: FILTRO POR CATEGORÍA */}
+        <div style={{ 
+          padding: "12px 20px", 
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          background: "#141720",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          flexWrap: "wrap"
+        }}>
+          <span style={{ 
+            fontSize: "10px", 
+            fontWeight: "600", 
+            color: "rgba(232,230,223,0.45)", 
+            letterSpacing: "1.5px", 
+            textTransform: "uppercase" 
+          }}>
+            Filtrar por:
+          </span>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {categorias.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategoriaFiltro(cat)}
+                style={{
+                  padding: "5px 14px",
+                  borderRadius: "20px",
+                  fontSize: "11px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  border: "0.5px solid",
+                  borderColor: categoriaFiltro === cat ? "rgba(201,168,76,0.4)" : "rgba(240,235,224,0.1)",
+                  background: categoriaFiltro === cat ? "rgba(201,168,76,0.08)" : "transparent",
+                  color: categoriaFiltro === cat ? "var(--gold)" : "rgba(240,235,224,0.45)",
+                  transition: "all 0.15s",
+                  fontFamily: "'DM Sans', sans-serif"
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          {categoriaFiltro !== "Todas" && (
+            <span style={{ 
+              fontSize: "11px", 
+              color: "var(--gold)", 
+              marginLeft: "auto" 
+            }}>
+              Mostrando {productosFiltrados.length} de {productos.length} productos
+            </span>
+          )}
         </div>
 
         {mostrarFormulario && (
@@ -779,7 +843,7 @@ function PaginaMenu() {
                 <label style={labelStyle}>Categoría</label>
                 <select style={{ ...inputStyle, cursor:"pointer" }} name="categoria" value={form.categoria} onChange={handleChange} required>
                   <option value="">Seleccionar...</option>
-                  {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+                  {categoriasLista.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
@@ -798,12 +862,18 @@ function PaginaMenu() {
 
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando productos...</div></div>
-        ) : productos.length === 0 ? (
-          <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">Empieza agregando tu primer producto</div></div>
+        ) : productosFiltrados.length === 0 ? (
+          <div className="placeholder-content">
+            <div className="placeholder-icon">🍽️</div>
+            <div className="placeholder-text">
+              {categoriaFiltro !== "Todas" 
+                ? `No hay productos en la categoría "${categoriaFiltro}"` 
+                : "Empieza agregando tu primer producto"}
+            </div>
+          </div>
         ) : (
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px", padding:"20px" }}>
-            {productos.map((p) => {
-              // Definimos el color y la imagen por categoría
+            {productosFiltrados.map((p) => {
               const catColor = { Platos:"#C8892A", Bebidas:"#4A90D9", Entradas:"#6fcf74", Postres:"#E8A830" }[p.categoria] || "#C8892A";
               const imgUrl = catImages[p.categoria] || "https://images.unsplash.com/photo-1495195129352-aec325b55b65?q=80&w=200&auto=format&fit=crop";
               const isEditing = editId === p.id;
@@ -818,7 +888,6 @@ function PaginaMenu() {
                 }}>
                   <div style={{ height:"3px", background: catColor, width:"100%" }} />
                   
-                  {/* Zona de Imagen relacionada */}
                   <div style={{ height:"120px", position: "relative", overflow: "hidden" }}>
                     <img 
                       src={imgUrl} 
@@ -842,7 +911,7 @@ function PaginaMenu() {
                           <div>
                             <label style={labelStyle}>Categoría</label>
                             <select style={{ ...smallInput, cursor:"pointer" }} value={editForm.categoria} onChange={e => setEditForm({ ...editForm, categoria: e.target.value })}>
-                              {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+                              {categoriasLista.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                           </div>
                           <div>
