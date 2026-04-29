@@ -12,7 +12,7 @@ const BASE = "https://kitchen-manager-back.onrender.com";
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizingc: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg:      #0C0E14;
@@ -286,7 +286,6 @@ function RegistrarEmpleado({ onEmpleadoCreado }) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  // DEFINIR LOS ESTILOS AQUÍ DENTRO
   const inputStyle = {
     width: "100%", padding: "10px 14px", borderRadius: "6px",
     border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
@@ -366,7 +365,6 @@ function RegistrarUsuario({ onUsuarioCreado }) {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  // DEFINIR LOS ESTILOS
   const inputStyle = {
     width: "100%", padding: "10px 14px", borderRadius: "6px",
     border: "1px solid rgba(200,137,42,0.25)", background: "#0C0E14",
@@ -394,7 +392,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
     }
     
     try {
-      await axios.post(`${BASE}/admin/agregarUsuario`,  // ← Nota: es agregarUsuario, no Usuario
+      await axios.post(`${BASE}/admin/agregarUsuario`,
         { username, password, roles: [roles] },
         { headers: authHeader() }
       );
@@ -646,7 +644,7 @@ function PaginaInicio({ username }) {
   );
 }
 
-// ── PAGINA MENU (sin imágenes) ───────────────────────────────────────────────────────────
+// ── PAGINA MENU ───────────────────────────────────────────────────────────
 function PaginaMenu() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([]);
@@ -836,7 +834,7 @@ function PaginaMenu() {
                       </td>
                     </>
                   )}
-                </table>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -1323,7 +1321,7 @@ function PaginaVentas() {
                 </tr>
               ))}
             </tbody>
-          <table>
+          </table>
         )}
       </div>
     </div>
@@ -1503,7 +1501,7 @@ function PaginaQRs() {
 
   const cargarQrs = async () => {
     try { const res = await axios.get(`${BASE}/admin/qrs`); setQrs(res.data); }
-    catch (err) { console.error(err); } finally { setCargando(false); }
+    catch (err) { console.error(err); } finally { setCargando(false)); }
   };
 
   const crearQr = async () => {
@@ -1605,17 +1603,12 @@ const MenuIcon = ({ className = "w-5 h-5" }) => (
 
 const PedidosIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    {/* Monitor */}
     <rect x="3" y="3" width="18" height="13" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
     <path d="M8 19h8M12 16v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    
-    {/* Lista de pedidos (checkboxes o líneas) */}
     <rect x="7" y="7" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
     <path d="M13 8h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-    
     <rect x="7" y="11" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
     <path d="M13 12h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-    
     <rect x="7" y="15" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
     <path d="M13 16h2" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
   </svg>
@@ -1795,7 +1788,7 @@ export default function Admin() {
           </div>
           <div className="content" key={activePage}>{renderPage()}</div>
         </main>
-      </div>  {/* cierre admin-root */}
+      </div>
     </>
   );
 }
