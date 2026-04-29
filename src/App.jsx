@@ -8,6 +8,7 @@ import LandinPage from './LandinPage';
 import Clientes from './Clientes';
 import CocinaTV from './CocinaTV';
 import SeguimientoPedido from './SeguimientoPedido';
+import Mesero from './Mesero';
 
 function App() {
   return (
