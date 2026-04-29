@@ -12,7 +12,7 @@ const BASE = "https://kitchen-manager-back.onrender.com";
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-  *, *::before, *::after { box-sizingc: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg:      #0C0E14;
@@ -646,23 +646,19 @@ function PaginaInicio({ username }) {
   );
 }
 
-// ── PAGINA MENU ───────────────────────────────────────────────────────────
+// ── PAGINA MENU (sin imágenes) ───────────────────────────────────────────────────────────
 function PaginaMenu() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando]   = useState(true);
   const [mensaje, setMensaje]     = useState("");
   const [loading, setLoading]     = useState(false);
-  //  Se agrega imagen al estado del formulario
-  const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "", imagen: "" });
+  const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "" });
   const [editId, setEditId]       = useState(null);
   const [editForm, setEditForm]   = useState({});
   const [editando, setEditando]   = useState(false);
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
-  //  Estados para manejar la subida de imagen
-  const [subiendoImagen, setSubiendoImagen]       = useState(false);
-  const [subiendoImagenEdit, setSubiendoImagenEdit] = useState(false);
 
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -689,58 +685,16 @@ function PaginaMenu() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  //  Función para subir imagen al backend y obtener la URL
-  const subirImagen = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await axios.post(`${BASE}/admin/upload`, formData, {
-      headers: { "Content-Type": "multipart/form-data",
-      "Authorization": `Bearer ${localStorage.getItem("token")}`}
-    });
-    return res.data.url; // ej: "/imagenes/1234567890_foto.jpg"
-  };
-
-  // maneja la selección de imagen en el formulario de AGREGAR
-  const handleImagenChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setSubiendoImagen(true);
-    try {
-      const url = await subirImagen(file);
-      setForm(prev => ({ ...prev, imagen: url }));
-    } catch (err) {
-      console.error("Error subiendo imagen:", err);
-    } finally {
-      setSubiendoImagen(false);
-    }
-  };
-
-  //  Manejar la selección de imagen en el formulario de editar
-  const handleImagenEditChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setSubiendoImagenEdit(true);
-    try {
-      const url = await subirImagen(file);
-      setEditForm(prev => ({ ...prev, imagen: url }));
-    } catch (err) {
-      console.error("Error subiendo imagen:", err);
-    } finally {
-      setSubiendoImagenEdit(false);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMensaje("");
     try {
-      // se incluye "imagen" en el objeto enviado al backend
       await axios.post(`${BASE}/admin/agregarMenu`,
         { ...form, precio: parseFloat(form.precio), disponible: true }
       );
       setMensaje("✓ Producto agregado correctamente");
-      setForm({ nombre: "", categoria: "", precio: "", imagen: "" });
+      setForm({ nombre: "", categoria: "", precio: "" });
       cargarProductos();
       setMostrarFormulario(false);
     } catch (error) {
@@ -753,14 +707,12 @@ function PaginaMenu() {
 
   const abrirEdicion = (p) => {
     setEditId(p.id);
-    // Se incluye "imagen" en el estado de edición
-    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible, imagen: p.imagen || "" });
+    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
   };
 
   const guardarEdicion = async (id) => {
     setEditando(true);
     try {
-      // Se incluye "imagen" en el PUT
       await axios.put(`${BASE}/admin/menu/${id}`,
         { ...editForm, precio: parseFloat(editForm.precio) },
         { headers: authHeader() }
@@ -818,31 +770,8 @@ function PaginaMenu() {
                 <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
               </div>
             </div>
-            {/* Campo de imagen en formulario de agregar */}
-            <div>
-              <label style={labelStyle}>Imagen del producto</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImagenChange}
-                style={{ ...inputStyle, padding:"8px", cursor:"pointer" }}
-              />
-              {subiendoImagen && (
-                <span style={{ fontSize:"11px", color:"var(--gold)", marginTop:"4px", display:"block" }}>⏳ Subiendo imagen...</span>
-              )}
-              {form.imagen && !subiendoImagen && (
-                <div style={{ marginTop:"8px", display:"flex", alignItems:"center", gap:"10px" }}>
-                  <img
-                    src={`${BASE}${form.imagen}`}
-                    alt="Preview"
-                    style={{ width:"60px", height:"60px", objectFit:"cover", borderRadius:"6px", border:"1px solid rgba(200,137,42,0.25)" }}
-                  />
-                  <span style={{ fontSize:"11px", color:"#6fcf74" }}>✓ Imagen lista</span>
-                </div>
-              )}
-            </div>
             <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-              <button type="submit" className="btn-primary" disabled={loading || subiendoImagen} style={{ padding:"10px 24px" }}>
+              <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>
                 {loading ? "Guardando..." : "Guardar Producto"}
               </button>
               {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
@@ -856,34 +785,12 @@ function PaginaMenu() {
           <div className="placeholder-content"><div className="placeholder-icon">🍽️</div><div className="placeholder-text">Empieza agregando tu primer producto</div></div>
         ) : (
           <table className="user-table">
-            {/*  Se agrega columna "Imagen" */}
-            <thead><tr><th>Imagen</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
             <tbody>
               {productos.map((p) => (
                 <tr key={p.id}>
                   {editId === p.id ? (
                     <>
-                      {/*  Celda de imagen en modo edición */}
-                      <td>
-                        <div>
-                          {editForm.imagen && (
-                            <img
-                              src={`${BASE}${editForm.imagen}`}
-                              alt="img"
-                              style={{ width:"44px", height:"44px", objectFit:"cover", borderRadius:"5px", border:"1px solid rgba(200,137,42,0.2)", marginBottom:"4px", display:"block" }}
-                            />
-                          )}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImagenEditChange}
-                            style={{ fontSize:"10px", color:"var(--gray)", cursor:"pointer", width:"90px" }}
-                          />
-                          {subiendoImagenEdit && (
-                            <span style={{ fontSize:"10px", color:"var(--gold)" }}>Subiendo...</span>
-                          )}
-                        </div>
-                      </td>
                       <td>
                         <input style={smallInput} value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} />
                       </td>
@@ -903,27 +810,13 @@ function PaginaMenu() {
                       </td>
                       <td>
                         <div style={{ display:"flex", gap:"6px" }}>
-                          <button onClick={() => guardarEdicion(p.id)} disabled={editando || subiendoImagenEdit} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
+                          <button onClick={() => guardarEdicion(p.id)} disabled={editando} style={{ padding:"5px 12px", background:"rgba(76,175,80,0.1)", border:"1px solid rgba(76,175,80,0.25)", borderRadius:"4px", color:"#6fcf74", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>{editando ? "..." : "✓ Guardar"}</button>
                           <button onClick={() => setEditId(null)} style={{ padding:"5px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                         </div>
                       </td>
                     </>
                   ) : (
                     <>
-                      {/* Celda de imagen en modo visualización */}
-                      <td>
-                        {p.imagen ? (
-                          <img
-                            src={`${BASE}${p.imagen}`}
-                            alt={p.nombre}
-                            style={{ width:"44px", height:"44px", objectFit:"cover", borderRadius:"6px", border:"1px solid rgba(200,137,42,0.2)" }}
-                          />
-                        ) : (
-                          <div style={{ width:"44px", height:"44px", borderRadius:"6px", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px" }}>
-                            🍽️
-                          </div>
-                        )}
-                      </td>
                       <td>{p.nombre}</td>
                       <td><span className="badge badge-orange">{p.categoria}</span></td>
                       <td style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontSize:"16px", fontWeight:"700" }}>${p.precio?.toLocaleString()}</td>
@@ -943,7 +836,7 @@ function PaginaMenu() {
                       </td>
                     </>
                   )}
-                </tr>
+                </table>
               ))}
             </tbody>
           </table>
@@ -1430,7 +1323,7 @@ function PaginaVentas() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          <table>
         )}
       </div>
     </div>
@@ -1439,12 +1332,11 @@ function PaginaVentas() {
 
 function PaginaEmpleados() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [empleados, setEmpleados] = useState([]);  // ← Cambiado de "usuarios" a "empleados"
+  const [empleados, setEmpleados] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [confirmId, setConfirmId] = useState(null);
   const [eliminando, setEliminando] = useState(null);
 
-  // Header con token JWT
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
   });
@@ -1455,7 +1347,7 @@ function PaginaEmpleados() {
       const res = await axios.get(`${BASE}/admin/Meseros`, {
         headers: authHeader()
       });
-      setEmpleados(res.data);  // ← Cambiado de "setUsuarios" a "setEmpleados"
+      setEmpleados(res.data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -1468,7 +1360,7 @@ function PaginaEmpleados() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`${BASE}/admin/empleado/${id}`, {  // ← Cambiado a "empleado"
+      await axios.delete(`${BASE}/admin/empleado/${id}`, {
         headers: authHeader()
       });
       setEmpleados(prev => prev.filter(u => u.id !== id));
@@ -1511,7 +1403,7 @@ function PaginaEmpleados() {
               {empleados.map((u) => (
                 <tr key={u.id}>
                   <td><span className="user-avatar">{u.username?.charAt(0).toUpperCase()}</span>{u.username}</td>
-                  <td><span className="badge badge-green">MESERO</span></td>  {/* Rol fijo por defecto */}
+                  <td><span className="badge badge-green">MESERO</span></td>
                   <td>
                     {confirmId === u.id ? (
                       <div style={{ display:"flex", gap:"6px" }}>
