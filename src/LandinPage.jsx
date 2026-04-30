@@ -382,7 +382,7 @@ const FEATURES = [
   {
     title: "Tiempos de pedidos",
     tag: "Seguimiento",
-    desc: "Cliente mira el estado de su pedido en tiempo real,",
+    desc: "Cliente puede hacer seguimiento a el estado del pedido en tiempo real.",
     icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>
   },
   {
