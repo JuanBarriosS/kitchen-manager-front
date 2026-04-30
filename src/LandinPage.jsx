@@ -380,9 +380,9 @@ const FEATURES = [
     icon: <><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></>
   },
   {
-    title: "Tiempos y turnos",
-    tag: "KPI operativo",
-    desc: "Mide tiempos de preparación por platillo y equipo. Identifica cuellos de botella en el servicio.",
+    title: "Tiempos de pedidos",
+    tag: "Seguimiento",
+    desc: "Cliente mira el estado de su pedido en tiempo real,",
     icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>
   },
   {
@@ -400,7 +400,7 @@ const FEATURES = [
   {
     title: "Sincronización total",
     tag: "Multi-estación",
-    desc: "Cocina, barra y salón conectados al instante. Actualizaciones en tiempo real entre todas las estaciones.",
+    desc: "Cocina, barra y mesas conectados al instante. Actualizaciones en tiempo real entre todas las estaciones.",
     icon: <><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></>
   },
 ];
