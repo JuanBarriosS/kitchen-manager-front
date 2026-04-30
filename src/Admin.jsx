@@ -1811,7 +1811,7 @@ const NAV = [
   { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
   { key:"financiero", label:"Dashboard Financiero",  icon: FinancieroIcon, section:"REPORTES" },
   { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
-  { key:"meseros",   label:"Meseros",              icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
+  { key:"empleados",   label:"Meseros",              icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
   { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
