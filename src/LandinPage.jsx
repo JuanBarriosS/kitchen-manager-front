@@ -582,9 +582,9 @@ export default function LandingPage() {
                 <div className="lp-mini-bar"><div className="lp-mini-fill" style={{ width: "48%" }} /></div>
               </div>
               <div className="lp-mini-card">
-                <div className="lp-mini-label">Insumos críticos</div>
+                <div className="lp-mini-label">Meseros activos</div>
                 <div className="lp-mini-val">3</div>
-                <div className="lp-mini-sub" style={{ color: "#E85C5C" }}>↑ requieren atención</div>
+                <div className="lp-mini-sub" style={{ color: "#E85C5C" }}>↓ carga baja</div>
                 <div className="lp-mini-bar"><div className="lp-mini-fill" style={{ width: "30%", background: "#E85C5C" }} /></div>
               </div>
               <div className="lp-preview-list">
