@@ -1508,12 +1508,12 @@ function PaginaEmpleados() {
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">GESTIÓN DE EMPLEADOS</div>
-        <div className="page-subtitle">Administra los empleados del sistema</div>
+        <div className="page-title">GESTIÓN DE MESEROS</div>
+        <div className="page-subtitle">Administra los meseros del sistema</div>
       </div>
       <div className="section-card">
         <div className="section-card-header">
-          <div className="section-card-title">EMPLEADOS ({empleados.length})</div>
+          <div className="section-card-title">MESEROS ({empleados.length})</div>
           <button className="btn-primary" onClick={() => setMostrarFormulario(!mostrarFormulario)}>
             {mostrarFormulario ? "✕ CANCELAR" : "+ AGREGAR EMPLEADO"}
           </button>
