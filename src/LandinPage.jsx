@@ -374,9 +374,9 @@ const FEATURES = [
     icon: <><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>
   },
   {
-    title: "Control de inventario",
+    title: "Control de productos",
     tag: "Alertas automáticas",
-    desc: "Rastrea insumos, alertas de stock bajo y consumo automático al procesar cada orden del sistema.",
+    desc: "Añade productos al menu, editalos o retiralos, puedes cambiar la disponibilidad de un platillo segun se requiera.",
     icon: <><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></>
   },
   {
