@@ -555,54 +555,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SPLIT — inventario */}
-        <div className="lp-divider" />
-        <div className="lp-split">
-          <div className="lp-split-img">
-            <img
-              src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80&auto=format&fit=crop"
-              alt="Inventario de cocina"
-              loading="lazy"
-            />
-            <div className="lp-split-img-overlay">
-              <div>
-                <div className="lp-sio-label">Insumos activos</div>
-                <div className="lp-sio-val">247</div>
-                <div className="lp-sio-sub">↑ actualizado hace 2 min</div>
-              </div>
-              <div className="lp-sio-divider" />
-              <div>
-                <div className="lp-sio-label">Alertas de stock</div>
-                <div className="lp-sio-val" style={{ color: "#E85C5C" }}>3</div>
-                <div className="lp-sio-sub" style={{ color: "#E85C5C" }}>requieren atención</div>
-              </div>
-            </div>
-          </div>
-          <div className="lp-split-body">
-            <div>
-              <span className="lp-tag">Control de inventario</span>
-              <h2 className="lp-h2">Stock en tiempo real,<br /><em>sin sorpresas</em></h2>
-            </div>
-            <p className="lp-lead">
-              Cada platillo procesado descuenta automáticamente los insumos utilizados. Nunca más quedarte sin ingredientes en plena hora pico.
-            </p>
-            <ul className="lp-split-list">
-              {[
-                ["Descuento automático", "al procesar cada orden del sistema"],
-                ["Alertas inteligentes", "cuando el stock llega al umbral crítico"],
-                ["Historial de consumo", "para planificar compras con precisión"],
-                ["Integración con proveedores", "y gestión de órdenes de reposición"],
-              ].map(([strong, rest], i) => (
-                <li className="lp-split-item" key={i} style={{ listStyle: "none" }}>
-                  <div className="lp-split-bullet" />
-                  <span className="lp-split-item-text"><strong>{strong}</strong> {rest}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="lp-divider" />
-
         {/* PREVIEW */}
         <section className="lp-section" style={{ paddingBottom: 0 }}>
           <span className="lp-tag">Vista previa del sistema</span>
