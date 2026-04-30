@@ -569,7 +569,7 @@ function PaginaInicio({ username }) {
           { label:"Pedidos hoy",  value: cargando ? "..." : stats.pedidosHoy,     sub:"Registrados hoy", icon:"📦" },
           { label:"Ventas hoy",   value: cargando ? "..." : fmt(stats.ventasHoy), sub:"Facturado hoy",   icon:"💰" },
           { label:"Productos",    value: cargando ? "..." : stats.productos,       sub:"En el menú",      icon:"🍽️" },
-          { label:"Empleados",    value: cargando ? "..." : stats.empleados,       sub:"Registrados",     icon:"👤" },
+          { label:"Meseros",    value: cargando ? "..." : stats.empleados,       sub:"Registrados",     icon:"👤" },
         ].map((s, i) => (
           <div className="stat-card" key={i}>
             <div className="stat-label">{s.label}</div>
