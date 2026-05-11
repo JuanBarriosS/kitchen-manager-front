@@ -1713,6 +1713,234 @@ function PaginaQRs() {
   );
 }
 
+function PaginaPrediccion() {
+  const [datos, setDatos]             = useState([]);
+  const [modeloCargado, setModeloCargado] = useState(false);
+  const [cargando, setCargando]       = useState(true);
+
+  useEffect(() => {
+    axios.get(`${BASE}/admin/prediccion`)
+      .then(res => {
+        setModeloCargado(res.data.modeloCargado);
+        setDatos(res.data.predicciones || []);
+      })
+      .finally(() => setCargando(false));
+  }, []);
+
+  const ahora   = new Date();
+  const hora    = ahora.getHours();
+  const horaTxt = hora < 12 ? "Mañana" : hora < 15 ? "Mediodía"
+               : hora < 20 ? "Tarde" : "Noche";
+  const diaTxt  = ahora.toLocaleDateString("es-CO", { weekday:"long" });
+
+  const EST = {
+    alta:       { color:"#6fcf74", bg:"rgba(76,175,80,0.1)",   label:"Alta" },
+    media:      { color:"#C8892A", bg:"rgba(200,137,42,0.1)",  label:"Media" },
+    baja:       { color:"#E63946", bg:"rgba(230,57,70,0.08)",  label:"Baja" },
+    "sin datos":{ color:"rgba(232,230,223,0.25)",
+                  bg:"rgba(255,255,255,0.03)", label:"Sin datos" },
+  };
+
+  const altos  = datos.filter(d => d.demanda === "alta");
+  const medios = datos.filter(d => d.demanda === "media");
+  const bajos  = datos.filter(d => d.demanda === "baja");
+
+  return (
+    <div>
+      <div className="page-header" style={{ display:"flex",
+        justifyContent:"space-between", alignItems:"flex-start" }}>
+        <div>
+          <div className="page-title">PREDICCIÓN DE DEMANDA</div>
+          <div className="page-subtitle">
+            {diaTxt} · {horaTxt} · modelo J48 (Weka)
+          </div>
+        </div>
+        <div style={{
+          display:"flex", alignItems:"center", gap:"8px",
+          padding:"6px 16px", borderRadius:"20px",
+          background: modeloCargado
+            ? "rgba(76,175,80,0.08)" : "rgba(200,137,42,0.08)",
+          border: `1px solid ${modeloCargado
+            ? "rgba(76,175,80,0.2)" : "rgba(200,137,42,0.2)"}`,
+        }}>
+          <div style={{ width:"7px", height:"7px", borderRadius:"50%",
+            background: modeloCargado ? "#6fcf74" : "#C8892A" }} />
+          <span style={{ fontSize:"10px", letterSpacing:"1px",
+            color: modeloCargado ? "#6fcf74" : "#C8892A" }}>
+            {modeloCargado ? "Modelo IA activo" : "Modo histórico"}
+          </span>
+        </div>
+      </div>
+
+      {!modeloCargado && (
+        <div style={{ padding:"14px 20px",
+          background:"rgba(200,137,42,0.06)",
+          border:"1px solid rgba(200,137,42,0.15)",
+          borderRadius:"8px", marginBottom:"20px",
+          fontSize:"12px", color:"rgba(232,230,223,0.6)", lineHeight:"1.9" }}>
+          ⚠️ <strong style={{ color:"#C8892A" }}>Modelo Weka no encontrado.</strong>
+          {" "}Predicción basada en frecuencia histórica de ventas.{" "}
+          Para activar el modelo IA:{" "}
+          <strong style={{ color:"var(--gold)" }}>
+            1)</strong> descarga el ARFF desde{" "}
+          <code style={{ color:"#C8892A", fontSize:"11px" }}>
+            /admin/exportar-weka
+          </code>{" "}
+          <strong style={{ color:"var(--gold)" }}>2)</strong>
+          {" "}abre en Weka → J48 → guarda{" "}
+          <code style={{ color:"#C8892A", fontSize:"11px" }}>
+            modelo_demanda.model
+          </code>{" "}
+          <strong style={{ color:"var(--gold)" }}>3)</strong>
+          {" "}copia a{" "}
+          <code style={{ color:"#C8892A", fontSize:"11px" }}>
+            src/main/resources/
+          </code>
+        </div>
+      )}
+
+      <div className="stats-grid">
+        {[
+          { label:"Alta demanda",  value:altos.length,
+            sub:"preparar stock extra", color:"#6fcf74" },
+          { label:"Demanda media", value:medios.length,
+            sub:"preparar normal",      color:"#C8892A" },
+          { label:"Baja demanda",  value:bajos.length,
+            sub:"preparar poco",        color:"#E63946" },
+          { label:"Total platos",  value:datos.length,
+            sub:"en el análisis",       color:"var(--gold)" },
+        ].map((s, i) => (
+          <div className="stat-card" key={i}
+            style={{ borderTop:`2px solid ${s.color}` }}>
+            <div className="stat-label">{s.label}</div>
+            <div className="stat-value"
+              style={{ fontSize:"2rem", color:s.color }}>{s.value}</div>
+            <div className="stat-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {altos.length > 0 && (
+        <div style={{ padding:"14px 20px",
+          background:"rgba(76,175,80,0.05)",
+          border:"1px solid rgba(76,175,80,0.12)",
+          borderRadius:"8px", marginBottom:"16px",
+          display:"flex", gap:"12px", alignItems:"center" }}>
+          <span style={{ fontSize:"22px" }}>🔥</span>
+          <div>
+            <div style={{ fontSize:"11px", fontWeight:"600",
+              color:"#6fcf74", letterSpacing:"1px",
+              textTransform:"uppercase", marginBottom:"4px" }}>
+              Preparar con prioridad ahora
+            </div>
+            <div style={{ fontSize:"12px",
+              color:"rgba(232,230,223,0.55)" }}>
+              {altos.map(d => d.plato).join("  ·  ")}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="section-card">
+        <div className="section-card-header">
+          <div className="section-card-title">RANKING DE DEMANDA</div>
+          <div style={{ fontSize:"10px", color:"var(--gray)",
+            letterSpacing:"1px", textTransform:"uppercase" }}>
+            {modeloCargado ? "IA · J48 · Weka" : "Frecuencia histórica"}
+          </div>
+        </div>
+
+        {cargando ? (
+          <div className="placeholder-content">
+            <div className="placeholder-text">Calculando predicciones...</div>
+          </div>
+        ) : datos.length === 0 ? (
+          <div className="placeholder-content">
+            <div className="placeholder-icon">🤖</div>
+            <div className="placeholder-text">
+              Sin ventas suficientes para predecir.
+            </div>
+          </div>
+        ) : (
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Plato</th>
+                <th>Categoría</th>
+                <th>Predicción</th>
+                {modeloCargado && <th>Probabilidades</th>}
+                <th>Acción sugerida</th>
+              </tr>
+            </thead>
+            <tbody>
+              {datos.map((d, i) => {
+                const est = EST[d.demanda] || EST["sin datos"];
+                return (
+                  <tr key={i}>
+                    <td style={{ color:"var(--gray)", fontSize:"13px",
+                      fontWeight:"600" }}>
+                      {i === 0 ? "🔥" : i === 1 ? "⬆️"
+                       : i === 2 ? "↗️" : `#${i+1}`}
+                    </td>
+                    <td style={{ fontWeight:"500" }}>🍽️ {d.plato}</td>
+                    <td>
+                      <span className="badge badge-orange">
+                        {d.categoria || "—"}
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{
+                        fontSize:"10px", fontWeight:"600",
+                        letterSpacing:"1px", textTransform:"uppercase",
+                        padding:"4px 12px", borderRadius:"20px",
+                        background: est.bg, color: est.color,
+                        border:`1px solid ${est.color}40`,
+                      }}>
+                        {est.label}
+                      </span>
+                    </td>
+                    {modeloCargado && (
+                      <td>
+                        {d.probAlta !== undefined ? (
+                          <div style={{ display:"flex", gap:"10px",
+                            fontSize:"11px" }}>
+                            <span style={{ color:"#6fcf74" }}>
+                              ↑ {d.probAlta}%
+                            </span>
+                            <span style={{ color:"#C8892A" }}>
+                              ~ {d.probMedia}%
+                            </span>
+                            <span style={{ color:"#E63946" }}>
+                              ↓ {d.probBaja}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span style={{ color:"var(--gray)",
+                            fontSize:"11px" }}>—</span>
+                        )}
+                      </td>
+                    )}
+                    <td style={{ fontSize:"12px", color:"var(--gray)" }}>
+                      {d.demanda === "alta"
+                        ? "✅ Preparar stock extra"
+                        : d.demanda === "media"
+                        ? "🔄 Cantidad normal"
+                        : d.demanda === "baja"
+                        ? "⚠️ Preparar poco"
+                        : "❓ Sin historial"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── NAV e ICONOS──────────────────────────────────────────────────────────────────
 const LogoutIcon = () => (
   <svg style={{ width: "14px", height: "14px" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1810,6 +2038,7 @@ const NAV = [
   { key:"qrs",        label:"Códigos QR",            icon: QrsIcon,        section:"OPERACIONES" },
   { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
   { key:"financiero", label:"Dashboard Financiero",  icon: FinancieroIcon, section:"REPORTES" },
+  { key:"prediccion", label:"Predicción IA",         icon: PlatosIcon,     section:"REPORTES" },
   { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
   { key:"empleados",   label:"Meseros",              icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
   { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
@@ -1838,6 +2067,7 @@ export default function Admin() {
       case "qrs":        return <PaginaQRs />;
       case "ventas":     return <PaginaVentas />;
       case "financiero": return <PaginaDashboardFinanciero />;
+      case "prediccion": return <PaginaPrediccion />;
       case "empleados": return <PaginaEmpleados />;
       case "usuarios":   return <PaginaUsuarios />;
       case "platos":     return <PaginaPlatos />;
