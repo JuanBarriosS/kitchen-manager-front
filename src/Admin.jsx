@@ -527,7 +527,9 @@ function PaginaInicio({ username }) {
       const pedidosHoy = pedidos.data.filter(p =>
         p.fecha?.slice(0, 10) === hoyISO
       ).length;
-      const ventasHoy  = ventas.data.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a, v) => a + v.total, 0);
+      const ventasHoy = ventas.data.filter(v =>
+        v.fecha?.slice(0, 10) === hoyISO
+      ).reduce((a, v) => a + v.total, 0);
       setStats({ pedidosHoy, ventasHoy, productos: menu.data.length, empleados: empleados.data.length });
       setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
       setTodasVentas(ventas.data);
@@ -540,7 +542,6 @@ function PaginaInicio({ username }) {
       const d = new Date(); d.setDate(d.getDate() - i);
       const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
       const dateISO = d.toISOString().slice(0, 10);
-      const dateStr = d.toDateString();
       const total = todasVentas.filter(v => new Date(v.fecha).toDateString() === dateStr).reduce((a, v) => a + v.total, 0);
       dias.push({ dia: label, total });
     }
