@@ -542,7 +542,9 @@ function PaginaInicio({ username }) {
       const d = new Date(); d.setDate(d.getDate() - i);
       const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
       const dateISO = d.toISOString().slice(0, 10);
-      const total = todasVentas.filter(v => new Date(v.fecha).toDateString() === dateStr).reduce((a, v) => a + v.total, 0);
+      const dateISO = d.toISOString().slice(0, 10);
+      const total = todasVentas.filter(v => v.fecha?.slice(0, 10) === dateISO)
+      .reduce((a, v) => a + v.total, 0);
       dias.push({ dia: label, total });
     }
     setGraficaData(dias);
