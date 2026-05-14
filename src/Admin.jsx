@@ -594,7 +594,7 @@ function PaginaInicio({ username }) {
       </div>
       <div className="stats-grid">
         {[
-          { label:"Pedidos hoy",  value: cargando ? "..." : stats.pedidosHoy,     sub:"Registrados hoy", icon:"📦" },
+          { label:"Pedidos actualmente",  value: cargando ? "..." : stats.pedidosHoy,     sub:"Pedidos registrados actualmente", icon:"📦" },
           { label:"Ventas hoy",   value: cargando ? "..." : fmt(stats.ventasHoy), sub:"Facturado hoy",   icon:"💰" },
           { label:"Productos",    value: cargando ? "..." : stats.productos,       sub:"En el menú",      icon:"🍽️" },
           { label:"Meseros",    value: cargando ? "..." : stats.empleados,       sub:"Registrados",     icon:"👤" },
