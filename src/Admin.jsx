@@ -12,7 +12,7 @@ const BASE = "https://kitchen-manager-back.onrender.com";
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-  *, *::before, *::after { box-sizingc: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --bg:      #0C0E14;
@@ -537,18 +537,18 @@ function PaginaInicio({ username }) {
   }, []);
 
   useEffect(() => {
-    const dias = [];
-    for (let i = rango - 1; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
-      const dateISO = d.toISOString().slice(0, 10);
-      const dateISO = d.toISOString().slice(0, 10);
-      const total = todasVentas.filter(v => v.fecha?.slice(0, 10) === dateISO)
+  const dias = [];
+  for (let i = rango - 1; i >= 0; i--) {
+    const d = new Date(); 
+    d.setDate(d.getDate() - i);
+    const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
+    const fechaISO = d.toISOString().slice(0, 10);
+    const total = todasVentas.filter(v => v.fecha?.slice(0, 10) === fechaISO)
       .reduce((a, v) => a + v.total, 0);
-      dias.push({ dia: label, total });
-    }
-    setGraficaData(dias);
-  }, [rango, todasVentas]);
+    dias.push({ dia: label, total });
+  }
+  setGraficaData(dias);
+}, [rango, todasVentas]);
 
   const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
 
