@@ -516,40 +516,62 @@ function PaginaInicio({ username }) {
   const [cargando, setCargando]               = useState(true);
   const [todasVentas, setTodasVentas]         = useState([]);
 
-  useEffect(() => {
-    const hoyISO = new Date().toISOString().slice(0, 10);
-    Promise.all([
-      axios.get(`${BASE}/admin/verPedidos`),
-      axios.get(`${BASE}/admin/ventas`),
-      axios.get(`${BASE}/admin/verMenu`),
-      axios.get(`${BASE}/admin/Meseros`),
-    ]).then(([pedidos, ventas, menu, empleados]) => {
-      const pedidosHoy = pedidos.data.filter(p =>
-        p.fecha?.slice(0, 10) === hoyISO
-      ).length;
-      const ventasHoy = ventas.data.filter(v =>
-        v.fecha?.slice(0, 10) === hoyISO
-      ).reduce((a, v) => a + v.total, 0);
-      setStats({ pedidosHoy, ventasHoy, productos: menu.data.length, empleados: empleados.data.length });
-      setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
-      setTodasVentas(ventas.data);
-    }).catch(err => console.error(err)).finally(() => setCargando(false));
-  }, []);
+ useEffect(() => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const manana = new Date(hoy);
+  manana.setDate(manana.getDate() + 1);
 
-  useEffect(() => {
+  Promise.all([
+    axios.get(`${BASE}/admin/verPedidos`),
+    axios.get(`${BASE}/admin/ventas`),
+    axios.get(`${BASE}/admin/verMenu`),
+    axios.get(`${BASE}/admin/Meseros`),
+  ]).then(([pedidos, ventas, menu, empleados]) => {
+    // FILTRADO CORRECTO CON FECHAS
+    const pedidosHoy = pedidos.data.filter(p => {
+      const fechaPedido = new Date(p.fecha);
+      fechaPedido.setHours(0, 0, 0, 0);
+      return fechaPedido.getTime() === hoy.getTime();
+    }).length;
+
+    const ventasHoy = ventas.data.filter(v => {
+      const fechaVenta = new Date(v.fecha);
+      fechaVenta.setHours(0, 0, 0, 0);
+      return fechaVenta.getTime() === hoy.getTime();
+    }).reduce((a, v) => a + v.total, 0);
+
+    setStats({ 
+      pedidosHoy, 
+      ventasHoy, 
+      productos: menu.data.length, 
+      empleados: empleados.data.length 
+    });
+    setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
+    setTodasVentas(ventas.data);
+  }).catch(err => console.error(err)).finally(() => setCargando(false));
+}, []);
+  
+ useEffect(() => {
   const dias = [];
   for (let i = rango - 1; i >= 0; i--) {
-    const d = new Date(); 
+    const d = new Date();
     d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    
     const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
-    const fechaISO = d.toISOString().slice(0, 10);
-    const total = todasVentas.filter(v => v.fecha?.slice(0, 10) === fechaISO)
-      .reduce((a, v) => a + v.total, 0);
+    const finDelDia = new Date(d);
+    finDelDia.setHours(23, 59, 59, 999);
+    
+    const total = todasVentas.filter(v => {
+      const fechaVenta = new Date(v.fecha);
+      return fechaVenta >= d && fechaVenta <= finDelDia;
+    }).reduce((a, v) => a + v.total, 0);
+    
     dias.push({ dia: label, total });
   }
   setGraficaData(dias);
 }, [rango, todasVentas]);
-
   const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
 
   const CustomTooltip = ({ active, payload, label }) => {
