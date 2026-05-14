@@ -517,14 +517,16 @@ function PaginaInicio({ username }) {
   const [todasVentas, setTodasVentas]         = useState([]);
 
   useEffect(() => {
-    const hoy = new Date().toDateString();
+    const hoyISO = new Date().toISOString().slice(0, 10);
     Promise.all([
       axios.get(`${BASE}/admin/verPedidos`),
       axios.get(`${BASE}/admin/ventas`),
       axios.get(`${BASE}/admin/verMenu`),
       axios.get(`${BASE}/admin/Meseros`),
     ]).then(([pedidos, ventas, menu, empleados]) => {
-      const pedidosHoy = pedidos.data.filter(p => new Date(p.fecha).toDateString() === hoy).length;
+      const pedidosHoy = pedidos.data.filter(p =>
+        p.fecha?.slice(0, 10) === hoyISO
+      ).length;
       const ventasHoy  = ventas.data.filter(v => new Date(v.fecha).toDateString() === hoy).reduce((a, v) => a + v.total, 0);
       setStats({ pedidosHoy, ventasHoy, productos: menu.data.length, empleados: empleados.data.length });
       setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
@@ -537,6 +539,7 @@ function PaginaInicio({ username }) {
     for (let i = rango - 1; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
       const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
+      const dateISO = d.toISOString().slice(0, 10);
       const dateStr = d.toDateString();
       const total = todasVentas.filter(v => new Date(v.fecha).toDateString() === dateStr).reduce((a, v) => a + v.total, 0);
       dias.push({ dia: label, total });
