@@ -2075,7 +2075,6 @@ const NAV = [
   { key:"pedidos",    label:"Panel de Pedidos",      icon: PedidosIcon,    section:"OPERACIONES" },
   { key:"qrs",        label:"Códigos QR",            icon: QrsIcon,        section:"OPERACIONES" },
   { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
-  { key:"financiero", label:"Dashboard Financiero",  icon: FinancieroIcon, section:"REPORTES" },
   { key:"prediccion", label:"Predicción IA",         icon: PlatosIcon,     section:"REPORTES" },
   { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
   { key:"empleados",   label:"Meseros",              icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
@@ -2104,7 +2103,6 @@ export default function Admin() {
       case "pedidos":    return <PaginaPedidos />;
       case "qrs":        return <PaginaQRs />;
       case "ventas":     return <PaginaVentas />;
-      case "financiero": return <PaginaDashboardFinanciero />;
       case "prediccion": return <PaginaPrediccion />;
       case "empleados": return <PaginaEmpleados />;
       case "usuarios":   return <PaginaUsuarios />;
