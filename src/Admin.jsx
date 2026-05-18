@@ -509,95 +509,42 @@ function generarFacturaHTML(venta) {
 // ── PÁGINAS ───────────────────────────────────────────────────────────────
 
 function PaginaInicio({ username }) {
-  const [stats, setStats] = useState({ pedidosHoy: 0, ventasHoy: 0, productos: 0, empleados: 0 });
+  const [stats, setStats] = useState({ pedidos: 0, productos: 0, empleados: 0, totalVentas: 0 });
   const [ventasRecientes, setVentasRecientes] = useState([]);
-  const [graficaData, setGraficaData]         = useState([]);
-  const [rango, setRango]                     = useState(7);
-  const [cargando, setCargando]               = useState(true);
-  const [todasVentas, setTodasVentas]         = useState([]);
+  const [cargando, setCargando] = useState(true);
 
- useEffect(() => {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const manana = new Date(hoy);
-  manana.setDate(manana.getDate() + 1);
+  useEffect(() => {
+    Promise.all([
+      axios.get(`${BASE}/admin/verPedidos`),
+      axios.get(`${BASE}/admin/ventas`),
+      axios.get(`${BASE}/admin/verMenu`),
+      axios.get(`${BASE}/admin/Meseros`),
+    ]).then(([pedidos, ventas, menu, empleados]) => {
+      setStats({
+        pedidos:     pedidos.data.length,
+        productos:   menu.data.length,
+        empleados:   empleados.data.length,
+        totalVentas: ventas.data.length,
+      });
+      setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
+    }).catch(err => console.error(err)).finally(() => setCargando(false));
+  }, []);
 
-  Promise.all([
-    axios.get(`${BASE}/admin/verPedidos`),
-    axios.get(`${BASE}/admin/ventas`),
-    axios.get(`${BASE}/admin/verMenu`),
-    axios.get(`${BASE}/admin/Meseros`),
-  ]).then(([pedidos, ventas, menu, empleados]) => {
-    // FILTRADO CORRECTO CON FECHAS
-    const pedidosHoy = pedidos.data.filter(p => {
-      const fechaPedido = new Date(p.fecha);
-      fechaPedido.setHours(0, 0, 0, 0);
-      return fechaPedido.getTime() === hoy.getTime();
-    }).length;
-
-    const ventasHoy = ventas.data.filter(v => {
-      const fechaVenta = new Date(v.fecha);
-      fechaVenta.setHours(0, 0, 0, 0);
-      return fechaVenta.getTime() === hoy.getTime();
-    }).reduce((a, v) => a + v.total, 0);
-
-    setStats({ 
-      pedidosHoy, 
-      ventasHoy, 
-      productos: menu.data.length, 
-      empleados: empleados.data.length 
-    });
-    setVentasRecientes(ventas.data.slice().reverse().slice(0, 5));
-    setTodasVentas(ventas.data);
-  }).catch(err => console.error(err)).finally(() => setCargando(false));
-}, []);
-  
- useEffect(() => {
-  const dias = [];
-  for (let i = rango - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    d.setHours(0, 0, 0, 0);
-    
-    const label = d.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit" });
-    const finDelDia = new Date(d);
-    finDelDia.setHours(23, 59, 59, 999);
-    
-    const total = todasVentas.filter(v => {
-      const fechaVenta = new Date(v.fecha);
-      return fechaVenta >= d && fechaVenta <= finDelDia;
-    }).reduce((a, v) => a + v.total, 0);
-    
-    dias.push({ dia: label, total });
-  }
-  setGraficaData(dias);
-}, [rango, todasVentas]);
   const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload?.length) {
-      return (
-        <div style={{ background:"#10131C", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"8px", padding:"10px 14px", fontSize:"12px" }}>
-          <div style={{ color:"rgba(232,230,223,0.45)", marginBottom:"4px" }}>{label}</div>
-          <div style={{ color:"#E8A830", fontFamily:"'Cormorant Garamond',serif", fontWeight:"700", fontSize:"18px" }}>{fmt(payload[0].value)}</div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div>
       <div className="page-header">
         <div className="page-title">BIENVENIDO, {username?.toUpperCase()}</div>
-        <div className="page-subtitle">Resumen general del sistema — hoy</div>
+        <div className="page-subtitle">Resumen general del sistema</div>
       </div>
+
       <div className="stats-grid">
         {[
-          { label:"Pedidos actualmente",  value: cargando ? "..." : stats.pedidosHoy,     sub:"Pedidos registrados actualmente", icon:"📦" },
-          { label:"Ventas hoy",   value: cargando ? "..." : fmt(stats.ventasHoy), sub:"Facturado hoy",   icon:"💰" },
-          { label:"Productos",    value: cargando ? "..." : stats.productos,       sub:"En el menú",      icon:"🍽️" },
-          { label:"Meseros",    value: cargando ? "..." : stats.empleados,       sub:"Registrados",     icon:"👤" },
+          { label:"Pedidos activos", value: cargando ? "..." : stats.pedidos,     sub:"En el sistema",    icon:"📦" },
+          { label:"Ventas totales",  value: cargando ? "..." : stats.totalVentas, sub:"Registradas",      icon:"💰" },
+          { label:"Productos",       value: cargando ? "..." : stats.productos,   sub:"En el menú",       icon:"🍽️" },
+          { label:"Meseros",         value: cargando ? "..." : stats.empleados,   sub:"Registrados",      icon:"👤" },
         ].map((s, i) => (
           <div className="stat-card" key={i}>
             <div className="stat-label">{s.label}</div>
@@ -607,49 +554,13 @@ function PaginaInicio({ username }) {
           </div>
         ))}
       </div>
-      <div className="section-card" style={{ marginBottom:"20px" }}>
-        <div className="section-card-header">
-          <div className="section-card-title">VENTAS POR DÍA</div>
-          <div style={{ display:"flex", gap:"8px" }}>
-            {[7, 30].map(r => (
-              <button key={r} onClick={() => setRango(r)} style={{
-                padding:"5px 14px",
-                background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
-                border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
-                borderRadius:"5px", color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
-                cursor:"pointer", fontSize:"11px", fontWeight:"700", fontFamily:"'DM Sans',sans-serif", letterSpacing:"1px",
-              }}>{r} DÍAS</button>
-            ))}
-          </div>
-        </div>
-        <div style={{ padding:"20px 16px 8px" }}>
-          {cargando ? (
-            <div className="placeholder-content"><div className="placeholder-text">Cargando datos...</div></div>
-          ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={graficaData} margin={{ top:4, right:8, left:8, bottom:0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="dia" tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill:"rgba(232,230,223,0.4)", fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v => v === 0 ? "0" : `$${(v/1000).toFixed(0)}k`} width={42} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill:"rgba(200,137,42,0.06)" }} />
-                <Bar dataKey="total" fill="url(#barGradient)" radius={[4,4,0,0]} maxBarSize={40} />
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#C8892A" />
-                    <stop offset="100%" stopColor="#E8A830" stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
+
       <div className="section-card">
         <div className="section-card-header"><div className="section-card-title">VENTAS RECIENTES</div></div>
         {cargando ? (
           <div className="placeholder-content"><div className="placeholder-text">Cargando actividad...</div></div>
         ) : ventasRecientes.length === 0 ? (
-          <div className="placeholder-content"><div className="placeholder-icon">📋</div><div className="placeholder-text">Aquí aparecerán los últimos pedidos y ventas del día</div></div>
+          <div className="placeholder-content"><div className="placeholder-icon">📋</div><div className="placeholder-text">Aquí aparecerán las últimas ventas registradas</div></div>
         ) : (
           <table className="user-table">
             <thead><tr><th>Factura</th><th>Cliente</th><th>Fuente</th><th>Productos</th><th>Total</th><th>Hora</th></tr></thead>
