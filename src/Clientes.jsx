@@ -1003,7 +1003,6 @@ export default function PortalClientes() {
                       <div className="cp-prod-cat">{prod.categoria}</div>
                       <div className="cp-prod-nombre">{prod.nombre}</div>
                       {prod.descripcion && (
-                        <div className="cp-prod-hint">👆 Toca para ver qué lleva</div>
                       )}
                       <div className="cp-prod-precio">{fmt(prod.precio)}</div>
                       {carrito[prod.id] && (
