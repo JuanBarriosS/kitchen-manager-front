@@ -1665,10 +1665,10 @@ function PaginaUsuarios() {
 }
 
 function PaginaQRs() {
-  const [qrs, setQrs]               = useState([]);
-  const [cargando, setCargando]     = useState(true);
+  const [qrs, setQrs] = useState([]);
+  const [cargando, setCargando] = useState(true);
   const [mostrarCrear, setMostrarCrear] = useState(false);
-  const [nuevoQr, setNuevoQr]       = useState({ nombre: "", descripcion: "" });
+  const [nuevoQr, setNuevoQr] = useState({ nombre: "", descripcion: "" });
 
   useEffect(() => { cargarQrs(); }, []);
 
@@ -1679,7 +1679,7 @@ function PaginaQRs() {
 
   const crearQr = async () => {
     try {
-      await axios.post("https://kitchen-manager-back.onrender.com/admin/qrs", nuevoQr);
+      await axios.post(`${BASE}/admin/qrs`, nuevoQr);
       setNuevoQr({ nombre: "", descripcion: "" });
       setMostrarCrear(false);
       cargarQrs();
@@ -1690,7 +1690,7 @@ function PaginaQRs() {
 
   const toggleActivo = async (id, activo) => {
     try {
-      await axios.patch(`https://kitchen-manager-back.onrender.com/admin/qrs/${id}/estado`, { activo });
+      await axios.patch(`${BASE}/admin/qrs/${id}/estado`, { activo });
       cargarQrs();
     } catch (err) {
       console.error(err);
@@ -1703,23 +1703,79 @@ function PaginaQRs() {
     catch (err) { console.error(err); }
   };
 
+  // Función para imprimir un QR individual
+  const imprimirQR = (qr) => {
+    const ventana = window.open('', '_blank');
+    const fecha = new Date().toLocaleDateString("es-CO");
+    
+    ventana.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>QR - ${qr.nombre}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: white;
+          }
+          .qr-container {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            max-width: 300px;
+          }
+          h3 { color: #C8892A; margin-bottom: 5px; }
+          .desc { color: #666; font-size: 12px; margin-bottom: 20px; }
+          .qr-code { margin: 20px 0; }
+          .footer { font-size: 10px; color: #999; margin-top: 20px; }
+          @media print {
+            body { margin: 0; padding: 0; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="qr-container">
+          <h3>${qr.nombre}</h3>
+          <div class="desc">${qr.descripcion || "Escanea para ordenar"}</div>
+          <div class="qr-code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://kitchen-manager-front.vercel.app/menu/${qr.token}`)}" />
+          </div>
+          <div class="footer">Kitchen Manager · ${fecha}</div>
+        </div>
+        <script>window.onload = () => setTimeout(() => window.print(), 500);<\/script>
+      </body>
+      </html>
+    `);
+    ventana.document.close();
+  };
+
   return (
     <div style={{ padding:"24px" }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"24px" }}>
         <h2 style={{ color:"var(--white)", fontSize:"1.5rem", fontWeight:"600" }}>Códigos QR</h2>
         <button onClick={() => setMostrarCrear(!mostrarCrear)} style={{ padding:"8px 16px", background:"var(--gold)", border:"none", borderRadius:"6px", color:"var(--bg)", cursor:"pointer", fontWeight:"500" }}>+ Crear QR</button>
       </div>
+      
       {mostrarCrear && (
         <div style={{ background:"var(--card)", padding:"16px", borderRadius:"8px", marginBottom:"24px", border:"1px solid var(--border)" }}>
           <h3 style={{ color:"var(--white)", marginBottom:"12px" }}>Nuevo Código QR</h3>
-          <input type="text" placeholder="Nombre (ej: #1, #2, #3...)" value={nuevoQr.nombre} onChange={(e) => setNuevoQr({ ...nuevoQr, nombre: e.target.value })} style={{ width:"100%", padding:"8px", marginBottom:"8px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--white)" }} />
-          <input type="text" placeholder="Descripción (Mesa, canal whatsapp, etc.)" value={nuevoQr.descripcion} onChange={(e) => setNuevoQr({ ...nuevoQr, descripcion: e.target.value })} style={{ width:"100%", padding:"8px", marginBottom:"12px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--white)" }} />
+          <input type="text" placeholder="Nombre (ej: Mesa 1, WhatsApp, etc.)" value={nuevoQr.nombre} onChange={(e) => setNuevoQr({ ...nuevoQr, nombre: e.target.value })} style={{ width:"100%", padding:"8px", marginBottom:"8px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--white)" }} />
+          <input type="text" placeholder="Descripción" value={nuevoQr.descripcion} onChange={(e) => setNuevoQr({ ...nuevoQr, descripcion: e.target.value })} style={{ width:"100%", padding:"8px", marginBottom:"12px", background:"var(--bg)", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--white)" }} />
           <div>
             <button onClick={crearQr} style={{ padding:"6px 12px", background:"#6fcf74", border:"none", borderRadius:"4px", color:"#0C0E14", cursor:"pointer", marginRight:"8px", fontWeight:"600" }}>Crear</button>
             <button onClick={() => setMostrarCrear(false)} style={{ padding:"6px 12px", background:"transparent", border:"1px solid var(--border)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer" }}>Cancelar</button>
           </div>
         </div>
       )}
+      
       {cargando ? (
         <div style={{ textAlign:"center", padding:"40px", color:"var(--gray)" }}>Cargando...</div>
       ) : (
@@ -1740,7 +1796,26 @@ function PaginaQRs() {
               {qr.activo && (
                 <div style={{ textAlign:"center" }}>
                   <QRCode value={`https://kitchen-manager-front.vercel.app/menu/${qr.token}`} size={128} />
-                  <p style={{ color:"var(--gray)", fontSize:"0.8rem", marginTop:"8px" }}>Escanea para acceder</p>
+                  <div style={{ marginTop:"12px", display:"flex", gap:"8px", justifyContent:"center" }}>
+                    <button 
+                      onClick={() => imprimirQR(qr)}
+                      style={{ 
+                        padding:"6px 12px", 
+                        background:"#4A90D9", 
+                        border:"none", 
+                        borderRadius:"4px", 
+                        color:"white", 
+                        cursor:"pointer", 
+                        fontSize:"11px",
+                        fontWeight:"500"
+                      }}
+                    >
+                      🖨 Imprimir QR
+                    </button>
+                  </div>
+                  <p style={{ color:"var(--gray)", fontSize:"0.7rem", marginTop:"8px", wordBreak:"break-all" }}>
+                    {`menu/${qr.token.substring(0, 20)}...`}
+                  </p>
                 </div>
               )}
             </div>
@@ -1750,7 +1825,6 @@ function PaginaQRs() {
     </div>
   );
 }
-
 function PaginaPrediccion() {
   const [datos, setDatos]             = useState([]);
   const [modeloCargado, setModeloCargado] = useState(false);
