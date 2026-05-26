@@ -783,7 +783,7 @@ export default function PortalClientes() {
         
         {productoSeleccionado.descripcion && (
           <div className="cp-prod-detail-desc">
-            <div className="cp-prod-detail-desc-label">📋 Qué lleva</div>
+            <div className="cp-prod-detail-desc-label">📋 Contenido lleva</div>
             <p className="cp-prod-detail-desc-text">{productoSeleccionado.descripcion}</p>
           </div>
         )}
