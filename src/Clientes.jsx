@@ -28,7 +28,6 @@ const styles = `
     overflow-x: hidden;
   }
 
-  /* ── NAV ── */
   .cp-nav {
     display: flex; align-items: center; justify-content: space-between;
     padding: 1.1rem 3rem;
@@ -73,7 +72,6 @@ const styles = `
     border-color: rgba(201,168,76,0.3); color: var(--cream);
   }
 
-  /* ── HERO ── */
   .cp-hero {
     padding: 4rem 3rem 2.5rem; text-align: center; position: relative; overflow: hidden;
   }
@@ -101,7 +99,6 @@ const styles = `
     max-width: 400px; margin: 0 auto; line-height: 1.8;
   }
 
-  /* ── LAYOUT ── */
   .cp-layout {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -112,7 +109,6 @@ const styles = `
     align-items: start;
   }
 
-  /* ── SECTION DIVIDER ── */
   .cp-divider {
     display: flex; align-items: center; gap: 16px; margin-bottom: 1.5rem;
   }
@@ -122,7 +118,6 @@ const styles = `
     color: rgba(201,168,76,0.4); white-space: nowrap;
   }
 
-  /* ── DATOS CLIENTE ── */
   .cp-datos { margin-bottom: 2.5rem; }
   .cp-datos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .cp-field { display: flex; flex-direction: column; gap: 6px; }
@@ -152,7 +147,6 @@ const styles = `
   .cp-textarea:focus { border-color: rgba(201,168,76,0.5); }
   .cp-textarea::placeholder { color: rgba(240,235,224,0.15); }
 
-  /* ── CATS ── */
   .cp-cats {
     display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem;
   }
@@ -169,7 +163,6 @@ const styles = `
     border-color: rgba(201,168,76,0.3); color: var(--gold);
   }
 
-  /* ── PRODUCTOS ── */
   .cp-productos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
@@ -200,7 +193,7 @@ const styles = `
     margin-bottom: 4px; line-height: 1.35;
   }
   .cp-prod-hint {
-    font-size: 8px; color: rgba(201,168,76,0.4); margin-bottom: 6px;
+    font-size: 8px; color: rgba(201,168,76,0.5); margin-bottom: 6px;
     letter-spacing: 0.5px;
   }
   .cp-prod-precio {
@@ -215,7 +208,6 @@ const styles = `
     letter-spacing: 1px; text-transform: uppercase;
   }
 
-  /* ── QTY ── */
   .cp-qty {
     display: flex; align-items: center; gap: 8px; margin-top: 10px;
   }
@@ -233,7 +225,6 @@ const styles = `
     min-width: 16px; text-align: center;
   }
 
-  /* ── RESUMEN ── */
   .cp-resumen {
     background: var(--card);
     border: 0.5px solid rgba(201,168,76,0.15);
@@ -297,7 +288,6 @@ const styles = `
     line-height: 1.6; letter-spacing: 0.3px;
   }
 
-  /* ── BUTTONS ── */
   .cp-btn-primary {
     width: 100%; padding: 12px 16px;
     background: transparent;
@@ -321,12 +311,10 @@ const styles = `
   }
   .cp-btn-sec:hover { border-color: rgba(240,235,224,0.15); color: var(--cream); }
 
-  /* ── ALERTA ── */
   .cp-alerta { font-size: 11px; padding: 10px 12px; border-radius: 6px; text-align: center; letter-spacing: 0.3px; }
   .cp-alerta-ok  { background: rgba(100,190,110,0.06); color: var(--green); border: 0.5px solid rgba(100,190,110,0.2); }
   .cp-alerta-err { background: rgba(220,70,70,0.06);  color: var(--red);   border: 0.5px solid rgba(220,70,70,0.2); }
 
-  /* ── SUCCESS ── */
   .cp-success {
     min-height: 60vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center;
@@ -353,10 +341,8 @@ const styles = `
     padding: 6px 20px; border-radius: 20px; letter-spacing: 2px;
   }
 
-  /* ── LOADING ── */
   .cp-loading { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 12px; letter-spacing: 2px; }
 
-  /* ── FOOTER ── */
   .cp-footer {
     padding: 1.25rem 3rem; border-top: 0.5px solid var(--border);
     display: flex; justify-content: space-between; align-items: center;
@@ -380,7 +366,6 @@ const styles = `
     color: rgba(240,235,224,0.1);
   }
 
-  /* ── CLIENTE INFO MINI ── */
   .cp-cliente-mini {
     padding: 9px 14px;
     border-top: 0.5px solid var(--border);
@@ -390,7 +375,6 @@ const styles = `
   }
   .cp-cliente-mini strong { color: var(--cream); font-weight: 400; }
 
-  /* ── MODAL OVERLAY ── */
   .cp-modal-overlay {
     position: fixed; inset: 0; z-index: 200;
     background: rgba(12,15,26,0.88);
@@ -480,7 +464,6 @@ const styles = `
   .cp-modal-btns .cp-btn-sec  { flex: 1; }
   .cp-modal-btns .cp-btn-primary { flex: 2; }
 
-  /* ── MODAL DETALLE PRODUCTO (estilos adicionales) ── */
   .cp-prod-detail-desc {
     background: rgba(201,168,76,0.05);
     border-left: 3px solid var(--gold);
@@ -545,7 +528,6 @@ const styles = `
   }
 `;
 
-/* ── LOGO SVG Kitchen Manager ── */
 const Logo = () => (
   <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none">
     <circle cx="100" cy="100" r="94" stroke="#C9A84C" strokeWidth="2.5"/>
@@ -1003,6 +985,7 @@ export default function PortalClientes() {
                       <div className="cp-prod-cat">{prod.categoria}</div>
                       <div className="cp-prod-nombre">{prod.nombre}</div>
                       {prod.descripcion && (
+                        <div className="cp-prod-hint">👆 Toca para ver qué lleva</div>
                       )}
                       <div className="cp-prod-precio">{fmt(prod.precio)}</div>
                       {carrito[prod.id] && (
