@@ -4,9 +4,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import * as XLSX from "xlsx";
 import QRCode from 'react-qr-code';
 
-
-
-
 const BASE = "https://kitchen-manager-back.onrender.com";
 
 const styles = `
@@ -278,7 +275,6 @@ const styles = `
   }
 `;
 
-
 function RegistrarEmpleado({ onEmpleadoCreado }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -356,7 +352,7 @@ function RegistrarEmpleado({ onEmpleadoCreado }) {
     </form>
   );
 }
-// ────────────── FORMULARIO REGISTRAR USUARIO ─────────────────────────────────────────
+
 function RegistrarUsuario({ onUsuarioCreado }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -443,6 +439,7 @@ function RegistrarUsuario({ onUsuarioCreado }) {
     </form>
   );
 }
+
 function generarFacturaHTML(venta) {
   const fecha = new Date(venta.fecha).toLocaleString("es-CO", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
   const filas = venta.itemsVendidos?.map(item => `
@@ -506,8 +503,7 @@ function generarFacturaHTML(venta) {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
-// ── PÁGINAS ───────────────────────────────────────────────────────────────
-
+// ── PÁGINA INICIO ─────────────────────────────────────────────────────────
 function PaginaInicio({ username }) {
   const [stats, setStats] = useState({ pedidos: 0, productos: 0, empleados: 0, totalVentas: 0 });
   const [ventasRecientes, setVentasRecientes] = useState([]);
@@ -583,24 +579,22 @@ function PaginaInicio({ username }) {
   );
 }
 
-// ── PAGINA MENU ───────────────────────────────────────────────────────────
+// ── PÁGINA MENÚ (CON DESCRIPCIÓN) ─────────────────────────────────────────
 function PaginaMenu() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando]   = useState(true);
   const [mensaje, setMensaje]     = useState("");
   const [loading, setLoading]     = useState(false);
-  const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "" });
+  // NUEVO: Campo descripcion en el formulario
+  const [form, setForm]           = useState({ nombre: "", categoria: "", precio: "", descripcion: "" });
   const [editId, setEditId]       = useState(null);
   const [editForm, setEditForm]   = useState({});
   const [editando, setEditando]   = useState(false);
   const [confirmElimId, setConfirmElimId] = useState(null);
   const [eliminando, setEliminando]       = useState(null);
-  
-  // NUEVO: Estado para filtro por categoría
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
 
-  // Mapeo de imágenes 
   const catImages = {
     Platos: "https://media.istockphoto.com/id/531555322/photo/empty-plate-spoon-fork-and-knife.jpg?s=612x612&w=0&k=20&c=8R2Rvx8m53dd3WnOWi17mpbaedccHC42UNvMJmalC5g=",
     Bebidas: "https://plus.unsplash.com/premium_photo-1684952849219-5a0d76012ed2?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -608,13 +602,8 @@ function PaginaMenu() {
     Postres: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=750&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   };
 
-  // Obtener categorías únicas para el filtro
   const categorias = ["Todas", ...new Set(productos.map(p => p.categoria).filter(Boolean))];
-  
-  // Filtrar productos por categoría
-  const productosFiltrados = categoriaFiltro === "Todas" 
-    ? productos 
-    : productos.filter(p => p.categoria === categoriaFiltro);
+  const productosFiltrados = categoriaFiltro === "Todas" ? productos : productos.filter(p => p.categoria === categoriaFiltro);
 
   const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -656,7 +645,7 @@ function PaginaMenu() {
         { ...form, precio: parseFloat(form.precio), disponible: true }
       );
       setMensaje("✓ Producto agregado correctamente");
-      setForm({ nombre: "", categoria: "", precio: "" });
+      setForm({ nombre: "", categoria: "", precio: "", descripcion: "" });
       cargarProductos();
       setMostrarFormulario(false);
     } catch (error) {
@@ -669,7 +658,13 @@ function PaginaMenu() {
 
   const abrirEdicion = (p) => {
     setEditId(p.id);
-    setEditForm({ nombre: p.nombre, categoria: p.categoria, precio: p.precio, disponible: p.disponible });
+    setEditForm({ 
+      nombre: p.nombre, 
+      categoria: p.categoria, 
+      precio: p.precio, 
+      disponible: p.disponible,
+      descripcion: p.descripcion || ""
+    });
   };
 
   const guardarEdicion = async (id) => {
@@ -717,7 +712,7 @@ function PaginaMenu() {
           </button>
         </div>
 
-        {/* NUEVO: FILTRO POR CATEGORÍA */}
+        {/* FILTRO POR CATEGORÍA */}
         <div style={{ 
           padding: "12px 20px", 
           borderBottom: "1px solid rgba(255,255,255,0.07)",
@@ -770,31 +765,55 @@ function PaginaMenu() {
           )}
         </div>
 
+        {/* FORMULARIO PARA AGREGAR PRODUCTO CON DESCRIPCIÓN */}
         {mostrarFormulario && (
           <form onSubmit={handleSubmit} style={{ padding:"24px", borderTop:"1px solid rgba(255,255,255,0.07)", display:"flex", flexDirection:"column", gap:"16px", background:"#141720" }}>
-            <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4" }}>Nuevo producto</div>
+            <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4" }}>➕ NUEVO PRODUCTO</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"16px" }}>
               <div>
-                <label style={labelStyle}>Nombre</label>
-                <input style={inputStyle} name="nombre" placeholder="ej: Bandeja Paisa" value={form.nombre} onChange={handleChange} required />
+                <label style={labelStyle}>Nombre del producto *</label>
+                <input style={inputStyle} name="nombre" placeholder="ej: Hamburguesa Clásica" value={form.nombre} onChange={handleChange} required />
               </div>
               <div>
-                <label style={labelStyle}>Categoría</label>
+                <label style={labelStyle}>Categoría *</label>
                 <select style={{ ...inputStyle, cursor:"pointer" }} name="categoria" value={form.categoria} onChange={handleChange} required>
                   <option value="">Seleccionar...</option>
                   {categoriasLista.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label style={labelStyle}>Precio ($)</label>
+                <label style={labelStyle}>Precio ($) *</label>
                 <input style={inputStyle} name="precio" type="number" placeholder="ej: 25000" value={form.precio} onChange={handleChange} required />
               </div>
             </div>
+
+            {/* CAMPO DESCRIPCIÓN - QUÉ LLEVA EL PRODUCTO */}
+            <div>
+              <label style={labelStyle}>📋 ¿Qué lleva este producto?</label>
+              <textarea 
+                style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+                name="descripcion" 
+                placeholder="Ejemplo: Carne de res 180g, queso cheddar, lechuga, tomate, cebolla caramelizada, salsa de la casa, pan artesanal"
+                value={form.descripcion} 
+                onChange={handleChange}
+              />
+              <div style={{ fontSize: "10px", color: "var(--gray)", marginTop: "4px" }}>
+                💡 Describe los ingredientes o componentes del plato
+              </div>
+            </div>
+
             <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
               <button type="submit" className="btn-primary" disabled={loading} style={{ padding:"10px 24px" }}>
-                {loading ? "Guardando..." : "Guardar Producto"}
+                {loading ? "Guardando..." : "✓ Guardar Producto"}
               </button>
-              {mensaje && <span style={{ fontSize:"13px", color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
+              <button type="button" onClick={() => setMostrarFormulario(false)} 
+                style={{ padding:"10px 24px", background:"transparent", 
+                border:"1px solid rgba(255,255,255,0.12)", borderRadius:"5px", 
+                color:"var(--gray)", cursor:"pointer" }}>
+                Cancelar
+              </button>
+              {mensaje && <span style={{ fontSize:"13px", 
+                color: mensaje.includes("✓") ? "#6fcf74" : "#E63946" }}>{mensaje}</span>}
             </div>
           </form>
         )}
@@ -811,7 +830,7 @@ function PaginaMenu() {
             </div>
           </div>
         ) : (
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px", padding:"20px" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))", gap:"16px", padding:"20px" }}>
             {productosFiltrados.map((p) => {
               const catColor = { Platos:"#C8892A", Bebidas:"#4A90D9", Entradas:"#6fcf74", Postres:"#E8A830" }[p.categoria] || "#C8892A";
               const imgUrl = catImages[p.categoria] || "https://images.unsplash.com/photo-1495195129352-aec325b55b65?q=80&w=200&auto=format&fit=crop";
@@ -858,6 +877,14 @@ function PaginaMenu() {
                             <input style={smallInput} type="number" value={editForm.precio} onChange={e => setEditForm({ ...editForm, precio: e.target.value })} />
                           </div>
                         </div>
+                        {/* Campo descripción en edición */}
+                        <div>
+                          <label style={labelStyle}>Qué lleva</label>
+                          <textarea style={{ ...smallInput, minHeight: "60px" }} 
+                            value={editForm.descripcion || ""} 
+                            onChange={e => setEditForm({ ...editForm, descripcion: e.target.value })} 
+                            placeholder="Ej: Lechuga, tomate, queso, carne..." />
+                        </div>
                         <div>
                           <label style={labelStyle}>Estado</label>
                           <select style={{ ...smallInput, cursor:"pointer" }} value={editForm.disponible ? "true" : "false"} onChange={e => setEditForm({ ...editForm, disponible: e.target.value === "true" })}>
@@ -873,7 +900,7 @@ function PaginaMenu() {
                     ) : (
                       <>
                         <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:"8px" }}>
-                          <div>
+                          <div style={{ flex: 1 }}>
                             <div style={{ fontSize:"14px", fontWeight:"600", color:"#F2EDE4", lineHeight:"1.2" }}>{p.nombre}</div>
                             <div style={{ fontSize:"10px", color: catColor, fontWeight:"700", letterSpacing:"0.5px", textTransform:"uppercase", marginTop:"4px" }}>{p.categoria}</div>
                           </div>
@@ -882,7 +909,24 @@ function PaginaMenu() {
                           </div>
                         </div>
                         
-                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:"16px", paddingTop:"12px", borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+                        {/* DESCRIPCIÓN - QUÉ LLEVA EL PRODUCTO */}
+                        {p.descripcion && (
+                          <div style={{ 
+                            fontSize: "11px", 
+                            color: "var(--gray)", 
+                            marginTop: "8px", 
+                            marginBottom: "8px",
+                            lineHeight: "1.5",
+                            padding: "8px",
+                            background: "rgba(255,255,255,0.03)",
+                            borderRadius: "6px",
+                            borderLeft: `2px solid ${catColor}`
+                          }}>
+                            📋 {p.descripcion}
+                          </div>
+                        )}
+                        
+                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:"12px", paddingTop:"12px", borderTop:"1px solid rgba(255,255,255,0.05)" }}>
                           <div className={`badge ${p.disponible ? "badge-green" : "badge-red"}`} style={{ fontSize:"9px" }}>
                             {p.disponible ? "Disponible" : "Agotado"}
                           </div>
@@ -918,6 +962,7 @@ function PaginaMenu() {
   );
 }
 
+// ── PÁGINA PEDIDOS ────────────────────────────────────────────────────────
 function PaginaPedidos() {
   const [pedidos, setPedidos]       = useState([]);
   const [cargando, setCargando]     = useState(true);
@@ -1106,7 +1151,7 @@ function PaginaPlatos() {
         <div style={{ padding:"14px 20px", background:"rgba(230,57,70,0.06)", border:"1px solid rgba(230,57,70,0.15)", borderRadius:"8px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"12px" }}>
           <span style={{ fontSize:"20px" }}>⚠️</span>
           <div>
-            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E63946", letterSpacing:"1px", textTransform:"uppercase" }}>PROductos menos vendidos</div>
+            <div style={{ fontSize:"12px", fontWeight:"600", color:"#E63946", letterSpacing:"1px", textTransform:"uppercase" }}>Productos menos vendidos</div>
             <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.6)", marginTop:"2px" }}>{muertos.map(p => p.nombre).join(" · ")}</div>
           </div>
         </div>
@@ -1174,7 +1219,6 @@ function PaginaDashboardFinanciero() {
     setCargando(true);
     try {
       const res = await axios.get(`${BASE}/admin/ventas`);
-      console.log("Ventas recibidas:", res.data);
       setVentas(res.data);
     } catch (err) {
       console.error(err);
@@ -1185,7 +1229,6 @@ function PaginaDashboardFinanciero() {
 
   const fmt = n => `$${Number(n).toLocaleString("es-CO")}`;
 
-  // Filtrar ventas por rango de días correctamente
   const ventasFiltradas = ventas.filter(v => {
     if (!v.fecha) return false;
     const fechaVenta = new Date(v.fecha);
@@ -1195,7 +1238,6 @@ function PaginaDashboardFinanciero() {
     return fechaVenta >= fechaLimite;
   });
 
-  // Agrupar por fuente
   const porFuente = {};
   ventasFiltradas.forEach(v => {
     const fuente = v.fuente || "Presencial";
@@ -1218,24 +1260,16 @@ function PaginaDashboardFinanciero() {
   };
   const getColor = (fuente) => COLORES[fuente] || "#A0A0A0";
 
-  // Generar datos para la gráfica por día
   const graficaData = (() => {
     const dias = [];
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    
     for (let i = rango - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
-      
       const label = d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit" });
       const finDelDia = new Date(d);
       finDelDia.setHours(23, 59, 59, 999);
-      
       const entry = { dia: label };
-      
-      // Calcular ventas del día por cada canal
       canales.forEach(canal => {
         const totalDia = ventasFiltradas.filter(v => {
           if (!v.fecha) return false;
@@ -1243,10 +1277,8 @@ function PaginaDashboardFinanciero() {
           const fuenteVenta = v.fuente || "Presencial";
           return fechaVenta >= d && fechaVenta <= finDelDia && fuenteVenta === canal.fuente;
         }).reduce((sum, v) => sum + (v.total || 0), 0);
-        
         entry[canal.fuente] = totalDia;
       });
-      
       dias.push(entry);
     }
     return dias;
@@ -1277,26 +1309,20 @@ function PaginaDashboardFinanciero() {
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           {[7, 30, 90].map(r => (
-            <button 
-              key={r} 
-              onClick={() => setRango(r)} 
-              style={{
-                padding: "6px 14px",
-                background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
-                border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
-                borderRadius: "5px",
-                color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
-                cursor: "pointer",
-                fontSize: "11px",
-                fontWeight: "700",
-              }}
-            >
+            <button key={r} onClick={() => setRango(r)} style={{
+              padding: "6px 14px",
+              background: rango === r ? "linear-gradient(135deg,#C8892A,#E8A830)" : "transparent",
+              border: rango === r ? "none" : "1px solid rgba(255,255,255,0.12)",
+              borderRadius: "5px",
+              color: rango === r ? "#0C0E14" : "rgba(232,230,223,0.45)",
+              cursor: "pointer",
+              fontSize: "11px",
+              fontWeight: "700",
+            }}>
               {r} DÍAS
             </button>
           ))}
-          <button onClick={cargarVentas} className="btn-primary" style={{ padding: "6px 14px" }}>
-            ⟳
-          </button>
+          <button onClick={cargarVentas} className="btn-primary" style={{ padding: "6px 14px" }}>⟳</button>
         </div>
       </div>
 
@@ -1361,13 +1387,7 @@ function PaginaDashboardFinanciero() {
         ) : (
           <table className="user-table">
             <thead>
-              <tr>
-                <th>Canal</th>
-                <th>Ventas</th>
-                <th>Ingresos</th>
-                <th>Ticket prom.</th>
-                <th>Participación</th>
-              </tr>
+              <tr><th>Canal</th><th>Ventas</th><th>Ingresos</th><th>Ticket prom.</th><th>Participación</th></tr>
             </thead>
             <tbody>
               {canales.map((c, i) => {
@@ -1375,12 +1395,7 @@ function PaginaDashboardFinanciero() {
                 const ticket = c.count > 0 ? Math.round(c.total / c.count) : 0;
                 return (
                   <tr key={i}>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: getColor(c.fuente), flexShrink: 0 }} />
-                        {c.fuente}
-                      </div>
-                    </td>
+                    <td><div style={{ display: "flex", alignItems: "center", gap: "8px" }}><div style={{ width: "10px", height: "10px", borderRadius: "50%", background: getColor(c.fuente), flexShrink: 0 }} />{c.fuente}</div></td>
                     <td style={{ color: "var(--gray)" }}>{c.count}</td>
                     <td style={{ color: "#E8A830", fontFamily: "'Cormorant Garamond',serif", fontSize: "17px", fontWeight: "700" }}>{fmt(c.total)}</td>
                     <td style={{ color: "var(--white)" }}>{fmt(ticket)}</td>
@@ -1409,6 +1424,7 @@ function PaginaDashboardFinanciero() {
     </div>
   );
 }
+
 function PaginaVentas() {
   const [ventas, setVentas]     = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -1515,9 +1531,7 @@ function PaginaEmpleados() {
   const cargarEmpleados = async () => {
     setCargando(true);
     try {
-      const res = await axios.get(`${BASE}/admin/Meseros`, {
-        headers: authHeader()
-      });
+      const res = await axios.get(`${BASE}/admin/Meseros`, { headers: authHeader() });
       setEmpleados(res.data);
     } catch (e) {
       console.error(e);
@@ -1531,9 +1545,7 @@ function PaginaEmpleados() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`${BASE}/admin/empleado/${id}`, {
-        headers: authHeader()
-      });
+      await axios.delete(`${BASE}/admin/empleado/${id}`, { headers: authHeader() });
       setEmpleados(prev => prev.filter(u => u.id !== id));
       setConfirmId(null);
     } catch (e) {
@@ -1563,13 +1575,7 @@ function PaginaEmpleados() {
           <div className="placeholder-content"><div className="placeholder-icon">👤</div><div className="placeholder-text">No hay empleados registrados aún</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th></th>
-              </tr>
-            </thead>
+            <thead><tr><th>Usuario</th><th>Rol</th><th></th></tr></thead>
             <tbody>
               {empleados.map((u) => (
                 <tr key={u.id}>
@@ -1581,14 +1587,10 @@ function PaginaEmpleados() {
                         <button onClick={() => eliminar(u.id)} disabled={eliminando === u.id} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.1)", border:"1px solid rgba(230,57,70,0.25)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
                           {eliminando === u.id ? "..." : "Confirmar"}
                         </button>
-                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>
-                          Cancelar
-                        </button>
+                        <button onClick={() => setConfirmId(null)} style={{ padding:"4px 10px", background:"transparent", border:"1px solid rgba(255,255,255,0.12)", borderRadius:"4px", color:"var(--gray)", cursor:"pointer", fontSize:"11px" }}>Cancelar</button>
                       </div>
                     ) : (
-                      <button onClick={() => setConfirmId(u.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>
-                        🗑 Borrar
-                      </button>
+                      <button onClick={() => setConfirmId(u.id)} style={{ padding:"4px 10px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:"4px", color:"#E63946", cursor:"pointer", fontSize:"11px", fontWeight:"600" }}>🗑 Borrar</button>
                     )}
                   </td>
                 </tr>
@@ -1600,6 +1602,7 @@ function PaginaEmpleados() {
     </div>
   );
 }
+
 function PaginaUsuarios() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [usuarios, setUsuarios]     = useState([]);
@@ -1618,7 +1621,7 @@ function PaginaUsuarios() {
   const eliminar = async (id) => {
     setEliminando(id);
     try {
-      await axios.delete(`https://kitchen-manager-back.onrender.com/admin/usuario/${id}`);
+      await axios.delete(`${BASE}/admin/usuario/${id}`);
       setUsuarios(prev => prev.filter(u => u.id !== id)); setConfirmId(null);
     } catch (e) { console.error(e); } finally { setEliminando(null); }
   };
@@ -1703,51 +1706,28 @@ function PaginaQRs() {
     catch (err) { console.error(err); }
   };
 
-  // Función para imprimir un QR individual
   const imprimirQR = (qr) => {
     const ventana = window.open('', '_blank');
     const fecha = new Date().toLocaleDateString("es-CO");
-    
     ventana.document.write(`
       <!DOCTYPE html>
       <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>QR - ${qr.nombre}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: white;
-          }
-          .qr-container {
-            text-align: center;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            max-width: 300px;
-          }
-          h3 { color: #C8892A; margin-bottom: 5px; }
-          .desc { color: #666; font-size: 12px; margin-bottom: 20px; }
-          .qr-code { margin: 20px 0; }
-          .footer { font-size: 10px; color: #999; margin-top: 20px; }
-          @media print {
-            body { margin: 0; padding: 0; }
-            .no-print { display: none; }
-          }
-        </style>
+      <head><meta charset="UTF-8"><title>QR - ${qr.nombre}</title>
+      <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: white; }
+        .qr-container { text-align: center; padding: 20px; border: 1px solid #ddd; border-radius: 10px; max-width: 300px; }
+        h3 { color: #C8892A; margin-bottom: 5px; }
+        .desc { color: #666; font-size: 12px; margin-bottom: 20px; }
+        .qr-code { margin: 20px 0; }
+        .footer { font-size: 10px; color: #999; margin-top: 20px; }
+        @media print { body { margin: 0; padding: 0; } }
+      </style>
       </head>
       <body>
         <div class="qr-container">
           <h3>${qr.nombre}</h3>
           <div class="desc">${qr.descripcion || "Escanea para ordenar"}</div>
-          <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://kitchen-manager-front.vercel.app/menu/${qr.token}`)}" />
-          </div>
+          <div class="qr-code"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://kitchen-manager-front.vercel.app/menu/${qr.token}`)}" /></div>
           <div class="footer">Kitchen Manager · ${fecha}</div>
         </div>
         <script>window.onload = () => setTimeout(() => window.print(), 500);<\/script>
@@ -1763,7 +1743,6 @@ function PaginaQRs() {
         <h2 style={{ color:"var(--white)", fontSize:"1.5rem", fontWeight:"600" }}>Códigos QR</h2>
         <button onClick={() => setMostrarCrear(!mostrarCrear)} style={{ padding:"8px 16px", background:"var(--gold)", border:"none", borderRadius:"6px", color:"var(--bg)", cursor:"pointer", fontWeight:"500" }}>+ Crear QR</button>
       </div>
-      
       {mostrarCrear && (
         <div style={{ background:"var(--card)", padding:"16px", borderRadius:"8px", marginBottom:"24px", border:"1px solid var(--border)" }}>
           <h3 style={{ color:"var(--white)", marginBottom:"12px" }}>Nuevo Código QR</h3>
@@ -1775,7 +1754,6 @@ function PaginaQRs() {
           </div>
         </div>
       )}
-      
       {cargando ? (
         <div style={{ textAlign:"center", padding:"40px", color:"var(--gray)" }}>Cargando...</div>
       ) : (
@@ -1797,25 +1775,8 @@ function PaginaQRs() {
                 <div style={{ textAlign:"center" }}>
                   <QRCode value={`https://kitchen-manager-front.vercel.app/menu/${qr.token}`} size={128} />
                   <div style={{ marginTop:"12px", display:"flex", gap:"8px", justifyContent:"center" }}>
-                    <button 
-                      onClick={() => imprimirQR(qr)}
-                      style={{ 
-                        padding:"6px 12px", 
-                        background:"#4A90D9", 
-                        border:"none", 
-                        borderRadius:"4px", 
-                        color:"white", 
-                        cursor:"pointer", 
-                        fontSize:"11px",
-                        fontWeight:"500"
-                      }}
-                    >
-                      🖨 Imprimir QR
-                    </button>
+                    <button onClick={() => imprimirQR(qr)} style={{ padding:"6px 12px", background:"#4A90D9", border:"none", borderRadius:"4px", color:"white", cursor:"pointer", fontSize:"11px", fontWeight:"500" }}>🖨 Imprimir QR</button>
                   </div>
-                  <p style={{ color:"var(--gray)", fontSize:"0.7rem", marginTop:"8px", wordBreak:"break-all" }}>
-                    {`menu/${qr.token.substring(0, 20)}...`}
-                  </p>
                 </div>
               )}
             </div>
@@ -1825,6 +1786,7 @@ function PaginaQRs() {
     </div>
   );
 }
+
 function PaginaPrediccion() {
   const [datos, setDatos]             = useState([]);
   const [modeloCargado, setModeloCargado] = useState(false);
@@ -1841,16 +1803,14 @@ function PaginaPrediccion() {
 
   const ahora   = new Date();
   const hora    = ahora.getHours();
-  const horaTxt = hora < 12 ? "Mañana" : hora < 15 ? "Mediodía"
-               : hora < 20 ? "Tarde" : "Noche";
+  const horaTxt = hora < 12 ? "Mañana" : hora < 15 ? "Mediodía" : hora < 20 ? "Tarde" : "Noche";
   const diaTxt  = ahora.toLocaleDateString("es-CO", { weekday:"long" });
 
   const EST = {
     alta:       { color:"#6fcf74", bg:"rgba(76,175,80,0.1)",   label:"Alta" },
     media:      { color:"#C8892A", bg:"rgba(200,137,42,0.1)",  label:"Media" },
     baja:       { color:"#E63946", bg:"rgba(230,57,70,0.08)",  label:"Baja" },
-    "sin datos":{ color:"rgba(232,230,223,0.25)",
-                  bg:"rgba(255,255,255,0.03)", label:"Sin datos" },
+    "sin datos":{ color:"rgba(232,230,223,0.25)", bg:"rgba(255,255,255,0.03)", label:"Sin datos" },
   };
 
   const altos  = datos.filter(d => d.demanda === "alta");
@@ -1859,189 +1819,69 @@ function PaginaPrediccion() {
 
   return (
     <div>
-      <div className="page-header" style={{ display:"flex",
-        justifyContent:"space-between", alignItems:"flex-start" }}>
+      <div className="page-header" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
         <div>
           <div className="page-title">PREDICCIÓN DE DEMANDA</div>
-          <div className="page-subtitle">
-            {diaTxt} · {horaTxt} · modelo J48 (Weka)
-          </div>
+          <div className="page-subtitle">{diaTxt} · {horaTxt} · modelo J48 (Weka)</div>
         </div>
-        <div style={{
-          display:"flex", alignItems:"center", gap:"8px",
-          padding:"6px 16px", borderRadius:"20px",
-          background: modeloCargado
-            ? "rgba(76,175,80,0.08)" : "rgba(200,137,42,0.08)",
-          border: `1px solid ${modeloCargado
-            ? "rgba(76,175,80,0.2)" : "rgba(200,137,42,0.2)"}`,
-        }}>
-          <div style={{ width:"7px", height:"7px", borderRadius:"50%",
-            background: modeloCargado ? "#6fcf74" : "#C8892A" }} />
-          <span style={{ fontSize:"10px", letterSpacing:"1px",
-            color: modeloCargado ? "#6fcf74" : "#C8892A" }}>
-            {modeloCargado ? "Modelo IA activo" : "Modo histórico"}
-          </span>
+        <div style={{ display:"flex", alignItems:"center", gap:"8px", padding:"6px 16px", borderRadius:"20px", background: modeloCargado ? "rgba(76,175,80,0.08)" : "rgba(200,137,42,0.08)", border: `1px solid ${modeloCargado ? "rgba(76,175,80,0.2)" : "rgba(200,137,42,0.2)"}` }}>
+          <div style={{ width:"7px", height:"7px", borderRadius:"50%", background: modeloCargado ? "#6fcf74" : "#C8892A" }} />
+          <span style={{ fontSize:"10px", letterSpacing:"1px", color: modeloCargado ? "#6fcf74" : "#C8892A" }}>{modeloCargado ? "Modelo IA activo" : "Modo histórico"}</span>
         </div>
       </div>
-
       {!modeloCargado && (
-        <div style={{ padding:"14px 20px",
-          background:"rgba(200,137,42,0.06)",
-          border:"1px solid rgba(200,137,42,0.15)",
-          borderRadius:"8px", marginBottom:"20px",
-          fontSize:"12px", color:"rgba(232,230,223,0.6)", lineHeight:"1.9" }}>
-          ⚠️ <strong style={{ color:"#C8892A" }}>Modelo Weka no encontrado.</strong>
-          {" "}Predicción basada en frecuencia histórica de ventas.{" "}
-          Para activar el modelo IA:{" "}
-          <strong style={{ color:"var(--gold)" }}>
-            1)</strong> descarga el ARFF desde{" "}
-          <code style={{ color:"#C8892A", fontSize:"11px" }}>
-            /admin/exportar-weka
-          </code>{" "}
-          <strong style={{ color:"var(--gold)" }}>2)</strong>
-          {" "}abre en Weka → J48 → guarda{" "}
-          <code style={{ color:"#C8892A", fontSize:"11px" }}>
-            modelo_demanda.model
-          </code>{" "}
-          <strong style={{ color:"var(--gold)" }}>3)</strong>
-          {" "}copia a{" "}
-          <code style={{ color:"#C8892A", fontSize:"11px" }}>
-            src/main/resources/
-          </code>
+        <div style={{ padding:"14px 20px", background:"rgba(200,137,42,0.06)", border:"1px solid rgba(200,137,42,0.15)", borderRadius:"8px", marginBottom:"20px", fontSize:"12px", color:"rgba(232,230,223,0.6)", lineHeight:"1.9" }}>
+          ⚠️ <strong style={{ color:"#C8892A" }}>Modelo Weka no encontrado.</strong> Predicción basada en frecuencia histórica de ventas.
         </div>
       )}
-
       <div className="stats-grid">
         {[
-          { label:"Alta demanda",  value:altos.length,
-            sub:"preparar stock extra", color:"#6fcf74" },
-          { label:"Demanda media", value:medios.length,
-            sub:"preparar normal",      color:"#C8892A" },
-          { label:"Baja demanda",  value:bajos.length,
-            sub:"preparar poco",        color:"#E63946" },
-          { label:"Total platos",  value:datos.length,
-            sub:"en el análisis",       color:"var(--gold)" },
+          { label:"Alta demanda",  value:altos.length, sub:"preparar stock extra", color:"#6fcf74" },
+          { label:"Demanda media", value:medios.length, sub:"preparar normal",      color:"#C8892A" },
+          { label:"Baja demanda",  value:bajos.length,  sub:"preparar poco",        color:"#E63946" },
+          { label:"Total platos",  value:datos.length,  sub:"en el análisis",       color:"var(--gold)" },
         ].map((s, i) => (
-          <div className="stat-card" key={i}
-            style={{ borderTop:`2px solid ${s.color}` }}>
+          <div className="stat-card" key={i} style={{ borderTop:`2px solid ${s.color}` }}>
             <div className="stat-label">{s.label}</div>
-            <div className="stat-value"
-              style={{ fontSize:"2rem", color:s.color }}>{s.value}</div>
+            <div className="stat-value" style={{ fontSize:"2rem", color:s.color }}>{s.value}</div>
             <div className="stat-sub">{s.sub}</div>
           </div>
         ))}
       </div>
-
       {altos.length > 0 && (
-        <div style={{ padding:"14px 20px",
-          background:"rgba(76,175,80,0.05)",
-          border:"1px solid rgba(76,175,80,0.12)",
-          borderRadius:"8px", marginBottom:"16px",
-          display:"flex", gap:"12px", alignItems:"center" }}>
+        <div style={{ padding:"14px 20px", background:"rgba(76,175,80,0.05)", border:"1px solid rgba(76,175,80,0.12)", borderRadius:"8px", marginBottom:"16px", display:"flex", gap:"12px", alignItems:"center" }}>
           <span style={{ fontSize:"22px" }}>🔥</span>
           <div>
-            <div style={{ fontSize:"11px", fontWeight:"600",
-              color:"#6fcf74", letterSpacing:"1px",
-              textTransform:"uppercase", marginBottom:"4px" }}>
-              Preparar con prioridad ahora
-            </div>
-            <div style={{ fontSize:"12px",
-              color:"rgba(232,230,223,0.55)" }}>
-              {altos.map(d => d.plato).join("  ·  ")}
-            </div>
+            <div style={{ fontSize:"11px", fontWeight:"600", color:"#6fcf74", letterSpacing:"1px", textTransform:"uppercase", marginBottom:"4px" }}>Preparar con prioridad ahora</div>
+            <div style={{ fontSize:"12px", color:"rgba(232,230,223,0.55)" }}>{altos.map(d => d.plato).join("  ·  ")}</div>
           </div>
         </div>
       )}
-
       <div className="section-card">
         <div className="section-card-header">
           <div className="section-card-title">RANKING DE DEMANDA</div>
-          <div style={{ fontSize:"10px", color:"var(--gray)",
-            letterSpacing:"1px", textTransform:"uppercase" }}>
-            {modeloCargado ? "IA · J48 · Weka" : "Frecuencia histórica"}
-          </div>
+          <div style={{ fontSize:"10px", color:"var(--gray)", letterSpacing:"1px", textTransform:"uppercase" }}>{modeloCargado ? "IA · J48 · Weka" : "Frecuencia histórica"}</div>
         </div>
-
         {cargando ? (
-          <div className="placeholder-content">
-            <div className="placeholder-text">Calculando predicciones...</div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-text">Calculando predicciones...</div></div>
         ) : datos.length === 0 ? (
-          <div className="placeholder-content">
-            <div className="placeholder-icon">🤖</div>
-            <div className="placeholder-text">
-              Sin ventas suficientes para predecir.
-            </div>
-          </div>
+          <div className="placeholder-content"><div className="placeholder-icon">🤖</div><div className="placeholder-text">Sin ventas suficientes para predecir.</div></div>
         ) : (
           <table className="user-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Plato</th>
-                <th>Categoría</th>
-                <th>Predicción</th>
-                {modeloCargado && <th>Probabilidades</th>}
-                <th>Acción sugerida</th>
-              </tr>
-            </thead>
+            <thead><tr><th>#</th><th>Plato</th><th>Categoría</th><th>Predicción</th>{modeloCargado && <th>Probabilidades</th>}<th>Acción sugerida</th></tr></thead>
             <tbody>
               {datos.map((d, i) => {
                 const est = EST[d.demanda] || EST["sin datos"];
                 return (
                   <tr key={i}>
-                    <td style={{ color:"var(--gray)", fontSize:"13px",
-                      fontWeight:"600" }}>
-                      {i === 0 ? "🔥" : i === 1 ? "⬆️"
-                       : i === 2 ? "↗️" : `#${i+1}`}
-                    </td>
+                    <td style={{ color:"var(--gray)", fontSize:"13px", fontWeight:"600" }}>{i === 0 ? "🔥" : i === 1 ? "⬆️" : i === 2 ? "↗️" : `#${i+1}`}</td>
                     <td style={{ fontWeight:"500" }}>🍽️ {d.plato}</td>
-                    <td>
-                      <span className="badge badge-orange">
-                        {d.categoria || "—"}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{
-                        fontSize:"10px", fontWeight:"600",
-                        letterSpacing:"1px", textTransform:"uppercase",
-                        padding:"4px 12px", borderRadius:"20px",
-                        background: est.bg, color: est.color,
-                        border:`1px solid ${est.color}40`,
-                      }}>
-                        {est.label}
-                      </span>
-                    </td>
+                    <td><span className="badge badge-orange">{d.categoria || "—"}</span></td>
+                    <td><span style={{ fontSize:"10px", fontWeight:"600", letterSpacing:"1px", textTransform:"uppercase", padding:"4px 12px", borderRadius:"20px", background: est.bg, color: est.color, border:`1px solid ${est.color}40` }}>{est.label}</span></td>
                     {modeloCargado && (
-                      <td>
-                        {d.probAlta !== undefined ? (
-                          <div style={{ display:"flex", gap:"10px",
-                            fontSize:"11px" }}>
-                            <span style={{ color:"#6fcf74" }}>
-                              ↑ {d.probAlta}%
-                            </span>
-                            <span style={{ color:"#C8892A" }}>
-                              ~ {d.probMedia}%
-                            </span>
-                            <span style={{ color:"#E63946" }}>
-                              ↓ {d.probBaja}%
-                            </span>
-                          </div>
-                        ) : (
-                          <span style={{ color:"var(--gray)",
-                            fontSize:"11px" }}>—</span>
-                        )}
-                      </td>
+                      <td>{d.probAlta !== undefined ? <div style={{ display:"flex", gap:"10px", fontSize:"11px" }}><span style={{ color:"#6fcf74" }}>↑ {d.probAlta}%</span><span style={{ color:"#C8892A" }}>~ {d.probMedia}%</span><span style={{ color:"#E63946" }}>↓ {d.probBaja}%</span></div> : <span style={{ color:"var(--gray)", fontSize:"11px" }}>—</span>}</td>
                     )}
-                    <td style={{ fontSize:"12px", color:"var(--gray)" }}>
-                      {d.demanda === "alta"
-                        ? "✅ Preparar stock extra"
-                        : d.demanda === "media"
-                        ? "🔄 Cantidad normal"
-                        : d.demanda === "baja"
-                        ? "⚠️ Preparar poco"
-                        : "❓ Sin historial"}
-                    </td>
+                    <td style={{ fontSize:"12px", color:"var(--gray)" }}>{d.demanda === "alta" ? "✅ Preparar stock extra" : d.demanda === "media" ? "🔄 Cantidad normal" : d.demanda === "baja" ? "⚠️ Preparar poco" : "❓ Sin historial"}</td>
                   </tr>
                 );
               })}
@@ -2053,7 +1893,7 @@ function PaginaPrediccion() {
   );
 }
 
-// ── NAV e ICONOS──────────────────────────────────────────────────────────────────
+// ── NAV e ICONOS ──────────────────────────────────────────────────────────
 const LogoutIcon = () => (
   <svg style={{ width: "14px", height: "14px" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -2080,12 +1920,6 @@ const PedidosIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <rect x="3" y="3" width="18" height="13" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
     <path d="M8 19h8M12 16v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    <rect x="7" y="7" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
-    <path d="M13 8h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-    <rect x="7" y="11" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
-    <path d="M13 12h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-    <rect x="7" y="15" width="4" height="2" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1"/>
-    <path d="M13 16h2" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
   </svg>
 );
 
@@ -2104,15 +1938,6 @@ const VentasIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
     <text x="12" y="17" textAnchor="middle" fill="currentColor" fontSize="14" fontWeight="bold" fontFamily="Arial">$</text>
-  </svg>
-);
-
-const FinancieroIcon = ({ className = "w-5 h-5" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <rect x="4" y="14" width="3" height="8"/>
-    <rect x="9" y="10" width="3" height="12"/>
-    <rect x="14" y="6" width="3" height="16"/>
-    <rect x="19" y="2" width="3" height="20"/>
   </svg>
 );
 
@@ -2142,7 +1967,6 @@ const EmpleadoIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
-
 const NAV = [
   { key:"inicio",     label:"Inicio",                icon: InicioIcon,     section:"GENERAL" },
   { key:"menu",       label:"Gestión del Menú",      icon: MenuIcon,       section:"OPERACIONES" },
@@ -2151,7 +1975,7 @@ const NAV = [
   { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
   { key:"prediccion", label:"Predicción IA",         icon: PlatosIcon,     section:"REPORTES" },
   { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
-  { key:"empleados",   label:"Meseros",              icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
+  { key:"empleados",  label:"Meseros",               icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
   { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
@@ -2160,15 +1984,6 @@ export default function Admin() {
   const [activePage, setActivePage] = useState("inicio");
   const username = localStorage.getItem("username") || "admin";
   const sections = [...new Set(NAV.map((n) => n.section))];
-  const [ventasGlobal, setVentasGlobal] = useState([]);
-  const [pedidosGlobal, setPedidosGlobal] = useState([]);
-  const [menuGlobal, setMenuGlobal] = useState([]);
-  
-  useEffect(() => {
-    axios.get(`${BASE}/admin/ventas`).then(r => setVentasGlobal(r.data)).catch(() => {});
-    axios.get(`${BASE}/admin/verPedidos`).then(r => setPedidosGlobal(r.data)).catch(() => {});
-    axios.get(`${BASE}/admin/verMenu`).then(r => setMenuGlobal(r.data)).catch(() => {});
-  }, []);
 
   const renderPage = () => {
     switch (activePage) {
@@ -2178,7 +1993,7 @@ export default function Admin() {
       case "qrs":        return <PaginaQRs />;
       case "ventas":     return <PaginaVentas />;
       case "prediccion": return <PaginaPrediccion />;
-      case "empleados": return <PaginaEmpleados />;
+      case "empleados":  return <PaginaEmpleados />;
       case "usuarios":   return <PaginaUsuarios />;
       case "platos":     return <PaginaPlatos />;
       default:           return <PaginaInicio username={username} />;
@@ -2218,7 +2033,6 @@ export default function Admin() {
                 <text x="83" y="58" fontFamily="'Playfair Display','Georgia',serif" fontSize="11" fontWeight="400" letterSpacing="8" fill="#F0EBE0" opacity="0.5">MANAGER</text>
               </svg>
             </a>
-            
             <div className="sidebar-logo-sub">Panel Admin</div>
           </div>
           <nav className="sidebar-nav">
@@ -2226,14 +2040,14 @@ export default function Admin() {
               <div key={section}>
                 <div className="nav-section-label">{section}</div>
                 {NAV.filter((n) => n.section === section).map((item) => {
-                const IconComponent = item.icon;
-                return (
-                  <div key={item.key} className={`nav-item ${activePage === item.key ? "active" : ""}`} onClick={() => setActivePage(item.key)}>
-                    <IconComponent className="nav-icon" />
-                    <span>{item.label}</span>
-                  </div>
-                );
-              })}
+                  const IconComponent = item.icon;
+                  return (
+                    <div key={item.key} className={`nav-item ${activePage === item.key ? "active" : ""}`} onClick={() => setActivePage(item.key)}>
+                      <IconComponent className="nav-icon" />
+                      <span>{item.label}</span>
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </nav>
@@ -2241,6 +2055,7 @@ export default function Admin() {
             <button className="btn-logout" onClick={() => { 
               localStorage.removeItem("username"); 
               localStorage.removeItem("role"); 
+              localStorage.removeItem("token");
               window.location.href = "/"; 
             }}>
               <LogoutIcon className="w-2 h-2" />
