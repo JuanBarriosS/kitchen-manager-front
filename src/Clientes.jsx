@@ -197,7 +197,11 @@ const styles = `
   }
   .cp-prod-nombre {
     font-size: 13px; font-weight: 400; color: var(--cream);
-    margin-bottom: 8px; line-height: 1.35;
+    margin-bottom: 4px; line-height: 1.35;
+  }
+  .cp-prod-hint {
+    font-size: 8px; color: rgba(201,168,76,0.4); margin-bottom: 6px;
+    letter-spacing: 0.5px;
   }
   .cp-prod-precio {
     font-family: 'Cormorant Garamond', serif;
@@ -476,6 +480,62 @@ const styles = `
   .cp-modal-btns .cp-btn-sec  { flex: 1; }
   .cp-modal-btns .cp-btn-primary { flex: 2; }
 
+  /* ── MODAL DETALLE PRODUCTO (estilos adicionales) ── */
+  .cp-prod-detail-desc {
+    background: rgba(201,168,76,0.05);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .cp-prod-detail-desc-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .cp-prod-detail-desc-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .cp-prod-detail-price-box {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .cp-prod-detail-price-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .cp-prod-detail-price-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--gold2);
+  }
+  .cp-prod-detail-unavailable {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 8px;
+    background: rgba(220,70,70,0.1);
+    border-radius: 6px;
+    color: var(--red);
+    font-size: 11px;
+  }
+  .cp-prod-detail-qty-hint {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--gold);
+  }
+
   @media (max-width: 768px) {
     .cp-nav, .cp-hero, .cp-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
     .cp-layout { grid-template-columns: 1fr; padding: 1.5rem 1.25rem 3rem; }
@@ -488,36 +548,21 @@ const styles = `
 /* ── LOGO SVG Kitchen Manager ── */
 const Logo = () => (
   <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none">
-    {/* Círculo exterior */}
     <circle cx="100" cy="100" r="94" stroke="#C9A84C" strokeWidth="2.5"/>
-    {/* Círculo interior sutil */}
     <circle cx="100" cy="100" r="78" stroke="#C9A84C" strokeWidth="0.8" opacity="0.35"/>
-
-    {/* Tenedor — izquierda */}
     <g stroke="#C9A84C" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-      {/* Púas del tenedor */}
       <line x1="82" y1="36" x2="82" y2="72"/>
       <line x1="92" y1="36" x2="92" y2="72"/>
       <line x1="102" y1="36" x2="102" y2="72"/>
-      {/* Curva base del tenedor */}
       <path d="M82 72 Q87 84 92 86 Q97 84 102 72"/>
-      {/* Mango del tenedor */}
       <line x1="92" y1="86" x2="92" y2="164"/>
     </g>
-
-    {/* Cuchillo — derecha */}
     <g stroke="#C9A84C" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-      {/* Hoja del cuchillo */}
       <path d="M118 36 Q134 60 130 88"/>
-      {/* Lomo recto */}
       <line x1="118" y1="36" x2="118" y2="88"/>
-      {/* Base de la hoja */}
       <line x1="118" y1="88" x2="130" y2="88"/>
-      {/* Mango del cuchillo */}
       <line x1="124" y1="88" x2="124" y2="164"/>
     </g>
-
-    {/* Plato / arco decorativo central */}
     <path d="M66 118 Q100 108 134 118" stroke="#C9A84C" strokeWidth="1.5" strokeLinecap="round" opacity="0.5"/>
     <path d="M72 126 Q100 116 128 126" stroke="#C9A84C" strokeWidth="0.8" strokeLinecap="round" opacity="0.3"/>
   </svg>
@@ -535,20 +580,21 @@ export default function PortalClientes() {
   const navigate = useNavigate();
   const { token } = useParams();
 
-  const [menu, setMenu]                         = useState([]);
-  const [cargando, setCargando]                 = useState(true);
-  const [catActiva, setCatActiva]               = useState("Todas");
-  const [errorQr, setErrorQr]                   = useState(null);
-  const [carrito, setCarrito]                   = useState({});
-  const [nombre, setNombre]                     = useState("");
-  const [mesa, setMesa]                         = useState("");
-  const [notas, setNotas]                       = useState("");
-  const [enviando, setEnviando]                 = useState(false);
-  const [resultado, setResultado]               = useState(null);
-  const [pedidoEnviado, setPedidoEnviado]       = useState(false);
+  const [menu, setMenu] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [catActiva, setCatActiva] = useState("Todas");
+  const [errorQr, setErrorQr] = useState(null);
+  const [carrito, setCarrito] = useState({});
+  const [nombre, setNombre] = useState("");
+  const [mesa, setMesa] = useState("");
+  const [notas, setNotas] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [resultado, setResultado] = useState(null);
+  const [pedidoEnviado, setPedidoEnviado] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-  const [meseros, setMeseros]           = useState([]);
+  const [meseros, setMeseros] = useState([]);
   const [meseroSeleccionado, setMeseroSeleccionado] = useState("");
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
   useEffect(() => {
     const url = token
@@ -573,9 +619,9 @@ export default function PortalClientes() {
       .catch(err => {
         if (token) {
           const message = err.response?.data || err.message;
-          if (err.response?.status === 403)      setErrorQr(`Acceso denegado: ${message}`);
+          if (err.response?.status === 403) setErrorQr(`Acceso denegado: ${message}`);
           else if (err.response?.status === 404) setErrorQr(`QR no encontrado: ${message}`);
-          else                                   setErrorQr(`Error al cargar QR: ${message}`);
+          else setErrorQr(`Error al cargar QR: ${message}`);
         } else {
           console.error(err);
         }
@@ -585,15 +631,19 @@ export default function PortalClientes() {
     axios.get("https://kitchen-manager-back.onrender.com/meseros/disponibles")
       .then(res => setMeseros(res.data))
       .catch(() => {});
-    
   }, [token]);
 
-  const categorias   = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
+  const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
   const menuFiltrado = catActiva === "Todas" ? menu : menu.filter(p => p.categoria === catActiva);
 
-  const agregar = (prod) => {
+  const abrirDetalle = (prod) => {
     if (!prod.disponible) return;
-    setCarrito(prev => ({ ...prev, [prod.id]: (prev[prod.id] || 0) + 1 }));
+    setProductoSeleccionado(prod);
+  };
+
+  const agregarAlCarrito = (prod, cantidad = 1) => {
+    setCarrito(prev => ({ ...prev, [prod.id]: (prev[prod.id] || 0) + cantidad }));
+    setProductoSeleccionado(null);
   };
 
   const cambiar = (id, delta) => {
@@ -613,13 +663,11 @@ export default function PortalClientes() {
     .filter(p => carrito[p.id])
     .map(p => ({ ...p, cantidad: carrito[p.id], subtotal: p.precio * carrito[p.id] }));
 
-  const total       = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
+  const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
   const puedeEnviar = itemsCarrito.length > 0 && nombre.trim() && mesa.trim() && meseroSeleccionado;
 
-  /* Abre el modal de confirmación */
   const handleConfirmar = () => setMostrarConfirmacion(true);
 
-  /* Envío real — se llama desde el modal */
   const handleEnviar = async () => {
     setMostrarConfirmacion(false);
     setEnviando(true); setResultado(null);
@@ -637,7 +685,7 @@ export default function PortalClientes() {
           precio: i.precio, cantidad: i.cantidad,
         })),
       };
-      const res     = await axios.post(url, payload);
+      const res = await axios.post(url, payload);
       const pedidoId = res.data?.id || res.data?.pedidoId || "";
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
@@ -677,17 +725,13 @@ export default function PortalClientes() {
     </footer>
   );
 
-  /* ── MODAL DE CONFIRMACIÓN ── */
   const ModalConfirmacion = () => (
     <div className="cp-modal-overlay" onClick={() => setMostrarConfirmacion(false)}>
       <div className="cp-modal" onClick={e => e.stopPropagation()}>
         <div className="cp-modal-topline" />
-
         <p className="cp-modal-eyebrow">Confirmar pedido</p>
         <h2 className="cp-modal-title">¿Enviamos tu pedido?</h2>
         <p className="cp-modal-sub">Revisa el resumen antes de confirmar. Una vez enviado pasará directo a cocina.</p>
-
-        {/* Items */}
         <div className="cp-modal-items">
           <p className="cp-modal-items-label">Resumen</p>
           {itemsCarrito.map(item => (
@@ -701,20 +745,14 @@ export default function PortalClientes() {
             <span className="cp-modal-total-value">{fmt(total)}</span>
           </div>
         </div>
-
-        {/* Cliente */}
         <div className="cp-modal-cliente">
           {nombre && <span><strong>{nombre}</strong></span>}
           {nombre && mesa && <span style={{ color: "rgba(201,168,76,0.3)", margin: "0 6px" }}>·</span>}
-          {mesa   && <span>Mesa <strong>{mesa}</strong></span>}
-          {notas  && <div className="cp-modal-notas">"{notas}"</div>}
+          {mesa && <span>Mesa <strong>{mesa}</strong></span>}
+          {notas && <div className="cp-modal-notas">"{notas}"</div>}
         </div>
-
-        {/* Botones */}
         <div className="cp-modal-btns">
-          <button className="cp-btn-sec" onClick={() => setMostrarConfirmacion(false)}>
-            Cancelar
-          </button>
+          <button className="cp-btn-sec" onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
           <button className="cp-btn-primary" onClick={handleEnviar} disabled={enviando}>
             {enviando ? "Enviando..." : "Confirmar envío"}
           </button>
@@ -723,112 +761,149 @@ export default function PortalClientes() {
     </div>
   );
 
-  /* ── ÉXITO ── */
-if (pedidoEnviado && resultado?.ok) {
-  const trackingLink = `https://kitchen-manager-front.vercel.app/seguimiento/${resultado.pedidoId}`;
-  
-  return (
-    <>
-      <style>{styles}</style>
-      <div className="cp-root">
-        <NavBar />
-        <div className="cp-success">
-          <div className="cp-success-icon"><CheckIcon /></div>
-          <h2 className="cp-success-title">¡Pedido recibido!</h2>
-          <p className="cp-success-sub">
-            Tu pedido fue enviado a cocina. En breve estará listo.<br />
-            Gracias, <strong style={{ color: "var(--cream)" }}>{nombre}</strong>.
-          </p>
-          
-          {/* Mostrar número de pedido */}
-          {resultado.pedidoId && (
-            <span className="cp-success-num">
-              #{resultado.pedidoId.slice(-6).toUpperCase()}
-            </span>
-          )}
-
-          {/* Mostrar enlace de seguimiento */}
-          <div style={{
-            marginTop: "24px",
-            padding: "16px 20px",
-            background: "rgba(201,168,76,0.08)",
-            border: "1px solid rgba(201,168,76,0.2)",
-            borderRadius: "8px",
-            width: "100%",
-            maxWidth: "340px"
-          }}>
-            <div style={{
-              fontSize: "10px",
-              color: "var(--gold)",
-              letterSpacing: "2px",
-              textTransform: "uppercase",
-              marginBottom: "8px"
-            }}>
-              🔗 Sigue tu pedido aquí
-            </div>
-            <div style={{
-              fontSize: "11px",
-              color: "var(--muted)",
-              wordBreak: "break-all",
-              marginBottom: "12px",
-              background: "rgba(0,0,0,0.3)",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              fontFamily: "monospace"
-            }}>
-              {trackingLink}
-            </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(trackingLink);
-                alert("¡Enlace copiado! Puedes compartirlo con tus acompañantes.");
-              }}
-              style={{
-                width: "100%",
-                padding: "10px",
-                background: "rgba(201,168,76,0.15)",
-                border: "1px solid rgba(201,168,76,0.3)",
-                borderRadius: "6px",
-                color: "var(--gold)",
-                cursor: "pointer",
-                fontSize: "12px",
-                fontWeight: "600",
-                fontFamily: "'DM Sans', sans-serif",
-                transition: "all 0.2s"
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = "rgba(201,168,76,0.25)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "rgba(201,168,76,0.15)";
-              }}
-            >
-              📋 Copiar enlace de seguimiento
-            </button>
-            <p style={{
-              fontSize: "10px",
-              color: "var(--muted)",
-              marginTop: "10px",
-              textAlign: "center"
-            }}>
-              Comparte este enlace con quien quieras para que vea el estado del pedido
-            </p>
-          </div>
-
-          <button className="cp-btn-primary" style={{ maxWidth: "220px", marginTop: "8px" }} onClick={limpiar}>
-            Hacer otro pedido
-          </button>
-          <button className="cp-btn-sec" style={{ maxWidth: "220px" }} onClick={() => navigate("/")}>
-            ← Volver al inicio
-          </button>
+  const ModalDetalleProducto = () => (
+    <div className="cp-modal-overlay" onClick={() => setProductoSeleccionado(null)}>
+      <div className="cp-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: "450px" }}>
+        <div className="cp-modal-topline" />
+        
+        <div style={{ 
+          textAlign: "center", 
+          marginBottom: "8px",
+          fontSize: "9px",
+          letterSpacing: "3px",
+          color: "rgba(201,168,76,0.5)",
+          textTransform: "uppercase"
+        }}>
+          {productoSeleccionado.categoria}
         </div>
-        <Footer />
+        
+        <h2 className="cp-modal-title" style={{ marginBottom: "16px" }}>
+          {productoSeleccionado.nombre}
+        </h2>
+        
+        {productoSeleccionado.descripcion && (
+          <div className="cp-prod-detail-desc">
+            <div className="cp-prod-detail-desc-label">📋 Qué lleva</div>
+            <p className="cp-prod-detail-desc-text">{productoSeleccionado.descripcion}</p>
+          </div>
+        )}
+        
+        <div className="cp-prod-detail-price-box">
+          <span className="cp-prod-detail-price-label">PRECIO</span>
+          <span className="cp-prod-detail-price-value">{fmt(productoSeleccionado.precio)}</span>
+        </div>
+        
+        {!productoSeleccionado.disponible && (
+          <div className="cp-prod-detail-unavailable">
+            ⚠️ Producto no disponible actualmente
+          </div>
+        )}
+        
+        <div className="cp-modal-btns">
+          <button className="cp-btn-sec" onClick={() => setProductoSeleccionado(null)}>Volver</button>
+          {productoSeleccionado.disponible && (
+            <button className="cp-btn-primary" onClick={() => agregarAlCarrito(productoSeleccionado, 1)}>
+              Agregar al pedido
+            </button>
+          )}
+        </div>
+        
+        {carrito[productoSeleccionado.id] > 0 && (
+          <div className="cp-prod-detail-qty-hint">
+            Ya tienes {carrito[productoSeleccionado.id]} en tu pedido
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
-}
 
-  /* ── ERROR QR ── */
+  if (pedidoEnviado && resultado?.ok) {
+    const trackingLink = `https://kitchen-manager-front.vercel.app/seguimiento/${resultado.pedidoId}`;
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="cp-root">
+          <NavBar />
+          <div className="cp-success">
+            <div className="cp-success-icon"><CheckIcon /></div>
+            <h2 className="cp-success-title">¡Pedido recibido!</h2>
+            <p className="cp-success-sub">
+              Tu pedido fue enviado a cocina. En breve estará listo.<br />
+              Gracias, <strong style={{ color: "var(--cream)" }}>{nombre}</strong>.
+            </p>
+            {resultado.pedidoId && (
+              <span className="cp-success-num">#{resultado.pedidoId.slice(-6).toUpperCase()}</span>
+            )}
+            <div style={{
+              marginTop: "24px",
+              padding: "16px 20px",
+              background: "rgba(201,168,76,0.08)",
+              border: "1px solid rgba(201,168,76,0.2)",
+              borderRadius: "8px",
+              width: "100%",
+              maxWidth: "340px"
+            }}>
+              <div style={{
+                fontSize: "10px",
+                color: "var(--gold)",
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                marginBottom: "8px"
+              }}>
+                🔗 Sigue tu pedido aquí
+              </div>
+              <div style={{
+                fontSize: "11px",
+                color: "var(--muted)",
+                wordBreak: "break-all",
+                marginBottom: "12px",
+                background: "rgba(0,0,0,0.3)",
+                padding: "8px 12px",
+                borderRadius: "6px",
+                fontFamily: "monospace"
+              }}>
+                {trackingLink}
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(trackingLink);
+                  alert("¡Enlace copiado! Puedes compartirlo con tus acompañantes.");
+                }}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  background: "rgba(201,168,76,0.15)",
+                  border: "1px solid rgba(201,168,76,0.3)",
+                  borderRadius: "6px",
+                  color: "var(--gold)",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  fontFamily: "'DM Sans', sans-serif",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "rgba(201,168,76,0.25)"; }}
+                onMouseLeave={(e) => { e.target.style.background = "rgba(201,168,76,0.15)"; }}
+              >
+                📋 Copiar enlace de seguimiento
+              </button>
+              <p style={{ fontSize: "10px", color: "var(--muted)", marginTop: "10px", textAlign: "center" }}>
+                Comparte este enlace con quien quieras para que vea el estado del pedido
+              </p>
+            </div>
+            <button className="cp-btn-primary" style={{ maxWidth: "220px", marginTop: "8px" }} onClick={limpiar}>
+              Hacer otro pedido
+            </button>
+            <button className="cp-btn-sec" style={{ maxWidth: "220px" }} onClick={() => navigate("/")}>
+              ← Volver al inicio
+            </button>
+          </div>
+          <Footer />
+        </div>
+      </>
+    );
+  }
+
   if (errorQr) {
     return (
       <>
@@ -848,7 +923,6 @@ if (pedidoEnviado && resultado?.ok) {
     );
   }
 
-  /* ── VISTA PRINCIPAL ── */
   return (
     <>
       <style>{styles}</style>
@@ -863,7 +937,6 @@ if (pedidoEnviado && resultado?.ok) {
         </section>
 
         <div className="cp-layout">
-          {/* ── IZQUIERDA ── */}
           <div>
             <div className="cp-divider">
               <div className="cp-divider-line" />
@@ -924,17 +997,20 @@ if (pedidoEnviado && resultado?.ok) {
                   {menuFiltrado.map(prod => (
                     <div key={prod.id}
                       className={`cp-prod ${carrito[prod.id] ? "cp-prod-sel" : ""} ${!prod.disponible ? "cp-prod-agotado" : ""}`}
-                      onClick={() => agregar(prod)}
+                      onClick={() => abrirDetalle(prod)}
                     >
                       {!prod.disponible && <span className="cp-prod-agotado-badge">Agotado</span>}
                       <div className="cp-prod-cat">{prod.categoria}</div>
                       <div className="cp-prod-nombre">{prod.nombre}</div>
+                      {prod.descripcion && (
+                        <div className="cp-prod-hint">👆 Toca para ver qué lleva</div>
+                      )}
                       <div className="cp-prod-precio">{fmt(prod.precio)}</div>
                       {carrito[prod.id] && (
                         <div className="cp-qty" onClick={e => e.stopPropagation()}>
-                          <button className="cp-qty-btn" onClick={() => cambiar(prod.id, -1)}>−</button>
+                          <button className="cp-qty-btn" onClick={(e) => { e.stopPropagation(); cambiar(prod.id, -1); }}>−</button>
                           <span className="cp-qty-num">{carrito[prod.id]}</span>
-                          <button className="cp-qty-btn" onClick={() => cambiar(prod.id, +1)}>+</button>
+                          <button className="cp-qty-btn" onClick={(e) => { e.stopPropagation(); cambiar(prod.id, 1); }}>+</button>
                         </div>
                       )}
                     </div>
@@ -944,7 +1020,6 @@ if (pedidoEnviado && resultado?.ok) {
             )}
           </div>
 
-          {/* ── RESUMEN ── */}
           <div className="cp-resumen">
             <div className="cp-resumen-top">
               <div className="cp-resumen-titulo">Tu pedido</div>
@@ -975,7 +1050,7 @@ if (pedidoEnviado && resultado?.ok) {
             {(nombre || mesa) && (
               <div className="cp-cliente-mini">
                 {nombre && <span>— <strong>{nombre}</strong></span>}
-                {mesa   && <span>— <strong>{mesa}</strong></span>}
+                {mesa && <span>— <strong>{mesa}</strong></span>}
               </div>
             )}
 
@@ -985,7 +1060,6 @@ if (pedidoEnviado && resultado?.ok) {
             </div>
 
             <div className="cp-resumen-actions">
-              {/* onClick ahora abre el modal en vez de enviar directo */}
               <button
                 className="cp-btn-primary"
                 disabled={!puedeEnviar || enviando}
@@ -1002,7 +1076,7 @@ if (pedidoEnviado && resultado?.ok) {
                 <div className="cp-alerta cp-alerta-err">{resultado.msg}</div>
               )}
 
-             {!puedeEnviar && itemsCarrito.length > 0 && (
+              {!puedeEnviar && itemsCarrito.length > 0 && (
                 <p className="cp-resumen-hint">
                   {!nombre.trim() ? "Ingresa tu nombre" :
                    !mesa.trim() ? "Ingresa el número de mesa" :
@@ -1015,8 +1089,8 @@ if (pedidoEnviado && resultado?.ok) {
 
         <Footer />
 
-        {/* ── MODAL DE CONFIRMACIÓN (se renderiza encima de todo) ── */}
         {mostrarConfirmacion && <ModalConfirmacion />}
+        {productoSeleccionado && <ModalDetalleProducto />}
       </div>
     </>
   );
