@@ -474,12 +474,6 @@ export default function LandingPage() {
                 </svg>
                 Acceder al sistema
               </button>
-              <button className="lp-btn-ghost">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
-                </svg>
-                Ver demo
-              </button>
             </div>
           </div>
         </section>
@@ -629,12 +623,6 @@ export default function LandingPage() {
                   <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/>
                 </svg>
                 Ingresar al Sistema
-              </button>
-              <button className="lp-btn-secondary-lg">
-                <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, stroke: "currentColor", fill: "none", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }}>
-                  <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
-                </svg>
-                Ver demo en vivo
               </button>
             </div>
           </div>
