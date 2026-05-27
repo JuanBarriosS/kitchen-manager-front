@@ -190,11 +190,7 @@ const styles = `
   }
   .cp-prod-nombre {
     font-size: 13px; font-weight: 400; color: var(--cream);
-    margin-bottom: 4px; line-height: 1.35;
-  }
-  .cp-prod-hint {
-    font-size: 8px; color: rgba(201,168,76,0.5); margin-bottom: 6px;
-    letter-spacing: 0.5px;
+    margin-bottom: 8px; line-height: 1.35;
   }
   .cp-prod-precio {
     font-family: 'Cormorant Garamond', serif;
@@ -984,9 +980,6 @@ export default function PortalClientes() {
                       {!prod.disponible && <span className="cp-prod-agotado-badge">Agotado</span>}
                       <div className="cp-prod-cat">{prod.categoria}</div>
                       <div className="cp-prod-nombre">{prod.nombre}</div>
-                      {prod.descripcion && (
-                        <div className="cp-prod-hint">👆 Toca para ver qué lleva</div>
-                      )}
                       <div className="cp-prod-precio">{fmt(prod.precio)}</div>
                       {carrito[prod.id] && (
                         <div className="cp-qty" onClick={e => e.stopPropagation()}>
