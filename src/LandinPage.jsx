@@ -37,28 +37,9 @@ const styles = `
     align-items: center; 
     gap: 11px; 
     text-decoration: none;
-    transition: transform 0.2s ease;
   }
-  .lp-logo:hover {
-    transform: scale(1.02);
-  }
-  .lp-logo-mark {
-    width: 38px; height: 38px; background: linear-gradient(135deg, var(--gold), var(--gold-light));
-    border-radius: 9px; display: flex; align-items: center; justify-content: center;
-    font-size: 19px; line-height: 1; box-shadow: 0 2px 10px rgba(196,134,42,0.3);
-  }
-  .lp-logo-text {
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .lp-logo-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.35rem; font-weight: 600; color: var(--cream); letter-spacing: 0.02em;
-    line-height: 1;
-  }
-  .lp-logo-name span { color: var(--gold); }
-  .lp-logo-sub {
-    font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: rgba(240,235,225,0.35);
+  .lp-logo svg {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
   }
   .lp-nav-right { display: flex; align-items: center; gap: 1.5rem; }
   .lp-badge {
@@ -437,21 +418,34 @@ export default function LandingPage() {
       <style>{styles}</style>
       <div className="lp">
 
-        {/* NAV - LOGO CON MÁS VISIBILIDAD */}
+        {/* NAV - LOGO CON MÁS VISIBILIDAD (SIN CAMBIAR DISEÑO) */}
         <nav className="lp-nav">
-          <div className="lp-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-            <div className="lp-logo-mark">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0C0E14" strokeWidth="2">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                <circle cx="12" cy="12" r="3"/>
+          <div className="lp-logo">
+            <a className="lp-logo" href="#">
+              <svg width="200" height="52" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(2,4) scale(0.58)">
+                  <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" strokeWidth="1.5"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#C9A84C" strokeWidth="0.4" opacity="0.4"/>
+                  <g transform="rotate(-20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="3">
+                    <line x1="44" y1="14" x2="44" y2="35"/>
+                    <line x1="50" y1="11" x2="50" y2="35"/>
+                    <line x1="56" y1="14" x2="56" y2="35"/>
+                    <path d="M44 35 Q47 41 50 42 Q53 41 56 35"/>
+                    <line x1="50" y1="42" x2="50" y2="86"/>
+                  </g>
+                  <g transform="rotate(20,50,50)" stroke="#C9A84C" strokeLinecap="round" fill="none" strokeWidth="3">
+                    <path d="M50 11 Q58 30 54 44"/>
+                    <line x1="50" y1="11" x2="46" y2="44"/>
+                    <line x1="46" y1="44" x2="54" y2="44"/>
+                    <line x1="50" y1="46" x2="50" y2="86"/>
+                  </g>
+                </g>
+                <line x1="70" y1="12" x2="70" y2="68" stroke="#C9A84C" strokeWidth="0.8" opacity="0.5"/>
+                <text x="82" y="36" fontFamily="'Playfair Display','Georgia',serif" fontSize="26" fontWeight="400" letterSpacing="5" fill="#C9A84C">KITCHEN</text>
+                <line x1="82" y1="43" x2="282" y2="43" stroke="#C9A84C" strokeWidth="0.6" opacity="0.35"/>
+                <text x="83" y="58" fontFamily="'Playfair Display','Georgia',serif" fontSize="12" fontWeight="400" letterSpacing="8" fill="#F0EBE0" opacity="0.7">MANAGER</text>
               </svg>
-            </div>
-            <div className="lp-logo-text">
-              <div className="lp-logo-name">
-                KITCHEN<span> MANAGER</span>
-              </div>
-              <div className="lp-logo-sub">Sistema de gestión gastronómica</div>
-            </div>
+            </a>
           </div>
           <div className="lp-nav-right">
             <span className="lp-badge">v2.0 · Sistema Activo</span>
