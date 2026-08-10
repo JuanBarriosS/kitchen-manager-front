@@ -418,7 +418,7 @@ export default function LandingPage() {
       <style>{styles}</style>
       <div className="lp">
 
-        {/* NAV - LOGO CON MÁS VISIBILIDAD (SIN CAMBIAR DISEÑO) */}
+        {/* NAV - LOGO */}
         <nav className="lp-nav">
           <div className="lp-logo">
             <a className="lp-logo" href="#">
