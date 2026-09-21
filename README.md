@@ -1,4 +1,4 @@
-<div align="center"> hola
+<div align="center"> 
 
 # 🍽️ Kitchen Manager — Frontend
 ### *Interfaz de gestión para ghost kitchens*
