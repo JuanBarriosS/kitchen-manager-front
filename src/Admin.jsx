@@ -1456,6 +1456,14 @@ function PaginaVentas() {
   const ventasMesArr = ventas.filter(v => new Date(v.fecha) >= mes);
   const ticketProm   = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
 
+  const ticketProm = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
+
+  const mediana = (() => {
+    if (!ventasMesArr.length) return 0;
+    const sorted = [...ventasMesArr].map(v => v.total).sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  })();
   const inputFecha = {
     padding:"7px 12px", background:"#0C0E14", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"5px",
     color:"#F2EDE4", fontSize:"12px", fontFamily:"DM Sans, sans-serif", outline:"none", cursor:"pointer",
@@ -1470,6 +1478,7 @@ function PaginaVentas() {
           { label:"Ventas semana",   value: cargando ? "..." : fmt(ventasSemana) },
           { label:"Ventas mes",      value: cargando ? "..." : fmt(ventasMes) },
           { label:"Ticket promedio", value: cargando ? "..." : fmt(ticketProm) },
+          { label:"Mediana de venta",value: cargando ? "..." : fmt(mediana) },
         ].map((s, i) => (
           <div className="stat-card" key={i}><div className="stat-label">{s.label}</div><div className="stat-value" style={{ fontSize:"1.8rem" }}>{s.value}</div></div>
         ))}
