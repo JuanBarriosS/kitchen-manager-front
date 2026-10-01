@@ -1454,8 +1454,6 @@ function PaginaVentas() {
   const ventasSemana = ventas.filter(v => new Date(v.fecha) >= semana).reduce((a,v) => a + v.total, 0);
   const ventasMes    = ventas.filter(v => new Date(v.fecha) >= mes).reduce((a,v) => a + v.total, 0);
   const ventasMesArr = ventas.filter(v => new Date(v.fecha) >= mes);
-  const ticketProm   = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
-
   const ticketProm = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
 
   const mediana = (() => {
