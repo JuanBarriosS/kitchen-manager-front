@@ -1457,11 +1457,11 @@ function PaginaVentas() {
   const ticketProm = ventasMesArr.length ? ventasMes / ventasMesArr.length : 0;
 
   const mediana = (() => {
-    if (!ventasMesArr.length) return 0;
-    const sorted = [...ventasMesArr].map(v => v.total).sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  })();
+  if (!ventas.length) return 0;
+  const sorted = [...ventas].map(v => v.total).sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+})();
   const inputFecha = {
     padding:"7px 12px", background:"#0C0E14", border:"1px solid rgba(200,137,42,0.2)", borderRadius:"5px",
     color:"#F2EDE4", fontSize:"12px", fontFamily:"DM Sans, sans-serif", outline:"none", cursor:"pointer",
