@@ -1475,7 +1475,7 @@ function PaginaVentas() {
           { label:"Ventas hoy",      value: cargando ? "..." : fmt(ventasHoy) },
           { label:"Ventas semana",   value: cargando ? "..." : fmt(ventasSemana) },
           { label:"Ventas mes",      value: cargando ? "..." : fmt(ventasMes) },
-          { label:"Ticket promedio", value: cargando ? "..." : fmt(ticketProm) },
+          //{ label:"Ticket promedio", value: cargando ? "..." : fmt(ticketProm) },
           { label:"Mediana de venta",value: cargando ? "..." : fmt(mediana) },
         ].map((s, i) => (
           <div className="stat-card" key={i}><div className="stat-label">{s.label}</div><div className="stat-value" style={{ fontSize:"1.8rem" }}>{s.value}</div></div>
