@@ -1986,6 +1986,169 @@ const NAV = [
   { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
+// ── CHAT IA ───────────────────────────────────────────────────────────────
+function ChatIA() {
+  const [abierto, setAbierto]   = useState(false);
+  const [mensajes, setMensajes] = useState([
+    { rol: "bot", texto: "Hola, soy tu asistente de Kitchen Manager. Pregúntame sobre ventas, pedidos, platos o el rendimiento del negocio." }
+  ]);
+  const [input, setInput]       = useState("");
+  const [cargando, setCargando] = useState(false);
+  const bottomRef               = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes, abierto]);
+
+  const enviar = async () => {
+    const pregunta = input.trim();
+    if (!pregunta || cargando) return;
+    setInput("");
+    setMensajes(prev => [...prev, { rol: "user", texto: pregunta }]);
+    setCargando(true);
+    try {
+      const res  = await axios.post(`${BASE}/admin/chat/ask`,
+        { pregunta },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      const resp = res.data?.respuesta || "Sin respuesta.";
+      setMensajes(prev => [...prev, { rol: "bot", texto: resp }]);
+    } catch {
+      setMensajes(prev => [...prev, { rol: "bot", texto: "❌ Error al conectar con el asistente. Verifica que el backend esté activo." }]);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const sugerencias = [
+    "¿Cuánto vendimos en total?",
+    "¿Qué plato se vende más?",
+    "¿Cuál es el canal más rentable?",
+    "¿Cuántos pedidos están activos?",
+  ];
+
+  return (
+    <>
+      {/* Botón flotante */}
+      <button onClick={() => setAbierto(o => !o)} style={{
+        position:"fixed", bottom:"28px", right:"28px", zIndex:999,
+        width:"52px", height:"52px", borderRadius:"50%",
+        background:"linear-gradient(135deg,#C8892A,#E8A830)",
+        border:"none", cursor:"pointer", fontSize:"22px",
+        boxShadow:"0 4px 20px rgba(201,168,76,0.4)",
+        display:"flex", alignItems:"center", justifyContent:"center",
+        transition:"transform 0.2s",
+      }}>
+        {abierto ? "✕" : "✨"}
+      </button>
+
+      {/* Panel del chat */}
+      {abierto && (
+        <div style={{
+          position:"fixed", bottom:"92px", right:"28px", zIndex:998,
+          width:"360px", maxHeight:"520px",
+          background:"#10131C", border:"1px solid rgba(201,168,76,0.2)",
+          borderRadius:"14px", display:"flex", flexDirection:"column",
+          boxShadow:"0 8px 40px rgba(0,0,0,0.5)",
+          overflow:"hidden",
+        }}>
+          {/* Header */}
+          <div style={{
+            padding:"14px 18px", borderBottom:"1px solid rgba(255,255,255,0.07)",
+            background:"#141720", display:"flex", alignItems:"center", gap:"10px"
+          }}>
+            <span style={{ fontSize:"18px" }}>✨</span>
+            <div>
+              <div style={{ fontSize:"13px", fontWeight:"600", color:"#F2EDE4" }}>Asistente Kitchen Manager</div>
+              <div style={{ fontSize:"10px", color:"rgba(201,168,76,0.6)", letterSpacing:"1px" }}>Groq · Llama 3.1</div>
+            </div>
+          </div>
+
+          {/* Mensajes */}
+          <div style={{ flex:1, overflowY:"auto", padding:"14px", display:"flex", flexDirection:"column", gap:"10px" }}>
+            {mensajes.map((m, i) => (
+              <div key={i} style={{
+                display:"flex", justifyContent: m.rol === "user" ? "flex-end" : "flex-start"
+              }}>
+                <div style={{
+                  maxWidth:"85%", padding:"10px 14px", borderRadius:"10px",
+                  fontSize:"13px", lineHeight:"1.5",
+                  background: m.rol === "user"
+                    ? "linear-gradient(135deg,#C8892A,#E8A830)"
+                    : "rgba(255,255,255,0.05)",
+                  color: m.rol === "user" ? "#0C0E14" : "#F2EDE4",
+                  border: m.rol === "user" ? "none" : "1px solid rgba(255,255,255,0.08)",
+                  fontWeight: m.rol === "user" ? "500" : "400",
+                }}>
+                  {m.texto}
+                </div>
+              </div>
+            ))}
+            {cargando && (
+              <div style={{ display:"flex", justifyContent:"flex-start" }}>
+                <div style={{
+                  padding:"10px 14px", borderRadius:"10px", fontSize:"13px",
+                  background:"rgba(255,255,255,0.05)", color:"rgba(232,230,223,0.5)",
+                  border:"1px solid rgba(255,255,255,0.08)"
+                }}>
+                  Analizando datos...
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Sugerencias */}
+          {mensajes.length <= 1 && (
+            <div style={{ padding:"0 14px 10px", display:"flex", flexWrap:"wrap", gap:"6px" }}>
+              {sugerencias.map((s, i) => (
+                <button key={i} onClick={() => { setInput(s); }} style={{
+                  padding:"5px 10px", fontSize:"11px", borderRadius:"20px",
+                  background:"rgba(201,168,76,0.08)",
+                  border:"1px solid rgba(201,168,76,0.2)",
+                  color:"#C8892A", cursor:"pointer",
+                  fontFamily:"'DM Sans',sans-serif",
+                }}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div style={{
+            padding:"12px 14px", borderTop:"1px solid rgba(255,255,255,0.07)",
+            display:"flex", gap:"8px", background:"#141720"
+          }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && enviar()}
+              placeholder="Pregunta sobre el negocio..."
+              style={{
+                flex:1, padding:"9px 12px", borderRadius:"8px",
+                background:"rgba(255,255,255,0.04)",
+                border:"1px solid rgba(255,255,255,0.1)",
+                color:"#F2EDE4", fontSize:"13px",
+                fontFamily:"'DM Sans',sans-serif", outline:"none"
+              }}
+            />
+            <button onClick={enviar} disabled={cargando || !input.trim()} style={{
+              padding:"9px 14px", borderRadius:"8px",
+              background:"linear-gradient(135deg,#C8892A,#E8A830)",
+              border:"none", color:"#0C0E14", fontWeight:"700",
+              fontSize:"13px", cursor:"pointer",
+              opacity: cargando || !input.trim() ? 0.5 : 1,
+            }}>
+              ➤
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────
 export default function Admin() {
   const [activePage, setActivePage] = useState("inicio");
@@ -2085,6 +2248,7 @@ export default function Admin() {
           </div>
           <div className="content" key={activePage}>{renderPage()}</div>
         </main>
+        <ChatIA />
       </div>
     </>
   );
