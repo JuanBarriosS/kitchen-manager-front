@@ -1,6 +1,6 @@
 <div align="center"> 
   
-# 🍽️ Kitchen Manager — Frontend
+# Kitchen Manager — Frontend
 ### *Interfaz de gestión para ghost kitchens*
 
 Panel de administración, control de pedidos en tiempo real, portal QR para clientes y vista de cocina. Todo en un solo sistema desplegado en producción.
