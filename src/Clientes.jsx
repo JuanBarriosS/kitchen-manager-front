@@ -574,9 +574,11 @@ export default function PortalClientes() {
   const [meseroSeleccionado, setMeseroSeleccionado] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
+  // Estados para el modelo de optimización
   const [sugerenciaMesero, setSugerenciaMesero] = useState(null);
   const [cargandoSugerencia, setCargandoSugerencia] = useState(false);
   const [modoManual, setModoManual] = useState(false);
+  const [pedidosActivos, setPedidosActivos] = useState([]);
 
   useEffect(() => {
     const url = token
@@ -613,6 +615,16 @@ export default function PortalClientes() {
     axios.get("https://kitchen-manager-back.onrender.com/meseros/disponibles")
       .then(res => setMeseros(res.data))
       .catch(() => {});
+
+    // Traer todos los pedidos para calcular la carga actual de los meseros
+    axios.get("https://kitchen-manager-back.onrender.com/cocina/pedidos")
+      .then(res => {
+        const activos = res.data.filter(p => 
+          ["recibido", "preparacion", "listo"].includes(p.estado)
+        );
+        setPedidosActivos(activos);
+      })
+      .catch(() => {});
   }, [token]);
 
   const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
@@ -633,28 +645,64 @@ export default function PortalClientes() {
     }
     setCargandoSugerencia(true);
     
-    // Simulamos que el backend está calculando la logística con un pequeño delay de 600ms
     const timer = setTimeout(() => {
       if (meseros && meseros.length > 0) {
-        // LÓGICA DEL MODELO MATEMÁTICO EN EL FRONTEND
-        // Hacemos una rotación basada en el tiempo para simular la asignación de carga
-        const indiceMesero = Math.floor(Date.now() / 10000) % meseros.length;
-        const meseroOptimo = meseros[indiceMesero];
         
-        setSugerenciaMesero({
-          meseroNombre: meseroOptimo.nombre,
-          prioridad: 1
+        // === LÓGICA DEL MODELO MATEMÁTICO (Investigación de Operaciones) ===
+        
+        // 1. Calcular la carga de cada mesero
+        const cargaMeseros = meseros.map(m => {
+          // Contar cuántos pedidos activos tiene este mesero
+          const pedidosDelMesero = pedidosActivos.filter(p => p.meseroAsignado === m.nombre);
+          
+          // Calcular el peso por tiempo de espera (R2)
+          let cargaPonderada = 0;
+          pedidosDelMesero.forEach(p => {
+            const minutosEspera = p.fecha ? (new Date() - new Date(p.fecha)) / 60000 : 0;
+            const prioridad = minutosEspera < 15 ? 1 : (minutosEspera <= 30 ? 2 : 3);
+            cargaPonderada += prioridad;
+          });
+
+          return {
+            mesero: m,
+            pedidosCount: pedidosDelMesero.length,
+            cargaPonderada: cargaPonderada
+          };
         });
-        
-        if (!modoManual) {
-          setMeseroSeleccionado(meseroOptimo.nombre);
+
+        // 2. Aplicar Restricción R3 (Capacidad máxima de 4 mesas por mesero)
+        const disponibles = cargaMeseros.filter(c => c.pedidosCount < 4);
+
+        if (disponibles.length > 0) {
+          // 3. Función Objetivo: Asignar al que tenga la menor carga
+          // Desempatar por la carga ponderada (el que tenga pedidos más viejos pesa más)
+          disponibles.sort((a, b) => {
+            if (a.pedidosCount === b.pedidosCount) {
+              return a.cargaPonderada - b.cargaPonderada;
+            }
+            return a.pedidosCount - b.pedidosCount;
+          });
+
+          const mejorMesero = disponibles[0].mesero;
+
+          setSugerenciaMesero({
+            meseroNombre: mejorMesero.nombre,
+            prioridad: 1
+          });
+          
+          if (!modoManual) {
+            setMeseroSeleccionado(mejorMesero.nombre);
+          }
+        } else {
+          // Si todos tienen 4 o más pedidos, no hay capacidad
+          setSugerenciaMesero(null);
         }
       }
       setCargandoSugerencia(false);
-    }, 600);
+    }, 800);
 
     return () => clearTimeout(timer);
-  }, [itemsCarrito.length, meseros]);
+  }, [itemsCarrito.length, meseros, pedidosActivos, modoManual]);
 
   const abrirDetalle = (prod) => {
     if (!prod.disponible) return;
@@ -931,7 +979,7 @@ export default function PortalClientes() {
                     <div>
                       <div style={{ color: "var(--cream)", fontSize: "13px" }}>{sugerenciaMesero.meseroNombre}</div>
                       <div style={{ color: "var(--muted)", fontSize: "10px", letterSpacing: "1px" }}>
-                        Asignado por optimización de carga · prioridad {sugerenciaMesero.prioridad}
+                        Asignado por optimización de carga
                       </div>
                     </div>
                     <button className="cp-btn-sec" style={{ width: "auto", padding: "4px 10px", fontSize: "10px" }} onClick={() => setModoManual(true)}>
@@ -945,6 +993,12 @@ export default function PortalClientes() {
                       <option key={m.id} value={m.nombre}>{m.nombre}</option>
                     ))}
                   </select>
+                )}
+
+                {sugerenciaMesero === null && itemsCarrito.length > 0 && !modoManual && !cargandoSugerencia && (
+                  <div className="cp-alerta cp-alerta-err" style={{ marginTop: "8px" }}>
+                    No hay meseros con capacidad ahora. Tu pedido quedará en espera.
+                  </div>
                 )}
               </div>
 
