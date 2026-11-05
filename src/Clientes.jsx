@@ -574,6 +574,11 @@ export default function PortalClientes() {
   const [meseroSeleccionado, setMeseroSeleccionado] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
+  // ═══ NUEVO: estados para la asignación óptima de meseros ═══
+  const [sugerenciaMesero, setSugerenciaMesero] = useState(null);
+  const [cargandoSugerencia, setCargandoSugerencia] = useState(false);
+  const [modoManual, setModoManual] = useState(false);
+
   useEffect(() => {
     const url = token
       ? `https://kitchen-manager-back.onrender.com/menu/${token}`
@@ -611,8 +616,37 @@ export default function PortalClientes() {
       .catch(() => {});
   }, [token]);
 
+  // ═══ NUEVO: variables del carrito definidas ANTES del useEffect que las usa ═══
   const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
   const menuFiltrado = catActiva === "Todas" ? menu : menu.filter(p => p.categoria === catActiva);
+
+  const itemsCarrito = menu
+    .filter(p => carrito[p.id])
+    .map(p => ({ ...p, cantidad: carrito[p.id], subtotal: p.precio * carrito[p.id] }));
+
+  const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
+
+  // ═══ NUEVO: pide al backend la sugerencia de mesero con el modelo de IO ═══
+  useEffect(() => {
+    if (itemsCarrito.length === 0) {
+      setSugerenciaMesero(null);
+      setMeseroSeleccionado("");
+      setModoManual(false);
+      return;
+    }
+    setCargandoSugerencia(true);
+    axios.get("https://kitchen-manager-back.onrender.com/asignacion/sugerir")
+      .then(res => {
+        if (res.status === 200 && res.data) {
+          setSugerenciaMesero(res.data);
+          if (!modoManual) setMeseroSeleccionado(res.data.meseroNombre);
+        } else {
+          setSugerenciaMesero(null);
+        }
+      })
+      .catch(() => setSugerenciaMesero(null))
+      .finally(() => setCargandoSugerencia(false));
+  }, [itemsCarrito.length]); // solo cuando cambia el número de items
 
   const abrirDetalle = (prod) => {
     if (!prod.disponible) return;
@@ -635,13 +669,9 @@ export default function PortalClientes() {
   const limpiar = () => {
     setCarrito({}); setNombre(""); setMesa(""); setNotas("");
     setResultado(null); setPedidoEnviado(false); setMostrarConfirmacion(false);
+    setSugerenciaMesero(null); setModoManual(false); setMeseroSeleccionado("");
   };
 
-  const itemsCarrito = menu
-    .filter(p => carrito[p.id])
-    .map(p => ({ ...p, cantidad: carrito[p.id], subtotal: p.precio * carrito[p.id] }));
-
-  const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
   const puedeEnviar = itemsCarrito.length > 0 && nombre.trim() && mesa.trim() && meseroSeleccionado;
 
   const handleConfirmar = () => setMostrarConfirmacion(true);
@@ -657,7 +687,8 @@ export default function PortalClientes() {
         fuente: "Presencial",
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas, total,
-        meseroAsignado: meseroSeleccionado,
+        // ═══ MODIFICADO: solo enviamos mesero si el cliente lo cambió a mano ═══
+        meseroAsignado: modoManual ? meseroSeleccionado : null,
         itemsSeleccionados: itemsCarrito.map(i => ({
           id: i.id, nombre: i.nombre, categoria: i.categoria,
           precio: i.precio, cantidad: i.cantidad,
@@ -728,6 +759,15 @@ export default function PortalClientes() {
           {nombre && mesa && <span style={{ color: "rgba(201,168,76,0.3)", margin: "0 6px" }}>·</span>}
           {mesa && <span>Mesa <strong>{mesa}</strong></span>}
           {notas && <div className="cp-modal-notas">"{notas}"</div>}
+          {/* ═══ NUEVO: mostrar mesero asignado en la confirmación ═══ */}
+          {meseroSeleccionado && (
+            <div style={{ marginTop: "8px" }}>
+              Mesero: <strong>{meseroSeleccionado}</strong>
+              {!modoManual && sugerenciaMesero && (
+                <span style={{ color: "rgba(201,168,76,0.6)", fontSize: "10px" }}> (por optimización)</span>
+              )}
+            </div>
+          )}
         </div>
         <div className="cp-modal-btns">
           <button className="cp-btn-sec" onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
@@ -933,20 +973,59 @@ export default function PortalClientes() {
                   <input className="cp-input" type="text" placeholder="ej: Mesa 5" value={mesa} onChange={e => setMesa(e.target.value)} />
                 </div>
               </div>
+
+              {/* ═══ MODIFICADO: bloque "Mesero asignado" por optimización ═══ */}
               <div className="cp-field" style={{ gridColumn: "span 2" }}>
-                <label className="cp-label">Tu mesero</label>
-                <select
-                  className="cp-input"
-                  value={meseroSeleccionado}
-                  onChange={e => setMeseroSeleccionado(e.target.value)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <option value="">Seleccionar mesero...</option>
-                  {meseros.map(m => (
-                    <option key={m.id} value={m.nombre}>{m.nombre}</option>
-                  ))}
-                </select>
+                <label className="cp-label">Mesero asignado</label>
+
+                {cargandoSugerencia ? (
+                  <div className="cp-input" style={{ color: "var(--muted)", fontSize: "12px" }}>
+                    Calculando mesero óptimo...
+                  </div>
+                ) : sugerenciaMesero && !modoManual ? (
+                  <div style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    background: "rgba(201,168,76,0.06)",
+                    border: "0.5px solid rgba(201,168,76,0.3)",
+                    borderRadius: "6px", padding: "11px 14px",
+                  }}>
+                    <div>
+                      <div style={{ color: "var(--cream)", fontSize: "13px" }}>
+                        {sugerenciaMesero.meseroNombre}
+                      </div>
+                      <div style={{ color: "var(--muted)", fontSize: "10px", letterSpacing: "1px" }}>
+                        Asignado por optimización de carga · prioridad {sugerenciaMesero.prioridad}
+                      </div>
+                    </div>
+                    <button
+                      className="cp-btn-sec"
+                      style={{ width: "auto", padding: "4px 10px", fontSize: "10px" }}
+                      onClick={() => setModoManual(true)}
+                    >
+                      Cambiar
+                    </button>
+                  </div>
+                ) : (
+                  <select
+                    className="cp-input"
+                    value={meseroSeleccionado}
+                    onChange={e => setMeseroSeleccionado(e.target.value)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <option value="">Seleccionar mesero...</option>
+                    {meseros.map(m => (
+                      <option key={m.id} value={m.nombre}>{m.nombre}</option>
+                    ))}
+                  </select>
+                )}
+
+                {sugerenciaMesero === null && itemsCarrito.length > 0 && !modoManual && !cargandoSugerencia && (
+                  <div className="cp-alerta cp-alerta-err" style={{ marginTop: "8px" }}>
+                    No hay meseros con capacidad ahora. Tu pedido quedará en espera.
+                  </div>
+                )}
               </div>
+
               <div className="cp-field">
                 <label className="cp-label">Notas especiales</label>
                 <textarea className="cp-textarea" placeholder="Sin cebolla, extra salsa, alergia a..." value={notas} onChange={e => setNotas(e.target.value)} />
@@ -1055,7 +1134,7 @@ export default function PortalClientes() {
                 <p className="cp-resumen-hint">
                   {!nombre.trim() ? "Ingresa tu nombre" :
                    !mesa.trim() ? "Ingresa el número de mesa" :
-                   !meseroSeleccionado ? "Selecciona un mesero" : ""}
+                   !meseroSeleccionado ? "Esperando asignación de mesero" : ""}
                 </p>
               )}
             </div>
