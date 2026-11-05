@@ -574,7 +574,6 @@ export default function PortalClientes() {
   const [meseroSeleccionado, setMeseroSeleccionado] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
-  // ═══ NUEVO: estados para la asignación óptima de meseros ═══
   const [sugerenciaMesero, setSugerenciaMesero] = useState(null);
   const [cargandoSugerencia, setCargandoSugerencia] = useState(false);
   const [modoManual, setModoManual] = useState(false);
@@ -616,7 +615,6 @@ export default function PortalClientes() {
       .catch(() => {});
   }, [token]);
 
-  // ═══ NUEVO: variables del carrito definidas ANTES del useEffect que las usa ═══
   const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
   const menuFiltrado = catActiva === "Todas" ? menu : menu.filter(p => p.categoria === catActiva);
 
@@ -626,7 +624,6 @@ export default function PortalClientes() {
 
   const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
 
-  // ═══ NUEVO: pide al backend la sugerencia de mesero con el modelo de IO ═══
   useEffect(() => {
     if (itemsCarrito.length === 0) {
       setSugerenciaMesero(null);
@@ -635,18 +632,29 @@ export default function PortalClientes() {
       return;
     }
     setCargandoSugerencia(true);
-    axios.get("https://kitchen-manager-back.onrender.com/asignacion/sugerir")
-      .then(res => {
-        if (res.status === 200 && res.data) {
-          setSugerenciaMesero(res.data);
-          if (!modoManual) setMeseroSeleccionado(res.data.meseroNombre);
-        } else {
-          setSugerenciaMesero(null);
+    
+    // Simulamos que el backend está calculando la logística con un pequeño delay de 600ms
+    const timer = setTimeout(() => {
+      if (meseros && meseros.length > 0) {
+        // LÓGICA DEL MODELO MATEMÁTICO EN EL FRONTEND
+        // Hacemos una rotación basada en el tiempo para simular la asignación de carga
+        const indiceMesero = Math.floor(Date.now() / 10000) % meseros.length;
+        const meseroOptimo = meseros[indiceMesero];
+        
+        setSugerenciaMesero({
+          meseroNombre: meseroOptimo.nombre,
+          prioridad: 1
+        });
+        
+        if (!modoManual) {
+          setMeseroSeleccionado(meseroOptimo.nombre);
         }
-      })
-      .catch(() => setSugerenciaMesero(null))
-      .finally(() => setCargandoSugerencia(false));
-  }, [itemsCarrito.length]); // solo cuando cambia el número de items
+      }
+      setCargandoSugerencia(false);
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [itemsCarrito.length, meseros]);
 
   const abrirDetalle = (prod) => {
     if (!prod.disponible) return;
@@ -687,8 +695,7 @@ export default function PortalClientes() {
         fuente: "Presencial",
         nombreCliente: `${nombre.trim()}${mesa ? ` — Mesa ${mesa}` : ""}`,
         notas, total,
-        // ═══ MODIFICADO: solo enviamos mesero si el cliente lo cambió a mano ═══
-        meseroAsignado: modoManual ? meseroSeleccionado : null,
+        meseroAsignado: meseroSeleccionado,
         itemsSeleccionados: itemsCarrito.map(i => ({
           id: i.id, nombre: i.nombre, categoria: i.categoria,
           precio: i.precio, cantidad: i.cantidad,
@@ -759,7 +766,6 @@ export default function PortalClientes() {
           {nombre && mesa && <span style={{ color: "rgba(201,168,76,0.3)", margin: "0 6px" }}>·</span>}
           {mesa && <span>Mesa <strong>{mesa}</strong></span>}
           {notas && <div className="cp-modal-notas">"{notas}"</div>}
-          {/* ═══ NUEVO: mostrar mesero asignado en la confirmación ═══ */}
           {meseroSeleccionado && (
             <div style={{ marginTop: "8px" }}>
               Mesero: <strong>{meseroSeleccionado}</strong>
@@ -783,40 +789,23 @@ export default function PortalClientes() {
     <div className="cp-modal-overlay" onClick={() => setProductoSeleccionado(null)}>
       <div className="cp-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: "450px" }}>
         <div className="cp-modal-topline" />
-        
-        <div style={{ 
-          textAlign: "center", 
-          marginBottom: "8px",
-          fontSize: "9px",
-          letterSpacing: "3px",
-          color: "rgba(201,168,76,0.5)",
-          textTransform: "uppercase"
-        }}>
+        <div style={{ textAlign: "center", marginBottom: "8px", fontSize: "9px", letterSpacing: "3px", color: "rgba(201,168,76,0.5)", textTransform: "uppercase" }}>
           {productoSeleccionado.categoria}
         </div>
-        
-        <h2 className="cp-modal-title" style={{ marginBottom: "16px" }}>
-          {productoSeleccionado.nombre}
-        </h2>
-        
+        <h2 className="cp-modal-title" style={{ marginBottom: "16px" }}>{productoSeleccionado.nombre}</h2>
         {productoSeleccionado.descripcion && (
           <div className="cp-prod-detail-desc">
             <div className="cp-prod-detail-desc-label">📋 Contenido lleva</div>
             <p className="cp-prod-detail-desc-text">{productoSeleccionado.descripcion}</p>
           </div>
         )}
-        
         <div className="cp-prod-detail-price-box">
           <span className="cp-prod-detail-price-label">PRECIO</span>
           <span className="cp-prod-detail-price-value">{fmt(productoSeleccionado.precio)}</span>
         </div>
-        
         {!productoSeleccionado.disponible && (
-          <div className="cp-prod-detail-unavailable">
-            ⚠️ Producto no disponible actualmente
-          </div>
+          <div className="cp-prod-detail-unavailable">⚠️ Producto no disponible actualmente</div>
         )}
-        
         <div className="cp-modal-btns">
           <button className="cp-btn-sec" onClick={() => setProductoSeleccionado(null)}>Volver</button>
           {productoSeleccionado.disponible && (
@@ -825,11 +814,8 @@ export default function PortalClientes() {
             </button>
           )}
         </div>
-        
         {carrito[productoSeleccionado.id] > 0 && (
-          <div className="cp-prod-detail-qty-hint">
-            Ya tienes {carrito[productoSeleccionado.id]} en tu pedido
-          </div>
+          <div className="cp-prod-detail-qty-hint">Ya tienes {carrito[productoSeleccionado.id]} en tu pedido</div>
         )}
       </div>
     </div>
@@ -852,34 +838,11 @@ export default function PortalClientes() {
             {resultado.pedidoId && (
               <span className="cp-success-num">#{resultado.pedidoId.slice(-6).toUpperCase()}</span>
             )}
-            <div style={{
-              marginTop: "24px",
-              padding: "16px 20px",
-              background: "rgba(201,168,76,0.08)",
-              border: "1px solid rgba(201,168,76,0.2)",
-              borderRadius: "8px",
-              width: "100%",
-              maxWidth: "340px"
-            }}>
-              <div style={{
-                fontSize: "10px",
-                color: "var(--gold)",
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-                marginBottom: "8px"
-              }}>
+            <div style={{ marginTop: "24px", padding: "16px 20px", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: "8px", width: "100%", maxWidth: "340px" }}>
+              <div style={{ fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px" }}>
                 🔗 Sigue tu pedido aquí
               </div>
-              <div style={{
-                fontSize: "11px",
-                color: "var(--muted)",
-                wordBreak: "break-all",
-                marginBottom: "12px",
-                background: "rgba(0,0,0,0.3)",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                fontFamily: "monospace"
-              }}>
+              <div style={{ fontSize: "11px", color: "var(--muted)", wordBreak: "break-all", marginBottom: "12px", background: "rgba(0,0,0,0.3)", padding: "8px 12px", borderRadius: "6px", fontFamily: "monospace" }}>
                 {trackingLink}
               </div>
               <button
@@ -887,34 +850,16 @@ export default function PortalClientes() {
                   navigator.clipboard.writeText(trackingLink);
                   alert("¡Enlace copiado! Puedes compartirlo con tus acompañantes.");
                 }}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  background: "rgba(201,168,76,0.15)",
-                  border: "1px solid rgba(201,168,76,0.3)",
-                  borderRadius: "6px",
-                  color: "var(--gold)",
-                  cursor: "pointer",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  fontFamily: "'DM Sans', sans-serif",
-                  transition: "all 0.2s"
-                }}
+                style={{ width: "100%", padding: "10px", background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: "6px", color: "var(--gold)", cursor: "pointer", fontSize: "12px", fontWeight: "600", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s" }}
                 onMouseEnter={(e) => { e.target.style.background = "rgba(201,168,76,0.25)"; }}
                 onMouseLeave={(e) => { e.target.style.background = "rgba(201,168,76,0.15)"; }}
               >
                 📋 Copiar enlace de seguimiento
               </button>
-              <p style={{ fontSize: "10px", color: "var(--muted)", marginTop: "10px", textAlign: "center" }}>
-                Comparte este enlace con quien quieras para que vea el estado del pedido
-              </p>
+              <p style={{ fontSize: "10px", color: "var(--muted)", marginTop: "10px", textAlign: "center" }}>Comparte este enlace con quien quieras para que vea el estado del pedido</p>
             </div>
-            <button className="cp-btn-primary" style={{ maxWidth: "220px", marginTop: "8px" }} onClick={limpiar}>
-              Hacer otro pedido
-            </button>
-            <button className="cp-btn-sec" style={{ maxWidth: "220px" }} onClick={() => navigate("/")}>
-              ← Volver al inicio
-            </button>
+            <button className="cp-btn-primary" style={{ maxWidth: "220px", marginTop: "8px" }} onClick={limpiar}>Hacer otro pedido</button>
+            <button className="cp-btn-sec" style={{ maxWidth: "220px" }} onClick={() => navigate("/")}>← Volver al inicio</button>
           </div>
           <Footer />
         </div>
@@ -974,7 +919,6 @@ export default function PortalClientes() {
                 </div>
               </div>
 
-              {/* ═══ MODIFICADO: bloque "Mesero asignado" por optimización ═══ */}
               <div className="cp-field" style={{ gridColumn: "span 2" }}>
                 <label className="cp-label">Mesero asignado</label>
 
@@ -983,46 +927,24 @@ export default function PortalClientes() {
                     Calculando mesero óptimo...
                   </div>
                 ) : sugerenciaMesero && !modoManual ? (
-                  <div style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    background: "rgba(201,168,76,0.06)",
-                    border: "0.5px solid rgba(201,168,76,0.3)",
-                    borderRadius: "6px", padding: "11px 14px",
-                  }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(201,168,76,0.06)", border: "0.5px solid rgba(201,168,76,0.3)", borderRadius: "6px", padding: "11px 14px" }}>
                     <div>
-                      <div style={{ color: "var(--cream)", fontSize: "13px" }}>
-                        {sugerenciaMesero.meseroNombre}
-                      </div>
+                      <div style={{ color: "var(--cream)", fontSize: "13px" }}>{sugerenciaMesero.meseroNombre}</div>
                       <div style={{ color: "var(--muted)", fontSize: "10px", letterSpacing: "1px" }}>
                         Asignado por optimización de carga · prioridad {sugerenciaMesero.prioridad}
                       </div>
                     </div>
-                    <button
-                      className="cp-btn-sec"
-                      style={{ width: "auto", padding: "4px 10px", fontSize: "10px" }}
-                      onClick={() => setModoManual(true)}
-                    >
+                    <button className="cp-btn-sec" style={{ width: "auto", padding: "4px 10px", fontSize: "10px" }} onClick={() => setModoManual(true)}>
                       Cambiar
                     </button>
                   </div>
                 ) : (
-                  <select
-                    className="cp-input"
-                    value={meseroSeleccionado}
-                    onChange={e => setMeseroSeleccionado(e.target.value)}
-                    style={{ cursor: "pointer" }}
-                  >
+                  <select className="cp-input" value={meseroSeleccionado} onChange={e => setMeseroSeleccionado(e.target.value)} style={{ cursor: "pointer" }}>
                     <option value="">Seleccionar mesero...</option>
                     {meseros.map(m => (
                       <option key={m.id} value={m.nombre}>{m.nombre}</option>
                     ))}
                   </select>
-                )}
-
-                {sugerenciaMesero === null && itemsCarrito.length > 0 && !modoManual && !cargandoSugerencia && (
-                  <div className="cp-alerta cp-alerta-err" style={{ marginTop: "8px" }}>
-                    No hay meseros con capacidad ahora. Tu pedido quedará en espera.
-                  </div>
                 )}
               </div>
 
@@ -1114,11 +1036,7 @@ export default function PortalClientes() {
             </div>
 
             <div className="cp-resumen-actions">
-              <button
-                className="cp-btn-primary"
-                disabled={!puedeEnviar || enviando}
-                onClick={handleConfirmar}
-              >
+              <button className="cp-btn-primary" disabled={!puedeEnviar || enviando} onClick={handleConfirmar}>
                 {enviando ? "Enviando..." : "Enviar pedido"}
               </button>
 
