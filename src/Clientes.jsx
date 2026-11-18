@@ -357,7 +357,7 @@ const styles = `
   .cp-footer-sep {
     width: 40px; height: 0.5px; background: rgba(201,168,76,0.1);
   }
-  .cp-footer-manager {
+  .cp--manager {
     font-size: 7px; letter-spacing: 3px; text-transform: uppercase;
     color: rgba(240,235,224,0.1);
   }
@@ -1210,6 +1210,8 @@ export default function PortalClientes() {
         </div>
 
         <Footer />
+
+        {token && <ChatCliente token={token} menu={menu} onAgregar={agregarAlCarrito} />}
 
         {mostrarConfirmacion && <ModalConfirmacion />}
         {productoSeleccionado && <ModalDetalleProducto />}
