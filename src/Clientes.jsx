@@ -553,6 +553,7 @@ const CheckIcon = () => (
 );
 
 const fmt = (n) => `$${Number(n).toLocaleString("es-CO")}`;
+const BASE = "https://kitchen-manager-back.onrender.com";
 
 export default function PortalClientes() {
   const navigate = useNavigate();
