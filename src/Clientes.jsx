@@ -555,6 +555,101 @@ const CheckIcon = () => (
 const fmt = (n) => `$${Number(n).toLocaleString("es-CO")}`;
 const BASE = "https://kitchen-manager-back.onrender.com";
 
+function ChatCliente({ token, menu = [], onAgregar }) {
+  const [abierto, setAbierto]   = useState(false);
+  const [mensajes, setMensajes] = useState([
+    { rol: "bot", texto: "¡Hola! Cuéntame qué se te antoja y te recomiendo algo del menú." }
+  ]);
+  const [input, setInput]       = useState("");
+  const [cargando, setCargando] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes, abierto]);
+
+  const enviar = async () => {
+    const pregunta = input.trim();
+    if (!pregunta || cargando) return;
+    setInput("");
+    setMensajes(prev => [...prev, { rol: "user", texto: pregunta }]);
+    setCargando(true);
+    try {
+      const res = await fetch(`${BASE}/menu/${token}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pregunta }),
+      });
+      if (!res.ok) throw new Error();
+      const data  = await res.json();
+      const texto = data.respuesta || "No pude responder, intenta de nuevo.";
+      const sugeridos = menu.filter(p => texto.toLowerCase().includes(p.nombre.toLowerCase()));
+      setMensajes(prev => [...prev, { rol: "bot", texto, sugeridos }]);
+    } catch {
+      setMensajes(prev => [...prev, { rol: "bot", texto: "Ahora no puedo responder. Puedes revisar el menú y pedir normalmente." }]);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  return (
+    <>
+      <button onClick={() => setAbierto(o => !o)} style={{
+        position:"fixed", bottom:"20px", right:"20px", zIndex:150,
+        width:"52px", height:"52px", borderRadius:"50%", border:"none", cursor:"pointer",
+        background:"linear-gradient(135deg,#C9A84C,#E2C97E)", fontSize:"22px",
+        boxShadow:"0 4px 20px rgba(201,168,76,0.4)",
+      }}>{abierto ? "✕" : "✨"}</button>
+
+      {abierto && (
+        <div style={{
+          position:"fixed", bottom:"84px", right:"20px", zIndex:149,
+          width:"min(360px, calc(100vw - 40px))", maxHeight:"70vh",
+          background:"#10131C", border:"1px solid rgba(201,168,76,0.2)",
+          borderRadius:"14px", display:"flex", flexDirection:"column", overflow:"hidden",
+        }}>
+          <div style={{ padding:"14px 18px", background:"#141720", color:"#F0EBE0", fontSize:"13px", fontWeight:"600" }}>
+            ¿Qué te recomendamos hoy?
+          </div>
+
+          <div style={{ flex:1, overflowY:"auto", padding:"14px", display:"flex", flexDirection:"column", gap:"10px" }}>
+            {mensajes.map((m, i) => (
+              <div key={i} style={{ alignSelf: m.rol === "user" ? "flex-end" : "flex-start", maxWidth:"85%" }}>
+                <div style={{
+                  padding:"10px 14px", borderRadius:"10px", fontSize:"13px", lineHeight:"1.5",
+                  background: m.rol === "user" ? "linear-gradient(135deg,#C9A84C,#E2C97E)" : "rgba(255,255,255,0.05)",
+                  color: m.rol === "user" ? "#0C0F1A" : "#F0EBE0",
+                }}>{m.texto}</div>
+                {m.sugeridos?.map(p => (
+                  <button key={p.id} onClick={() => onAgregar(p)} style={{
+                    marginTop:"6px", marginRight:"6px", padding:"5px 10px", fontSize:"11px",
+                    borderRadius:"20px", cursor:"pointer", color:"#C9A84C",
+                    background:"rgba(201,168,76,0.08)", border:"1px solid rgba(201,168,76,0.25)",
+                  }}>+ Agregar {p.nombre}</button>
+                ))}
+              </div>
+            ))}
+            {cargando && <div style={{ color:"rgba(240,235,224,0.5)", fontSize:"13px" }}>Pensando...</div>}
+            <div ref={bottomRef} />
+          </div>
+
+          <div style={{ padding:"12px", display:"flex", gap:"8px", background:"#141720" }}>
+            <input value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && enviar()}
+              placeholder="Ej: algo ligero sin carne"
+              style={{ flex:1, padding:"9px 12px", borderRadius:"8px", background:"rgba(255,255,255,0.04)",
+                border:"1px solid rgba(255,255,255,0.1)", color:"#F0EBE0", fontSize:"13px", outline:"none" }} />
+            <button onClick={enviar} disabled={cargando || !input.trim()} style={{
+              padding:"9px 14px", borderRadius:"8px", border:"none", fontWeight:"700", cursor:"pointer",
+              background:"linear-gradient(135deg,#C9A84C,#E2C97E)", color:"#0C0F1A",
+              opacity: cargando || !input.trim() ? 0.5 : 1 }}>➤</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function PortalClientes() {
   const navigate = useNavigate();
   const { token } = useParams();
