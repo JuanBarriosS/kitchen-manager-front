@@ -1900,6 +1900,34 @@ function PaginaPrediccion() {
   );
 }
 
+// ── PÁGINA VISUALIZACIÓN POWER BI ──────────────────────────────────────────
+function PaginaVisualizacion() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 150px)", width: "100%" }}>
+      <div className="page-header" style={{ marginBottom: "16px" }}>
+        <div className="page-title">VISUALIZACIÓN DE DATOS</div>
+        <div className="page-subtitle">Dashboard integrado de Power BI</div>
+      </div>
+      <div className="section-card" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div className="section-card-header">
+          <div className="section-card-title">KITCHEN MANAGER - REPORTE</div>
+        </div>
+        <div style={{ flex: 1, position: "relative", background: "#000" }}>
+          <iframe
+            title="kitchen ventas"
+            width="100%"
+            height="100%"
+            src="https://app.powerbi.com/view?r=eyJrIjoiZGU3NDdiOGYtNTUzYi00ODc2LThkOTItNTQzZWU3MmMwYmEwIiwidCI6ImVhNjQ5ZTUwLTI3ZDItNDMxOC05Y2I5LTJmY2ZmZTE2ZmQ0MSIsImMiOjR9"
+            frameBorder="0"
+            allowFullScreen={true}
+            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── NAV e ICONOS ──────────────────────────────────────────────────────────
 const LogoutIcon = () => (
   <svg style={{ width: "14px", height: "14px" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1974,16 +2002,26 @@ const EmpleadoIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
+// Icono para Power BI
+const PowerBIIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <rect x="3" y="12" width="4" height="8" rx="1"/>
+    <rect x="10" y="6" width="4" height="14" rx="1"/>
+    <rect x="17" y="9" width="4" height="11" rx="1"/>
+  </svg>
+);
+
 const NAV = [
-  { key:"inicio",     label:"Inicio",                icon: InicioIcon,     section:"GENERAL" },
-  { key:"menu",       label:"Gestión del Menú",      icon: MenuIcon,       section:"OPERACIONES" },
-  { key:"pedidos",    label:"Panel de Pedidos",      icon: PedidosIcon,    section:"OPERACIONES" },
-  { key:"qrs",        label:"Códigos QR",            icon: QrsIcon,        section:"OPERACIONES" },
-  { key:"ventas",     label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
-  { key:"prediccion", label:"Predicción IA",         icon: PlatosIcon,     section:"REPORTES" },
-  { key:"platos",     label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
-  { key:"empleados",  label:"Meseros",               icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
-  { key:"usuarios",   label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
+  { key:"inicio",         label:"Inicio",                icon: InicioIcon,     section:"GENERAL" },
+  { key:"menu",           label:"Gestión del Menú",      icon: MenuIcon,       section:"OPERACIONES" },
+  { key:"pedidos",        label:"Panel de Pedidos",      icon: PedidosIcon,    section:"OPERACIONES" },
+  { key:"qrs",            label:"Códigos QR",            icon: QrsIcon,        section:"OPERACIONES" },
+  { key:"ventas",         label:"Historial Ventas",      icon: VentasIcon,     section:"REPORTES" },
+  { key:"prediccion",     label:"Predicción IA",         icon: PlatosIcon,     section:"REPORTES" },
+  { key:"platos",         label:"Análisis de Platos",    icon: PlatosIcon,     section:"REPORTES" },
+  { key:"visualizacion",  label:"Visualización de Datos",icon: PowerBIIcon,    section:"REPORTES" }, // NUEVA PESTAÑA
+  { key:"empleados",      label:"Meseros",               icon: EmpleadoIcon,   section:"CONFIGURACIÓN" },
+  { key:"usuarios",       label:"Usuarios",              icon: UsuariosIcon,   section:"CONFIGURACIÓN" },
 ];
 
 // ── CHAT IA ───────────────────────────────────────────────────────────────
@@ -2157,16 +2195,17 @@ export default function Admin() {
 
   const renderPage = () => {
     switch (activePage) {
-      case "inicio":     return <PaginaInicio username={username} />;
-      case "menu":       return <PaginaMenu />;
-      case "pedidos":    return <PaginaPedidos />;
-      case "qrs":        return <PaginaQRs />;
-      case "ventas":     return <PaginaVentas />;
-      case "prediccion": return <PaginaPrediccion />;
-      case "empleados":  return <PaginaEmpleados />;
-      case "usuarios":   return <PaginaUsuarios />;
-      case "platos":     return <PaginaPlatos />;
-      default:           return <PaginaInicio username={username} />;
+      case "inicio":         return <PaginaInicio username={username} />;
+      case "menu":           return <PaginaMenu />;
+      case "pedidos":        return <PaginaPedidos />;
+      case "qrs":            return <PaginaQRs />;
+      case "ventas":         return <PaginaVentas />;
+      case "prediccion":     return <PaginaPrediccion />;
+      case "visualizacion":  return <PaginaVisualizacion />; // NUEVO CASO
+      case "empleados":      return <PaginaEmpleados />;
+      case "usuarios":       return <PaginaUsuarios />;
+      case "platos":         return <PaginaPlatos />;
+      default:               return <PaginaInicio username={username} />;
     }
   };
 
