@@ -715,9 +715,10 @@ export default function PortalClientes() {
     // Traer todos los pedidos para calcular la carga actual de los meseros
     axios.get("https://kitchen-manager-back.onrender.com/cocina/pedidos")
       .then(res => {
-        const activos = res.data.filter(p => 
-          ["recibido", "preparacion", "listo"].includes(p.estado)
-        );
+        // AJUSTE: normaliza el estado para tolerar mayúsculas/formatos del backend
+        const ACTIVOS = ["recibido", "preparacion", "en_preparacion", "preparando", "listo", "pendiente"];
+        const norm = (s) => String(s || "").trim().toLowerCase();
+        const activos = res.data.filter(p => ACTIVOS.includes(norm(p.estado)));
         setPedidosActivos(activos);
       })
       .catch(() => {});
@@ -746,10 +747,16 @@ export default function PortalClientes() {
         
         // === LÓGICA DEL MODELO MATEMÁTICO (Investigación de Operaciones) ===
         
+        // AJUSTE: normaliza nombres (tildes, mayúsculas, espacios) para que el match no falle
+        const norm = (s) => String(s || "").trim().toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
         // 1. Calcular la carga de cada mesero
         const cargaMeseros = meseros.map(m => {
           // Contar cuántos pedidos activos tiene este mesero
-          const pedidosDelMesero = pedidosActivos.filter(p => p.meseroAsignado === m.nombre);
+          const pedidosDelMesero = pedidosActivos.filter(
+            p => norm(p.meseroAsignado) === norm(m.nombre)
+          );
           
           // Calcular el peso por tiempo de espera (R2)
           let cargaPonderada = 0;
@@ -772,11 +779,11 @@ export default function PortalClientes() {
         if (disponibles.length > 0) {
           // 3. Función Objetivo: Asignar al que tenga la menor carga
           // Desempatar por la carga ponderada (el que tenga pedidos más viejos pesa más)
+          // AJUSTE: desempate final determinista por nombre para que no dependa del orden del array
           disponibles.sort((a, b) => {
-            if (a.pedidosCount === b.pedidosCount) {
-              return a.cargaPonderada - b.cargaPonderada;
-            }
-            return a.pedidosCount - b.pedidosCount;
+            if (a.pedidosCount !== b.pedidosCount) return a.pedidosCount - b.pedidosCount;
+            if (a.cargaPonderada !== b.cargaPonderada) return a.cargaPonderada - b.cargaPonderada;
+            return a.mesero.nombre.localeCompare(b.mesero.nombre);
           });
 
           const mejorMesero = disponibles[0].mesero;
@@ -849,6 +856,14 @@ export default function PortalClientes() {
       const pedidoId = res.data?.id || res.data?.pedidoId || "";
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
+
+      // AJUSTE: recarga pedidos activos para que la próxima asignación ya cuente este pedido
+      try {
+        const refresco = await axios.get("https://kitchen-manager-back.onrender.com/cocina/pedidos");
+        const ACTIVOS = ["recibido", "preparacion", "en_preparacion", "preparando", "listo", "pendiente"];
+        const norm = (s) => String(s || "").trim().toLowerCase();
+        setPedidosActivos(refresco.data.filter(p => ACTIVOS.includes(norm(p.estado))));
+      } catch (_) {}
     } catch (error) {
       setResultado({ ok: false, msg: "Error al enviar el pedido. Intenta de nuevo." });
       console.error(error);
