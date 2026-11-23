@@ -555,24 +555,35 @@ const CheckIcon = () => (
 const fmt = (n) => `$${Number(n).toLocaleString("es-CO")}`;
 const BASE = "https://kitchen-manager-back.onrender.com";
 
-// === Helpers del modelo (localStorage) ===
+// ===== MODELO DE ASIGNACIÓN (memoria + localStorage, sin expiración) =====
 const norm = (s) => String(s || "").trim().toLowerCase()
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const LS_KEY = "km_asignaciones";
-const DOS_HORAS = 2 * 60 * 60 * 1000;
+
+const LS_KEY = "km_asignaciones_v2";
+
+// Memoria en módulo: sobrevive aunque localStorage esté bloqueado
+let MEM_ASIG = [];
+
 const leerAsignaciones = () => {
+  // 1) intenta localStorage
   try {
-    const raw = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-    const ahora = Date.now();
-    return raw.filter(a => ahora - a.fecha < DOS_HORAS);
-  } catch { return []; }
-};
-const guardarAsignacion = (mesero) => {
-  try {
-    const actuales = leerAsignaciones();
-    actuales.push({ mesero, fecha: Date.now() });
-    localStorage.setItem(LS_KEY, JSON.stringify(actuales));
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length >= MEM_ASIG.length) {
+        MEM_ASIG = parsed;
+      }
+    }
   } catch {}
+  // 2) devuelve SIEMPRE lo que hay en memoria (lo más reciente)
+  return MEM_ASIG;
+};
+
+const guardarAsignacion = (mesero) => {
+  const ahora = Date.now();
+  MEM_ASIG = [...leerAsignaciones(), { mesero, fecha: ahora }];
+  try { localStorage.setItem(LS_KEY, JSON.stringify(MEM_ASIG)); } catch {}
+  return MEM_ASIG;
 };
 
 function ChatCliente({ token, menu = [], onAgregar }) {
@@ -694,6 +705,7 @@ export default function PortalClientes() {
   const [sugerenciaMesero, setSugerenciaMesero] = useState(null);
   const [cargandoSugerencia, setCargandoSugerencia] = useState(false);
   const [modoManual, setModoManual] = useState(false);
+  const [tick, setTick] = useState(0); // fuerza recálculo del modelo
 
   useEffect(() => {
     const url = token
@@ -730,9 +742,6 @@ export default function PortalClientes() {
     axios.get("https://kitchen-manager-back.onrender.com/meseros/disponibles")
       .then(res => setMeseros(res.data))
       .catch(() => {});
-
-    // Limpia asignaciones viejas al cargar
-    leerAsignaciones();
   }, [token]);
 
   const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
@@ -744,6 +753,7 @@ export default function PortalClientes() {
 
   const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
 
+  // === MODELO DE ASIGNACIÓN ===
   useEffect(() => {
     if (itemsCarrito.length === 0) {
       setSugerenciaMesero(null);
@@ -755,11 +765,9 @@ export default function PortalClientes() {
 
     const timer = setTimeout(() => {
       if (meseros && meseros.length > 0) {
+        const asignaciones = leerAsignaciones(); // memoria + localStorage
 
-        // === MODELO DE ASIGNACIÓN (carga local en localStorage) ===
-        const asignaciones = leerAsignaciones();
-
-        // 1. Calcular la carga de cada mesero
+        // 1. Carga por mesero
         const cargaMeseros = meseros.map(m => {
           const pedidosDelMesero = asignaciones.filter(a => norm(a.mesero) === norm(m.nombre));
           return {
@@ -769,11 +777,11 @@ export default function PortalClientes() {
           };
         });
 
-        // 2. Restricción R3: capacidad máxima 4 por mesero
+        // 2. Restricción: capacidad 4
         const disponibles = cargaMeseros.filter(c => c.pedidosCount < 4);
 
         if (disponibles.length > 0) {
-          // 3. Función objetivo: menor carga; desempate alfabético determinista
+          // 3. Menor carga; desempate alfabético determinista
           disponibles.sort((a, b) => {
             if (a.pedidosCount !== b.pedidosCount) return a.pedidosCount - b.pedidosCount;
             if (a.cargaPonderada !== b.cargaPonderada) return a.cargaPonderada - b.cargaPonderada;
@@ -782,23 +790,17 @@ export default function PortalClientes() {
 
           const mejorMesero = disponibles[0].mesero;
 
-          setSugerenciaMesero({
-            meseroNombre: mejorMesero.nombre,
-            prioridad: 1
-          });
-
-          if (!modoManual) {
-            setMeseroSeleccionado(mejorMesero.nombre);
-          }
+          setSugerenciaMesero({ meseroNombre: mejorMesero.nombre, prioridad: 1 });
+          if (!modoManual) setMeseroSeleccionado(mejorMesero.nombre);
         } else {
           setSugerenciaMesero(null);
         }
       }
       setCargandoSugerencia(false);
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
-  }, [itemsCarrito.length, meseros, modoManual]);
+  }, [itemsCarrito.length, meseros, modoManual, tick]);
 
   const abrirDetalle = (prod) => {
     if (!prod.disponible) return;
@@ -850,8 +852,9 @@ export default function PortalClientes() {
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
 
-      // Guarda la asignación localmente para que el modelo la cuente después
+      // Guarda asignación + fuerza recálculo inmediato
       guardarAsignacion(meseroSeleccionado);
+      setTick(t => t + 1);
     } catch (error) {
       setResultado({ ok: false, msg: "Error al enviar el pedido. Intenta de nuevo." });
       console.error(error);
