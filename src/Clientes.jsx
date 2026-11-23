@@ -555,35 +555,32 @@ const CheckIcon = () => (
 const fmt = (n) => `$${Number(n).toLocaleString("es-CO")}`;
 const BASE = "https://kitchen-manager-back.onrender.com";
 
-// ===== MODELO DE ASIGNACIÓN (memoria + localStorage, sin expiración) =====
+// ===== MODELO DE ASIGNACIÓN (memoria + localStorage + sessionStorage) =====
 const norm = (s) => String(s || "").trim().toLowerCase()
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const LS_KEY = "km_asignaciones_v2";
-
-// Memoria en módulo: sobrevive aunque localStorage esté bloqueado
+const LS_KEY = "km_asignaciones_v3";
 let MEM_ASIG = [];
 
 const leerAsignaciones = () => {
-  // 1) intenta localStorage
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length >= MEM_ASIG.length) {
-        MEM_ASIG = parsed;
-      }
-    }
-  } catch {}
-  // 2) devuelve SIEMPRE lo que hay en memoria (lo más reciente)
+  let desdeLS = [];
+  let desdeSS = [];
+  try { const r = localStorage.getItem(LS_KEY); if (r) desdeLS = JSON.parse(r) || []; } catch {}
+  try { const r = sessionStorage.getItem(LS_KEY); if (r) desdeSS = JSON.parse(r) || []; } catch {}
+
+  const candidatos = [MEM_ASIG, desdeLS, desdeSS].filter(Array.isArray);
+  MEM_ASIG = candidatos.reduce((a, b) => (b.length > a.length ? b : a), []);
   return MEM_ASIG;
 };
 
 const guardarAsignacion = (mesero) => {
-  const ahora = Date.now();
-  MEM_ASIG = [...leerAsignaciones(), { mesero, fecha: ahora }];
-  try { localStorage.setItem(LS_KEY, JSON.stringify(MEM_ASIG)); } catch {}
-  return MEM_ASIG;
+  const base = leerAsignaciones();
+  const nueva = [...base, { mesero, fecha: Date.now() }];
+  MEM_ASIG = nueva;
+  const json = JSON.stringify(nueva);
+  try { localStorage.setItem(LS_KEY, json); } catch {}
+  try { sessionStorage.setItem(LS_KEY, json); } catch {}
+  return nueva;
 };
 
 function ChatCliente({ token, menu = [], onAgregar }) {
@@ -705,7 +702,7 @@ export default function PortalClientes() {
   const [sugerenciaMesero, setSugerenciaMesero] = useState(null);
   const [cargandoSugerencia, setCargandoSugerencia] = useState(false);
   const [modoManual, setModoManual] = useState(false);
-  const [tick, setTick] = useState(0); // fuerza recálculo del modelo
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const url = token
@@ -753,7 +750,7 @@ export default function PortalClientes() {
 
   const total = itemsCarrito.reduce((acc, i) => acc + i.subtotal, 0);
 
-  // === MODELO DE ASIGNACIÓN ===
+  // === MODELO DE ASIGNACIÓN (con desempate aleatorio) ===
   useEffect(() => {
     if (itemsCarrito.length === 0) {
       setSugerenciaMesero(null);
@@ -761,45 +758,38 @@ export default function PortalClientes() {
       setModoManual(false);
       return;
     }
+    if (!meseros || meseros.length === 0) return;
+
     setCargandoSugerencia(true);
 
-    const timer = setTimeout(() => {
-      if (meseros && meseros.length > 0) {
-        const asignaciones = leerAsignaciones(); // memoria + localStorage
+    const asignaciones = leerAsignaciones();
 
-        // 1. Carga por mesero
-        const cargaMeseros = meseros.map(m => {
-          const pedidosDelMesero = asignaciones.filter(a => norm(a.mesero) === norm(m.nombre));
-          return {
-            mesero: m,
-            pedidosCount: pedidosDelMesero.length,
-            cargaPonderada: pedidosDelMesero.length
-          };
-        });
+    const cargaMeseros = meseros.map(m => {
+      const pedidos = asignaciones.filter(a => norm(a.mesero) === norm(m.nombre));
+      return {
+        mesero: m,
+        pedidosCount: pedidos.length,
+        cargaPonderada: pedidos.length,
+      };
+    });
 
-        // 2. Restricción: capacidad 4
-        const disponibles = cargaMeseros.filter(c => c.pedidosCount < 4);
+    const disponibles = cargaMeseros.filter(c => c.pedidosCount < 4);
 
-        if (disponibles.length > 0) {
-          // 3. Menor carga; desempate alfabético determinista
-          disponibles.sort((a, b) => {
-            if (a.pedidosCount !== b.pedidosCount) return a.pedidosCount - b.pedidosCount;
-            if (a.cargaPonderada !== b.cargaPonderada) return a.cargaPonderada - b.cargaPonderada;
-            return a.mesero.nombre.localeCompare(b.mesero.nombre);
-          });
+    if (disponibles.length > 0) {
+      disponibles.sort((a, b) => {
+        if (a.pedidosCount !== b.pedidosCount) return a.pedidosCount - b.pedidosCount;
+        if (a.cargaPonderada !== b.cargaPonderada) return a.cargaPonderada - b.cargaPonderada;
+        // Desempate aleatorio: evita que siempre caiga en el mismo orden
+        return Math.random() - 0.5;
+      });
 
-          const mejorMesero = disponibles[0].mesero;
-
-          setSugerenciaMesero({ meseroNombre: mejorMesero.nombre, prioridad: 1 });
-          if (!modoManual) setMeseroSeleccionado(mejorMesero.nombre);
-        } else {
-          setSugerenciaMesero(null);
-        }
-      }
-      setCargandoSugerencia(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
+      const mejor = disponibles[0].mesero;
+      setSugerenciaMesero({ meseroNombre: mejor.nombre, prioridad: 1 });
+      if (!modoManual) setMeseroSeleccionado(mejor.nombre);
+    } else {
+      setSugerenciaMesero(null);
+    }
+    setCargandoSugerencia(false);
   }, [itemsCarrito.length, meseros, modoManual, tick]);
 
   const abrirDetalle = (prod) => {
@@ -833,6 +823,11 @@ export default function PortalClientes() {
   const handleEnviar = async () => {
     setMostrarConfirmacion(false);
     setEnviando(true); setResultado(null);
+
+    // Guarda asignación ANTES del POST (no depende de la respuesta del backend)
+    guardarAsignacion(meseroSeleccionado);
+    setTick(t => t + 1);
+
     try {
       const url = token
         ? `https://kitchen-manager-back.onrender.com/menu/${token}/pedido`
@@ -851,10 +846,6 @@ export default function PortalClientes() {
       const pedidoId = res.data?.id || res.data?.pedidoId || "";
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
-
-      // Guarda asignación + fuerza recálculo inmediato
-      guardarAsignacion(meseroSeleccionado);
-      setTick(t => t + 1);
     } catch (error) {
       setResultado({ ok: false, msg: "Error al enviar el pedido. Intenta de nuevo." });
       console.error(error);
