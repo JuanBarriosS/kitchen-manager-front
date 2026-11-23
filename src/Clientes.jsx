@@ -555,6 +555,26 @@ const CheckIcon = () => (
 const fmt = (n) => `$${Number(n).toLocaleString("es-CO")}`;
 const BASE = "https://kitchen-manager-back.onrender.com";
 
+// === Helpers del modelo (localStorage) ===
+const norm = (s) => String(s || "").trim().toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const LS_KEY = "km_asignaciones";
+const DOS_HORAS = 2 * 60 * 60 * 1000;
+const leerAsignaciones = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+    const ahora = Date.now();
+    return raw.filter(a => ahora - a.fecha < DOS_HORAS);
+  } catch { return []; }
+};
+const guardarAsignacion = (mesero) => {
+  try {
+    const actuales = leerAsignaciones();
+    actuales.push({ mesero, fecha: Date.now() });
+    localStorage.setItem(LS_KEY, JSON.stringify(actuales));
+  } catch {}
+};
+
 function ChatCliente({ token, menu = [], onAgregar }) {
   const [abierto, setAbierto]   = useState(false);
   const [mensajes, setMensajes] = useState([
@@ -674,7 +694,6 @@ export default function PortalClientes() {
   const [sugerenciaMesero, setSugerenciaMesero] = useState(null);
   const [cargandoSugerencia, setCargandoSugerencia] = useState(false);
   const [modoManual, setModoManual] = useState(false);
-  const [pedidosActivos, setPedidosActivos] = useState([]);
 
   useEffect(() => {
     const url = token
@@ -712,16 +731,8 @@ export default function PortalClientes() {
       .then(res => setMeseros(res.data))
       .catch(() => {});
 
-    // Traer todos los pedidos para calcular la carga actual de los meseros
-    axios.get("https://kitchen-manager-back.onrender.com/cocina/pedidos")
-      .then(res => {
-        // AJUSTE: normaliza el estado para tolerar mayúsculas/formatos del backend
-        const ACTIVOS = ["recibido", "preparacion", "en_preparacion", "preparando", "listo", "pendiente"];
-        const norm = (s) => String(s || "").trim().toLowerCase();
-        const activos = res.data.filter(p => ACTIVOS.includes(norm(p.estado)));
-        setPedidosActivos(activos);
-      })
-      .catch(() => {});
+    // Limpia asignaciones viejas al cargar
+    leerAsignaciones();
   }, [token]);
 
   const categorias = ["Todas", ...new Set(menu.map(p => p.categoria).filter(Boolean))];
@@ -741,45 +752,28 @@ export default function PortalClientes() {
       return;
     }
     setCargandoSugerencia(true);
-    
+
     const timer = setTimeout(() => {
       if (meseros && meseros.length > 0) {
-        
-        // === LÓGICA DEL MODELO MATEMÁTICO (Investigación de Operaciones) ===
-        
-        // AJUSTE: normaliza nombres (tildes, mayúsculas, espacios) para que el match no falle
-        const norm = (s) => String(s || "").trim().toLowerCase()
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        // === MODELO DE ASIGNACIÓN (carga local en localStorage) ===
+        const asignaciones = leerAsignaciones();
 
         // 1. Calcular la carga de cada mesero
         const cargaMeseros = meseros.map(m => {
-          // Contar cuántos pedidos activos tiene este mesero
-          const pedidosDelMesero = pedidosActivos.filter(
-            p => norm(p.meseroAsignado) === norm(m.nombre)
-          );
-          
-          // Calcular el peso por tiempo de espera (R2)
-          let cargaPonderada = 0;
-          pedidosDelMesero.forEach(p => {
-            const minutosEspera = p.fecha ? (new Date() - new Date(p.fecha)) / 60000 : 0;
-            const prioridad = minutosEspera < 15 ? 1 : (minutosEspera <= 30 ? 2 : 3);
-            cargaPonderada += prioridad;
-          });
-
+          const pedidosDelMesero = asignaciones.filter(a => norm(a.mesero) === norm(m.nombre));
           return {
             mesero: m,
             pedidosCount: pedidosDelMesero.length,
-            cargaPonderada: cargaPonderada
+            cargaPonderada: pedidosDelMesero.length
           };
         });
 
-        // 2. Aplicar Restricción R3 (Capacidad máxima de 4 mesas por mesero)
+        // 2. Restricción R3: capacidad máxima 4 por mesero
         const disponibles = cargaMeseros.filter(c => c.pedidosCount < 4);
 
         if (disponibles.length > 0) {
-          // 3. Función Objetivo: Asignar al que tenga la menor carga
-          // Desempatar por la carga ponderada (el que tenga pedidos más viejos pesa más)
-          // AJUSTE: desempate final determinista por nombre para que no dependa del orden del array
+          // 3. Función objetivo: menor carga; desempate alfabético determinista
           disponibles.sort((a, b) => {
             if (a.pedidosCount !== b.pedidosCount) return a.pedidosCount - b.pedidosCount;
             if (a.cargaPonderada !== b.cargaPonderada) return a.cargaPonderada - b.cargaPonderada;
@@ -792,20 +786,19 @@ export default function PortalClientes() {
             meseroNombre: mejorMesero.nombre,
             prioridad: 1
           });
-          
+
           if (!modoManual) {
             setMeseroSeleccionado(mejorMesero.nombre);
           }
         } else {
-          // Si todos tienen 4 o más pedidos, no hay capacidad
           setSugerenciaMesero(null);
         }
       }
       setCargandoSugerencia(false);
-    }, 800);
+    }, 400);
 
     return () => clearTimeout(timer);
-  }, [itemsCarrito.length, meseros, pedidosActivos, modoManual]);
+  }, [itemsCarrito.length, meseros, modoManual]);
 
   const abrirDetalle = (prod) => {
     if (!prod.disponible) return;
@@ -857,13 +850,8 @@ export default function PortalClientes() {
       setResultado({ ok: true, msg: "¡Pedido enviado!", pedidoId });
       setPedidoEnviado(true);
 
-      // AJUSTE: recarga pedidos activos para que la próxima asignación ya cuente este pedido
-      try {
-        const refresco = await axios.get("https://kitchen-manager-back.onrender.com/cocina/pedidos");
-        const ACTIVOS = ["recibido", "preparacion", "en_preparacion", "preparando", "listo", "pendiente"];
-        const norm = (s) => String(s || "").trim().toLowerCase();
-        setPedidosActivos(refresco.data.filter(p => ACTIVOS.includes(norm(p.estado))));
-      } catch (_) {}
+      // Guarda la asignación localmente para que el modelo la cuente después
+      guardarAsignacion(meseroSeleccionado);
     } catch (error) {
       setResultado({ ok: false, msg: "Error al enviar el pedido. Intenta de nuevo." });
       console.error(error);
